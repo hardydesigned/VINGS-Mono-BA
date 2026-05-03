@@ -41,7 +41,10 @@ class Runner:
         
         self.mapper = GaussianModel(cfg)
         
-        self.looper = LoopModel(cfg)
+        if cfg.get('use_loop', False):
+            self.looper = LoopModel(cfg)
+        else:
+            self.looper = None
         
         if 'use_metric' in cfg.keys() and cfg['use_metric']:
             self.metric_predictor = Metric_Model(cfg) 
@@ -73,9 +76,6 @@ class Runner:
             if 'use_metric' in self.cfg.keys() and self.cfg['use_metric']:
                 if 'depth' not in data_packet.keys() or data_packet['depth'] is None:
                     data_packet['depth'] = self.metric_predictor.predict(data_packet['rgb'][0])
-            
-            self.tracker.frontend.all_imu   = self.dataset.preload_imu()
-            self.tracker.frontend.all_stamp = self.dataset.preload_camtimestamp()
             
             # torch.set_grad_enabled(False)
             self.tracker.track(data_packet if not self.cfg['mode']=='vo_nerfslam' else datapacket_to_nerfslam(data_packet, idx))
@@ -113,7 +113,10 @@ class Runner:
 
 if __name__ == '__main__':
     
-    config['output']['save_dir'] = os.path.join(config['output']['save_dir'], get_name(config)+'-{}-'.format(config_path.split('/')[-1].strip('.yaml'))+args.prefix)
+    config_basename = os.path.basename(config_path)
+    if config_basename.endswith('.yaml'):
+        config_basename = config_basename[:-5]
+    config['output']['save_dir'] = os.path.join(config['output']['save_dir'], get_name(config)+'-{}-'.format(config_basename)+args.prefix)
     os.makedirs(config['output']['save_dir']+'/droid_c2w', exist_ok=True)
     os.makedirs(config['output']['save_dir']+'/rgbdnua', exist_ok=True)
     os.makedirs(config['output']['save_dir']+'/ply', exist_ok=True)

@@ -1,0 +1,96 @@
+# Bonn RGB-D Dynamic - rgbd_bonn_crowd
+# 928 frames, 480x640, no IMU -> mode: vo
+# Intrinsics: Microsoft Kinect v1-like sensor, standard TUM-style calibration
+# fx=fy≈525, cx≈319.5, cy≈239.5 for 640x480
+use_wandb: False
+use_sky: False
+use_dynamic: False
+use_pose_refine: False
+use_metric: False
+
+mode: 'vo'
+
+device:
+  tracker: 'cuda:0'
+  mapper: 'cuda:0'
+
+dataset:
+  root: /root/datasets/bonn/rgbd_bonn_crowd/
+  module: datasets.generic_vo
+  image_dir: rgb
+  image_ext: '*.png'
+  rgb_strip: 1
+
+middleware:
+  cov_times: 100
+  max_cov: 1e4
+  max_depth: 6
+
+output:
+  save_dir: /root/results/vings/
+
+intrinsic:
+  H: 480
+  W: 640
+  fu: 525.0    # fy (along HEIGHT)
+  fv: 525.0    # fx (along WIDTH)
+  cu: 239.5    # cy
+  cv: 319.5    # cx
+  bg: 0
+
+frontend:
+  weight: /root/VINGS-Mono-BA/ckpts/droid.pth
+  image_size: [240, 320]
+  buffer: 512
+  filter_thresh: 1.5
+  c2i: None
+  warm_up: 8
+  beta: 0.3
+  frontend_nms: 1
+  keyframe_thresh: 1.5
+  frontend_window: 25
+  frontend_thresh: 16.0
+  frontend_radius: 2
+  active_window: 24
+  max_factors: 48
+  far_threshold: 0.02
+  inac_range: 3
+  mask_threshold: -1.0
+  skip_edge: [-4,-5,-6]
+  translation_threshold: 0.0
+  show_plot: False
+
+adc_args:
+  accum_thresh: 0.98
+
+training_args:
+  num_keyframe: 8
+  iters: 50
+  lr:
+    _xyz_lr: 0.00002
+    _rgb_lr: 0.0001
+    _opacity_lr: 0.02
+    _scaling_lr: 0.001
+    _rotation_lr: 0.001
+  loss_weights:
+    rgb_loss: 1.0
+    depth_loss: 1.0
+    alpha_loss: 0.5
+    normal_loss: 0.05
+    dist_loss: 0.0
+
+use_vis: False
+vis:
+  bev_w2c: [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
+  bev_intrinsic_dict:
+    H: 480
+    W: 640
+    fu: 525.0
+    fv: 525.0
+    cu: 240.0
+    cv: 320.0
+  pose_scale: 0.2
+
+use_storage_manager: False
+storage_manager:
+  distance_threshold: 5.0

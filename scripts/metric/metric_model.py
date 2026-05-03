@@ -2,7 +2,7 @@ import torch
 import cv2
 import numpy as np
 import sys
-sys.path.append('/data/wuke/workspace/VINGS-Mono/submodules/')
+import os; sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'submodules'))
 from metric_modules import Metric
 # from metric.metric3d import Metric3D_Model
 
