@@ -214,12 +214,14 @@ def save_ply(gaussian_model, idx, save_mode='3dgs'):
         max_sh_degree = 3
         xyz = gaussian_model._xyz.detach().cpu().numpy()
         normals = np.zeros_like(xyz)
-        fused_color = RGB2SH(gaussian_model.get_property('_rgb').detach().float().cuda())
-        features = torch.zeros((fused_color.shape[0], 3, (max_sh_degree + 1) ** 2)).float().cuda() # torch.Size([182686, 3, 16])
+        # CPU-seitig: bei grossen Szenen (Storage Manager mit Millionen Gaussians)
+        # wuerde die (N, 3, 16)-Allokation auf der GPU OOM verursachen.
+        fused_color = RGB2SH(gaussian_model.get_property('_rgb').detach().float().cpu())
+        features = torch.zeros((fused_color.shape[0], 3, (max_sh_degree + 1) ** 2)).float()
         features[:, :3, 0 ] = fused_color
         features[:, 3:, 1:] = 0.0
-        f_dc = features[:,:,0:1].transpose(1, 2).cpu().numpy().reshape(features.shape[0], -1) # torch.Size([182686, 1, 3])
-        f_rest = features[:,:,1:].transpose(1, 2).cpu().numpy().reshape(features.shape[0], -1) # torch.Size([182686, 15, 3])
+        f_dc = features[:,:,0:1].transpose(1, 2).numpy().reshape(features.shape[0], -1)
+        f_rest = features[:,:,1:].transpose(1, 2).numpy().reshape(features.shape[0], -1)
         
         opacities = gaussian_model._opacity.detach().cpu().numpy()
         scale = gaussian_model._scaling.detach().cpu().numpy()

@@ -90,7 +90,9 @@ class DepthVideo:
         
         ### DBAFusion
         # for .pkl saving
-        if '360' in self.cfg['dataset']['module']:
+        if 'save_buffer_size' in self.cfg.get('frontend', {}):
+            SAVE_BUFFER_SIZE = int(self.cfg['frontend']['save_buffer_size'])
+        elif '360' in self.cfg['dataset']['module']:
             SAVE_BUFFER_SIZE = 8000
         else:
             SAVE_BUFFER_SIZE = 2500

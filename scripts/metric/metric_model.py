@@ -3,11 +3,13 @@ import cv2
 import numpy as np
 import sys
 import os; sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'submodules'))
-from metric_modules import Metric
 # from metric.metric3d import Metric3D_Model
 
 class Metric_Model:
     def __init__(self, cfg, u_scale=None, v_scale=None):
+        # Lazy import: metric_modules has heavy CUDA deps and a broken submodule path on
+        # some commits; only load it when use_metric is actually enabled.
+        from metric_modules import Metric
         self.cfg = cfg
         device = self.cfg['device']['tracker']
         

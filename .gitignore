@@ -4,3 +4,5 @@ build_gtsam/*
 # submodules/*  # Commented out to allow submodules
 ckpts/*
 output/*
+
+submodules/

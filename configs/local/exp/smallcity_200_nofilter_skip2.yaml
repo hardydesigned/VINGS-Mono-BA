@@ -1,0 +1,107 @@
+adc_args:
+  accum_thresh: 0.98
+dataset:
+  image_dir: images
+  image_ext: '*.jpg'
+  max_frames: 200
+  module: datasets.generic_vo
+  rgb_strip: 1
+  root: /home/philipp/Dokumente/datasets/small_city/camera_calibration/rectified/
+debug_mode: false
+device:
+  mapper: cuda:0
+  tracker: cuda:0
+frame_skip: 2
+frontend:
+  active_window: 12
+  beta: 0.3
+  buffer: 80
+  c2i: None
+  far_threshold: 0.02
+  filter_thresh: -1.0
+  frontend_nms: 1
+  frontend_radius: 2
+  frontend_thresh: 16.0
+  frontend_window: 5
+  image_size:
+  - 344
+  - 616
+  inac_range: 3
+  keyframe_thresh: 0.0
+  mask_threshold: -1.0
+  max_factors: 48
+  save_buffer_size: 300
+  show_plot: false
+  skip_edge:
+  - -4
+  - -5
+  - -6
+  translation_threshold: 0.5
+  warm_up: 8
+  weight: /home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+intrinsic:
+  H: 690
+  W: 1024
+  bg: 0
+  cu: 345.0
+  cv: 512.0
+  fu: 487.09015156
+  fv: 486.9700816
+  resolution_scale: 1.0
+middleware:
+  cov_times: 1000
+  max_cov: 3e3
+  max_depth: 35
+mode: vo
+output:
+  save_dir: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/smallcity_200_exp/
+storage_manager:
+  distance_threshold: 30.0
+training_args:
+  iters: 50
+  loss_weights:
+    alpha_loss: 1.0
+    depth_loss: 1.0
+    dist_loss: 0.0
+    normal_loss: 0.1
+    rgb_loss: 1.0
+  lr:
+    _opacity_lr: 0.05
+    _rgb_lr: 0.0005
+    _rotation_lr: 0.001
+    _scaling_lr: 0.001
+    _xyz_lr: 0.0001
+  num_keyframe: 8
+use_dynamic: false
+use_metric: true
+use_pose_refine: false
+use_sky: false
+use_storage_manager: true
+use_vis: false
+use_wandb: false
+vis:
+  bev_intrinsic_dict:
+    H: 758
+    W: 1372
+    cu: 378.5
+    cv: 685.5
+    fu: 656.4
+    fv: 656.4
+  bev_w2c:
+  - - 1
+    - 0
+    - 0
+    - 0
+  - - 0
+    - 1
+    - 0
+    - 0
+  - - 0
+    - 0
+    - 1
+    - 0
+  - - 0
+    - 0
+    - 0
+    - 1
+  pose_scale: 1.0
