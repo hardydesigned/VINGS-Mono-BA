@@ -1,0 +1,279 @@
+[sweep] 90 runs total. CSV → /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/smoke_results.csv
+[sweep] timeout=21600s, vram_idle≤800MiB, ram_free≥2.0GB
+[sweep] AGZ 0..10000 already extracted (10000 frames)
+
+============================================================
+ [69/90] agz / coko_slam
+ cfg: configs/local/agz/exp_smoke/coko_slam/agz_smoke_coko_slam.yaml
+============================================================
+2026-05-21 23:35:55  INFO     ==========================================================
+2026-05-21 23:35:55  INFO     Config  : agz_smoke_coko_slam.yaml
+2026-05-21 23:35:55  INFO     Prefix  : <leer>
+2026-05-21 23:35:55  INFO     Log     : /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_agz_smoke/run_20260521_233555.log
+2026-05-21 23:35:55  INFO     ==========================================================
+2026-05-21 23:35:55  INFO     Starte run.py …
+  0%|          | 0/100 [00:00<?, ?it/s]/home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+/home/philipp/anaconda3/envs/vings/lib/python3.9/site-packages/torch/functional.py:504: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at ../aten/src/ATen/native/TensorShape.cpp:3483.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+/home/philipp/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/swiglu_ffn.py:51: UserWarning: xFormers is not available (SwiGLU)
+  warnings.warn("xFormers is not available (SwiGLU)")
+/home/philipp/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/attention.py:34: UserWarning: xFormers is not available (Attention)
+  warnings.warn("xFormers is not available (Attention)")
+/home/philipp/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/block.py:41: UserWarning: xFormers is not available (Block)
+  warnings.warn("xFormers is not available (Block)")
+I0521 23:36:00.302607 1313616 vision_transformer.py:125] using MLP layer as FFN
+
+  0%|          | 0/100 [00:00<?, ?it/s][A  1%|          | 1/100 [00:00<00:54,  1.83it/s]/home/philipp/anaconda3/envs/vings/lib/python3.9/site-packages/torch/nn/modules/conv.py:459: UserWarning: Applied workaround for CuDNN issue, install nvrtc.so (Triggered internally at ../aten/src/ATen/native/cudnn/Conv_v8.cpp:80.)
+  return F.conv2d(input, weight, bias, self.stride,
+[    0] kf=N metric=0.000 track=0.248(mf=0.248 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.248
+
+  1%|          | 1/100 [00:00<00:25,  3.87it/s][A  2%|▏         | 2/100 [00:00<00:37,  2.63it/s][    1] kf=N metric=0.000 track=0.135(mf=0.135 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.135
+
+  2%|▏         | 2/100 [00:00<00:19,  5.14it/s][A  3%|▎         | 3/100 [00:00<00:26,  3.67it/s][    2] kf=N metric=0.000 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.007
+[    3] kf=N metric=0.000 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.007
+[    4] kf=N metric=0.000 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.007
+[    5] kf=N metric=0.000 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.007
+[    6] kf=N metric=0.000 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.007
+[    7] kf=N metric=0.000 track=0.903(mf=0.007 fe=0.897) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.903
+
+  8%|▊         | 8/100 [00:01<00:15,  5.75it/s][A  9%|▉         | 9/100 [00:01<00:17,  5.23it/s][    8] kf=Y metric=0.000 track=0.238(mf=0.007 fe=0.231) pkg=0.005 map=0.713(prep=0.000 train=0.547) total=0.955
+
+  9%|▉         | 9/100 [00:02<00:28,  3.23it/s][A 10%|█         | 10/100 [00:02<00:28,  3.14it/s][    9] kf=S metric=0.000 track=0.267(mf=0.006 fe=0.260) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.271
+
+ 10%|█         | 10/100 [00:02<00:27,  3.27it/s][A 11%|█         | 11/100 [00:03<00:27,  3.19it/s][   10] kf=S metric=0.000 track=0.297(mf=0.007 fe=0.290) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.301
+
+ 11%|█         | 11/100 [00:03<00:27,  3.24it/s][A 12%|█▏        | 12/100 [00:03<00:27,  3.18it/s][   11] kf=S metric=0.000 track=0.320(mf=0.007 fe=0.313) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.324
+
+ 12%|█▏        | 12/100 [00:03<00:27,  3.15it/s][A 13%|█▎        | 13/100 [00:03<00:27,  3.11it/s][   12] kf=S metric=0.000 track=0.272(mf=0.006 fe=0.266) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.277
+
+ 13%|█▎        | 13/100 [00:03<00:27,  3.21it/s][A 14%|█▍        | 14/100 [00:04<00:27,  3.18it/s][   13] kf=S metric=0.000 track=0.244(mf=0.007 fe=0.238) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.248
+
+ 14%|█▍        | 14/100 [00:03<00:25,  3.34it/s][A 15%|█▌        | 15/100 [00:04<00:25,  3.31it/s][   14] kf=S metric=0.000 track=0.246(mf=0.007 fe=0.239) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.250
+
+ 15%|█▌        | 15/100 [00:04<00:24,  3.44it/s][A 16%|█▌        | 16/100 [00:04<00:24,  3.42it/s][   15] kf=S metric=0.000 track=0.246(mf=0.007 fe=0.239) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.251
+
+ 16%|█▌        | 16/100 [00:04<00:23,  3.51it/s][A 17%|█▋        | 17/100 [00:05<00:23,  3.50it/s][   16] kf=S metric=0.000 track=0.248(mf=0.007 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 17%|█▋        | 17/100 [00:04<00:23,  3.56it/s][A 18%|█▊        | 18/100 [00:05<00:23,  3.55it/s][   17] kf=S metric=0.000 track=0.244(mf=0.006 fe=0.238) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.250
+
+ 18%|█▊        | 18/100 [00:05<00:22,  3.61it/s][A 19%|█▉        | 19/100 [00:05<00:22,  3.61it/s][   18] kf=S metric=0.000 track=0.246(mf=0.007 fe=0.239) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.252
+
+ 19%|█▉        | 19/100 [00:05<00:22,  3.64it/s][A 20%|██        | 20/100 [00:05<00:22,  3.64it/s][   19] kf=S metric=0.000 track=0.247(mf=0.007 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.253
+
+ 20%|██        | 20/100 [00:05<00:21,  3.66it/s][A 21%|██        | 21/100 [00:06<00:21,  3.66it/s][   20] kf=Y metric=0.000 track=0.247(mf=0.007 fe=0.240) pkg=0.007 map=0.584(prep=0.061 train=0.523) total=0.837
+
+ 21%|██        | 21/100 [00:06<00:35,  2.24it/s][A 22%|██▏       | 22/100 [00:06<00:34,  2.24it/s][   21] kf=S metric=0.000 track=0.241(mf=0.006 fe=0.235) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.249
+
+ 22%|██▏       | 22/100 [00:06<00:30,  2.54it/s][A 23%|██▎       | 23/100 [00:07<00:30,  2.54it/s][   22] kf=S metric=0.000 track=0.241(mf=0.006 fe=0.235) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.248
+
+ 23%|██▎       | 23/100 [00:06<00:27,  2.82it/s][A 24%|██▍       | 24/100 [00:07<00:26,  2.82it/s][   23] kf=S metric=0.000 track=0.243(mf=0.007 fe=0.236) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.250
+
+ 24%|██▍       | 24/100 [00:07<00:25,  3.03it/s][A 25%|██▌       | 25/100 [00:07<00:24,  3.03it/s][   24] kf=S metric=0.000 track=0.244(mf=0.007 fe=0.237) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.253
+
+ 25%|██▌       | 25/100 [00:07<00:23,  3.21it/s][A 26%|██▌       | 26/100 [00:08<00:23,  3.21it/s][   25] kf=S metric=0.000 track=0.243(mf=0.007 fe=0.236) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.251
+
+ 26%|██▌       | 26/100 [00:07<00:22,  3.36it/s][A 27%|██▋       | 27/100 [00:08<00:21,  3.36it/s][   26] kf=S metric=0.000 track=0.243(mf=0.007 fe=0.236) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.251
+
+ 27%|██▋       | 27/100 [00:08<00:21,  3.46it/s][A 28%|██▊       | 28/100 [00:08<00:20,  3.46it/s][   27] kf=S metric=0.000 track=0.242(mf=0.007 fe=0.236) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.250
+
+ 28%|██▊       | 28/100 [00:08<00:20,  3.54it/s][A 29%|██▉       | 29/100 [00:08<00:20,  3.54it/s][   28] kf=Y metric=0.000 track=0.244(mf=0.007 fe=0.237) pkg=0.009 map=0.607(prep=0.057 train=0.550) total=0.861
+
+ 29%|██▉       | 29/100 [00:09<00:32,  2.16it/s][A 30%|███       | 30/100 [00:09<00:32,  2.16it/s][   29] kf=S metric=0.000 track=0.249(mf=0.006 fe=0.243) pkg=0.010 map=0.000(prep=0.000 train=0.000) total=0.259
+
+ 30%|███       | 30/100 [00:09<00:28,  2.46it/s][A 31%|███       | 31/100 [00:09<00:28,  2.46it/s][   30] kf=S metric=0.000 track=0.245(mf=0.006 fe=0.239) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.253
+
+ 31%|███       | 31/100 [00:09<00:25,  2.74it/s][A 32%|███▏      | 32/100 [00:10<00:24,  2.74it/s][   31] kf=S metric=0.000 track=0.242(mf=0.006 fe=0.236) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.252
+
+ 32%|███▏      | 32/100 [00:09<00:22,  2.97it/s][A 33%|███▎      | 33/100 [00:10<00:22,  2.97it/s][   32] kf=S metric=0.000 track=0.244(mf=0.006 fe=0.238) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.253
+
+ 33%|███▎      | 33/100 [00:10<00:21,  3.16it/s][A 34%|███▍      | 34/100 [00:10<00:20,  3.16it/s][   33] kf=S metric=0.000 track=0.244(mf=0.006 fe=0.238) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 34%|███▍      | 34/100 [00:10<00:19,  3.30it/s][A 35%|███▌      | 35/100 [00:11<00:19,  3.30it/s][   34] kf=S metric=0.000 track=0.244(mf=0.007 fe=0.237) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.251
+
+ 35%|███▌      | 35/100 [00:10<00:19,  3.41it/s][A 36%|███▌      | 36/100 [00:11<00:18,  3.41it/s][   35] kf=S metric=0.000 track=0.244(mf=0.006 fe=0.238) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.253
+
+ 36%|███▌      | 36/100 [00:11<00:18,  3.50it/s][A 37%|███▋      | 37/100 [00:11<00:18,  3.50it/s][   36] kf=S metric=0.000 track=0.244(mf=0.006 fe=0.238) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.252
+
+ 37%|███▋      | 37/100 [00:11<00:17,  3.56it/s][A 38%|███▊      | 38/100 [00:11<00:17,  3.56it/s][   37] kf=S metric=0.000 track=0.245(mf=0.006 fe=0.238) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.252
+
+ 38%|███▊      | 38/100 [00:11<00:17,  3.60it/s][A 39%|███▉      | 39/100 [00:12<00:16,  3.60it/s][   38] kf=S metric=0.000 track=0.244(mf=0.006 fe=0.238) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.253
+
+ 39%|███▉      | 39/100 [00:11<00:16,  3.63it/s][A 40%|████      | 40/100 [00:12<00:16,  3.63it/s][   39] kf=S metric=0.000 track=0.245(mf=0.006 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.252
+
+ 40%|████      | 40/100 [00:12<00:16,  3.65it/s][A 41%|████      | 41/100 [00:12<00:16,  3.65it/s][   40] kf=S metric=0.000 track=0.246(mf=0.006 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.253
+
+ 41%|████      | 41/100 [00:12<00:16,  3.67it/s][A 42%|████▏     | 42/100 [00:12<00:15,  3.67it/s][   41] kf=S metric=0.000 track=0.246(mf=0.007 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.253
+
+ 42%|████▏     | 42/100 [00:12<00:15,  3.68it/s][A 43%|████▎     | 43/100 [00:13<00:15,  3.68it/s][   42] kf=S metric=0.000 track=0.250(mf=0.006 fe=0.244) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.259
+
+ 43%|████▎     | 43/100 [00:12<00:15,  3.65it/s][A 44%|████▍     | 44/100 [00:13<00:15,  3.65it/s][   43] kf=Y metric=0.000 track=0.255(mf=0.007 fe=0.248) pkg=0.005 map=0.707(prep=0.058 train=0.649) total=0.968
+
+ 44%|████▍     | 44/100 [00:13<00:27,  2.05it/s][A 45%|████▌     | 45/100 [00:14<00:26,  2.05it/s][   44] kf=S metric=0.000 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 45%|████▌     | 45/100 [00:14<00:23,  2.36it/s][A 46%|████▌     | 46/100 [00:14<00:22,  2.36it/s][   45] kf=S metric=0.000 track=0.248(mf=0.007 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 46%|████▌     | 46/100 [00:14<00:20,  2.65it/s][A 47%|████▋     | 47/100 [00:15<00:19,  2.65it/s][   46] kf=S metric=0.000 track=0.248(mf=0.007 fe=0.241) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.256
+
+ 47%|████▋     | 47/100 [00:14<00:18,  2.89it/s][A 48%|████▊     | 48/100 [00:15<00:17,  2.89it/s][   47] kf=S metric=0.000 track=0.254(mf=0.007 fe=0.247) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.261
+
+ 48%|████▊     | 48/100 [00:15<00:16,  3.07it/s][A 49%|████▉     | 49/100 [00:15<00:16,  3.07it/s][   48] kf=S metric=0.000 track=0.249(mf=0.007 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.255
+
+ 49%|████▉     | 49/100 [00:15<00:15,  3.22it/s][A 50%|█████     | 50/100 [00:15<00:15,  3.22it/s][   49] kf=S metric=0.000 track=0.252(mf=0.007 fe=0.245) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.258
+
+ 50%|█████     | 50/100 [00:15<00:15,  3.33it/s][A 51%|█████     | 51/100 [00:16<00:14,  3.33it/s][   50] kf=S metric=0.000 track=0.251(mf=0.007 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.257
+
+ 51%|█████     | 51/100 [00:15<00:14,  3.41it/s][A 52%|█████▏    | 52/100 [00:16<00:14,  3.41it/s][   51] kf=S metric=0.000 track=0.252(mf=0.007 fe=0.245) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.257
+
+ 52%|█████▏    | 52/100 [00:16<00:13,  3.48it/s][A 53%|█████▎    | 53/100 [00:16<00:13,  3.47it/s][   52] kf=S metric=0.000 track=0.250(mf=0.007 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.256
+
+ 53%|█████▎    | 53/100 [00:16<00:13,  3.53it/s][A 54%|█████▍    | 54/100 [00:16<00:13,  3.53it/s][   53] kf=S metric=0.000 track=0.249(mf=0.007 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 54%|█████▍    | 54/100 [00:16<00:12,  3.57it/s][A 55%|█████▌    | 55/100 [00:17<00:12,  3.56it/s][   54] kf=S metric=0.000 track=0.249(mf=0.007 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 55%|█████▌    | 55/100 [00:16<00:12,  3.59it/s][A 56%|█████▌    | 56/100 [00:17<00:12,  3.59it/s][   55] kf=S metric=0.000 track=0.250(mf=0.007 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.256
+
+ 56%|█████▌    | 56/100 [00:17<00:12,  3.61it/s][A 57%|█████▋    | 57/100 [00:17<00:11,  3.61it/s][   56] kf=Y metric=0.000 track=0.250(mf=0.007 fe=0.243) pkg=0.005 map=0.627(prep=0.059 train=0.568) total=0.883
+
+ 57%|█████▋    | 57/100 [00:18<00:19,  2.15it/s][A 58%|█████▊    | 58/100 [00:18<00:19,  2.15it/s][   57] kf=S metric=0.000 track=0.250(mf=0.007 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.256
+
+ 58%|█████▊    | 58/100 [00:18<00:17,  2.45it/s][A 59%|█████▉    | 59/100 [00:18<00:16,  2.45it/s][   58] kf=S metric=0.000 track=0.250(mf=0.007 fe=0.243) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 59%|█████▉    | 59/100 [00:18<00:15,  2.72it/s][A 60%|██████    | 60/100 [00:19<00:14,  2.72it/s][   59] kf=S metric=0.000 track=0.251(mf=0.007 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.256
+
+ 60%|██████    | 60/100 [00:18<00:13,  2.94it/s][A 61%|██████    | 61/100 [00:19<00:13,  2.94it/s][   60] kf=S metric=0.000 track=0.252(mf=0.007 fe=0.245) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.258
+
+ 61%|██████    | 61/100 [00:19<00:12,  3.11it/s][A 62%|██████▏   | 62/100 [00:19<00:12,  3.11it/s][   61] kf=S metric=0.000 track=0.251(mf=0.007 fe=0.244) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.258
+
+ 62%|██████▏   | 62/100 [00:19<00:11,  3.24it/s][A 63%|██████▎   | 63/100 [00:20<00:11,  3.24it/s][   62] kf=S metric=0.000 track=0.256(mf=0.009 fe=0.247) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.262
+
+ 63%|██████▎   | 63/100 [00:19<00:11,  3.33it/s][A 64%|██████▍   | 64/100 [00:20<00:10,  3.33it/s][   63] kf=S metric=0.000 track=0.251(mf=0.007 fe=0.244) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.258
+
+ 64%|██████▍   | 64/100 [00:20<00:10,  3.42it/s][A 65%|██████▌   | 65/100 [00:20<00:10,  3.42it/s][   64] kf=S metric=0.000 track=0.290(mf=0.007 fe=0.283) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.296
+
+ 65%|██████▌   | 65/100 [00:20<00:10,  3.35it/s][A 66%|██████▌   | 66/100 [00:20<00:10,  3.35it/s][   65] kf=S metric=0.000 track=0.254(mf=0.007 fe=0.247) pkg=0.010 map=0.000(prep=0.000 train=0.000) total=0.264
+
+ 66%|██████▌   | 66/100 [00:20<00:10,  3.40it/s][A 67%|██████▋   | 67/100 [00:21<00:09,  3.40it/s][   66] kf=S metric=0.000 track=0.246(mf=0.007 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.253
+
+ 67%|██████▋   | 67/100 [00:20<00:09,  3.48it/s][A 68%|██████▊   | 68/100 [00:21<00:09,  3.48it/s][   67] kf=S metric=0.000 track=0.254(mf=0.007 fe=0.246) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.262
+
+ 68%|██████▊   | 68/100 [00:21<00:09,  3.50it/s][A 69%|██████▉   | 69/100 [00:21<00:08,  3.50it/s][   68] kf=S metric=0.000 track=0.253(mf=0.007 fe=0.246) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.262
+
+ 69%|██████▉   | 69/100 [00:21<00:08,  3.52it/s][A 70%|███████   | 70/100 [00:22<00:08,  3.52it/s][   69] kf=S metric=0.000 track=0.253(mf=0.007 fe=0.246) pkg=0.010 map=0.000(prep=0.000 train=0.000) total=0.263
+
+ 70%|███████   | 70/100 [00:21<00:08,  3.52it/s][A 71%|███████   | 71/100 [00:22<00:08,  3.51it/s][   70] kf=S metric=0.000 track=0.240(mf=0.007 fe=0.233) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.246
+
+ 71%|███████   | 71/100 [00:22<00:08,  3.58it/s][A 72%|███████▏  | 72/100 [00:22<00:07,  3.59it/s][   71] kf=S metric=0.000 track=0.246(mf=0.007 fe=0.239) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.252
+
+ 72%|███████▏  | 72/100 [00:22<00:07,  3.62it/s][A 73%|███████▎  | 73/100 [00:22<00:07,  3.62it/s][   72] kf=S metric=0.000 track=0.246(mf=0.007 fe=0.239) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.252
+
+ 73%|███████▎  | 73/100 [00:22<00:07,  3.64it/s][A 74%|███████▍  | 74/100 [00:23<00:07,  3.64it/s][   73] kf=S metric=0.000 track=0.246(mf=0.007 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.253
+
+ 74%|███████▍  | 74/100 [00:22<00:07,  3.66it/s][A 75%|███████▌  | 75/100 [00:23<00:06,  3.66it/s][   74] kf=S metric=0.000 track=0.248(mf=0.007 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.255
+
+ 75%|███████▌  | 75/100 [00:23<00:06,  3.65it/s][A 76%|███████▌  | 76/100 [00:23<00:06,  3.65it/s][   75] kf=S metric=0.000 track=0.248(mf=0.007 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.253
+
+ 76%|███████▌  | 76/100 [00:23<00:06,  3.65it/s][A 77%|███████▋  | 77/100 [00:23<00:06,  3.65it/s][   76] kf=S metric=0.000 track=0.249(mf=0.007 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.255
+
+ 77%|███████▋  | 77/100 [00:23<00:06,  3.64it/s][A 78%|███████▊  | 78/100 [00:24<00:06,  3.64it/s][   77] kf=S metric=0.000 track=0.248(mf=0.007 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 78%|███████▊  | 78/100 [00:23<00:06,  3.63it/s][A 79%|███████▉  | 79/100 [00:24<00:05,  3.63it/s][   78] kf=S metric=0.000 track=0.250(mf=0.007 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.256
+
+ 79%|███████▉  | 79/100 [00:24<00:05,  3.63it/s][A 80%|████████  | 80/100 [00:24<00:05,  3.63it/s][   79] kf=S metric=0.000 track=0.248(mf=0.007 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.255
+
+ 80%|████████  | 80/100 [00:24<00:05,  3.63it/s][A 81%|████████  | 81/100 [00:25<00:05,  3.63it/s][   80] kf=S metric=0.000 track=0.248(mf=0.007 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 81%|████████  | 81/100 [00:24<00:05,  3.64it/s][A 82%|████████▏ | 82/100 [00:25<00:04,  3.64it/s][   81] kf=S metric=0.000 track=0.249(mf=0.007 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 82%|████████▏ | 82/100 [00:25<00:04,  3.65it/s][A 83%|████████▎ | 83/100 [00:25<00:04,  3.65it/s][   82] kf=S metric=0.000 track=0.248(mf=0.007 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 83%|████████▎ | 83/100 [00:25<00:04,  3.67it/s][A 84%|████████▍ | 84/100 [00:25<00:04,  3.67it/s][   83] kf=S metric=0.000 track=0.254(mf=0.007 fe=0.247) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.260
+
+ 84%|████████▍ | 84/100 [00:25<00:04,  3.64it/s][A 85%|████████▌ | 85/100 [00:26<00:04,  3.64it/s][   84] kf=S metric=0.000 track=0.242(mf=0.007 fe=0.236) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.248
+
+ 85%|████████▌ | 85/100 [00:25<00:04,  3.69it/s][A 86%|████████▌ | 86/100 [00:26<00:03,  3.69it/s][   85] kf=S metric=0.000 track=0.249(mf=0.007 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.255
+
+ 86%|████████▌ | 86/100 [00:26<00:03,  3.68it/s][A 87%|████████▋ | 87/100 [00:26<00:03,  3.68it/s][   86] kf=S metric=0.000 track=0.249(mf=0.007 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.254
+
+ 87%|████████▋ | 87/100 [00:26<00:03,  3.68it/s][A 88%|████████▊ | 88/100 [00:26<00:03,  3.68it/s][   87] kf=S metric=0.000 track=0.250(mf=0.007 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.256
+
+ 88%|████████▊ | 88/100 [00:26<00:03,  3.67it/s][A 89%|████████▉ | 89/100 [00:27<00:02,  3.67it/s][   88] kf=S metric=0.000 track=0.255(mf=0.007 fe=0.248) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.261
+
+ 89%|████████▉ | 89/100 [00:26<00:03,  3.64it/s][A 90%|█████████ | 90/100 [00:27<00:02,  3.64it/s][   89] kf=S metric=0.000 track=0.243(mf=0.007 fe=0.236) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.250
+
+ 90%|█████████ | 90/100 [00:27<00:02,  3.66it/s][A 91%|█████████ | 91/100 [00:27<00:02,  3.66it/s][   90] kf=S metric=0.000 track=0.249(mf=0.007 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.256
+
+ 91%|█████████ | 91/100 [00:27<00:02,  3.66it/s][A 92%|█████████▏| 92/100 [00:28<00:02,  3.66it/s][   91] kf=S metric=0.000 track=0.252(mf=0.007 fe=0.245) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.258
+
+ 92%|█████████▏| 92/100 [00:27<00:02,  3.63it/s][A 93%|█████████▎| 93/100 [00:28<00:01,  3.63it/s][   92] kf=S metric=0.000 track=0.260(mf=0.007 fe=0.252) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.265
+
+ 93%|█████████▎| 93/100 [00:28<00:01,  3.59it/s][A 94%|█████████▍| 94/100 [00:28<00:01,  3.59it/s][   93] kf=S metric=0.000 track=0.253(mf=0.007 fe=0.246) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.259
+
+ 94%|█████████▍| 94/100 [00:28<00:01,  3.60it/s][A 95%|█████████▌| 95/100 [00:28<00:01,  3.59it/s][   94] kf=S metric=0.000 track=0.251(mf=0.007 fe=0.244) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.259
+
+ 95%|█████████▌| 95/100 [00:28<00:01,  3.61it/s][A 96%|█████████▌| 96/100 [00:29<00:01,  3.61it/s][   95] kf=S metric=0.000 track=0.253(mf=0.007 fe=0.246) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.261
+
+ 96%|█████████▌| 96/100 [00:28<00:01,  3.60it/s][A 97%|█████████▋| 97/100 [00:29<00:00,  3.60it/s][   96] kf=S metric=0.000 track=0.248(mf=0.007 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.255
+
+ 97%|█████████▋| 97/100 [00:29<00:00,  3.62it/s][A 98%|█████████▊| 98/100 [00:29<00:00,  3.62it/s][   97] kf=S metric=0.000 track=0.251(mf=0.007 fe=0.244) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.259
+
+ 98%|█████████▊| 98/100 [00:29<00:00,  3.62it/s][A 99%|█████████▉| 99/100 [00:30<00:00,  3.62it/s][   98] kf=S metric=0.000 track=0.250(mf=0.007 fe=0.242) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.258
+
+ 99%|█████████▉| 99/100 [00:29<00:00,  3.61it/s][A100%|██████████| 100/100 [00:30<00:00,  3.61it/s][   99] kf=S metric=0.000 track=0.247(mf=0.007 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.254
+
+100%|██████████| 100/100 [00:30<00:00,  3.63it/s][A100%|██████████| 100/100 [00:30<00:00,  3.33it/s]
+[save_ply_streaming] 244803 Gaussians (0 CPU + 244803 GPU) → /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_agz_smoke/05-22-05-36-generic_vo-agz_smoke_coko_slam-/ply/idx=99_2dgs.ply
+
+=== Profiling Summary (92 KFs, 5 mapped / 100 processed / 100 dataset, frame_skip=1, mapper_kf_skip=1, wall=30.2s) ===
+phase                             n   total[s]   mean[ms]    med[ms]    p95[ms]       %
+--------------------------------------------------------------------------------------
+track.total                     100      24.34      243.4      248.1      266.9   80.7%
+track.frontend_ba               100      23.28      232.8      240.9      260.4   77.2%
+map.total                         5       3.24      647.7      627.2      707.4   10.7%
+map.train_loop                    5       2.84      567.5      550.0      568.0    9.4%
+track.motion_filter             100       1.05       10.5        6.9        7.3    3.5%
+judge_pkg                       100       0.61        6.1        6.1        9.4    2.0%
+frame_select                     92       0.53        5.8        5.5        6.2    1.8%
+map.add_new_frame                 4       0.24       58.8       58.6       59.0    0.8%
+save_ply                          1       0.16      159.9      159.9      159.9    0.5%
+storage                          10       0.01        0.7        0.7        0.8    0.0%
+profiling.json -> /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_agz_smoke/05-22-05-36-generic_vo-agz_smoke_coko_slam-/profiling.json
+100%|██████████| 100/100 [00:30<00:00,  3.23it/s]
+2026-05-21 23:36:32  INFO     run.py beendet (rc=0, 0.6 min)
+2026-05-21 23:36:32  INFO     Output-Ordner: 05-22-05-36-generic_vo-agz_smoke_coko_slam-
+2026-05-21 23:36:32  INFO     Log in Run-Ordner verschoben: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_agz_smoke/05-22-05-36-generic_vo-agz_smoke_coko_slam-/run_20260521_233555.log
+2026-05-21 23:36:33  INFO     Berechne Metriken über 5 Frames …
+/home/philipp/anaconda3/envs/vings/lib/python3.9/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/philipp/anaconda3/envs/vings/lib/python3.9/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+2026-05-21 23:36:33  INFO     PSNR=9.6388  SSIM=0.2736  LPIPS=0.8073
+2026-05-21 23:36:33  INFO     Cleanup …
+2026-05-21 23:36:33  INFO     droid_c2w/ gelöscht
+2026-05-21 23:36:33  INFO     rgbdnua: 2 Bilder gelöscht, 3 behalten (Anfang/Mitte/Ende)
+2026-05-21 23:36:33  INFO     ==========================================================
+2026-05-21 23:36:33  INFO     ERGEBNIS
+2026-05-21 23:36:33  INFO     ==========================================================
+2026-05-21 23:36:33  INFO       config          : /home/philipp/Dokumente/Github/VINGS-Mono-BA/configs/local/agz/exp_smoke/coko_slam/agz_smoke_coko_slam.yaml
+2026-05-21 23:36:33  INFO       prefix          : 
+2026-05-21 23:36:33  INFO       status          : OK
+2026-05-21 23:36:33  INFO       laufzeit_min    : 0.59
+2026-05-21 23:36:33  INFO       ram_gb          : 1.8
+2026-05-21 23:36:33  INFO       gpu_mib         : 2267
+2026-05-21 23:36:33  INFO       ply_mb          : 59.73
+2026-05-21 23:36:33  INFO       psnr            : 9.6388
+2026-05-21 23:36:33  INFO       ssim            : 0.2736
+2026-05-21 23:36:33  INFO       lpips           : 0.8073
+2026-05-21 23:36:33  INFO       n_frames        : 5
+2026-05-21 23:36:33  INFO     metrics.json → /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_agz_smoke/05-22-05-36-generic_vo-agz_smoke_coko_slam-/metrics.json
+2026-05-21 23:36:33  INFO     run.log      → /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_agz_smoke/05-22-05-36-generic_vo-agz_smoke_coko_slam-/run_20260521_233555.log
+2026-05-21 23:36:33  INFO     ==========================================================
+[sweep] coko_slam done rc=0 → OK (0min)
+[log_sweep_row] coko_slam: status=OK psnr=9.6388 kf=92 ply=1 dur=0.65min
+
+============================================================
+ sweep done — total 0min
+   ok      : 1
+   failed  : 0
+   skipped : 0
+   csv     : /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/smoke_results.csv
+============================================================

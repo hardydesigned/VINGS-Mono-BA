@@ -61,3 +61,85 @@ Smoke Test ohne Score Manager;
 Run auf 200 Frames mit Store Manager (Smoke config duplizieren)
   - Komplett ohne VINGS Filter
   - Komplett ohne VINGS Filter jedes n-te Frame (2,3,4,5,6,7,8,9,10)
+
+
+● Budget für einen neuen Keyframe-Selektor
+
+  Ausgangslage aus den Daten
+
+  Pro Frame im Baseline-Run (skip=1, 200 Frames):
+
+  ┌────────────────────────────────┬─────────────┬─────────┬──────────────────────┐
+  │             Phase              │    Wann     │  Zeit   │        Status        │
+  ├────────────────────────────────┼─────────────┼─────────┼──────────────────────┤
+  │ metric (depth)                 │ jeder Frame │ 106 ms  │ fix                  │
+  ├────────────────────────────────┼─────────────┼─────────┼──────────────────────┤
+  │ track.total                    │ jeder Frame │ 502 ms  │ fix                  │
+  ├────────────────────────────────┼─────────────┼─────────┼──────────────────────┤
+  │ judge_pkg (aktueller Selektor) │ jeder Frame │ 6 ms    │ austauschbar ← deins │
+  ├────────────────────────────────┼─────────────┼─────────┼──────────────────────┤
+  │ map.total                      │ nur auf KFs │ 1194 ms │ nur falls KF         │
+  └────────────────────────────────┴─────────────┴─────────┴──────────────────────┘
+
+  Wandzeit pro Frame: ~614 ms ohne KF, ~1.8 s mit KF. Aktuell sind 192/200 = 96 % Keyframes.
+
+  Zwei verschiedene Budgets — je nachdem was du willst
+
+  A) "Genauso schnell wie vorher" (Selektor ersetzt nur judge_pkg)
+
+  Wenn dein Algorithmus die KF-Rate nicht reduziert: er muss vergleichbar billig sein wie das aktuelle judge_pkg.
+  → Budget ~6-10 ms pro Frame.
+
+  B) "Smart genug, KFs zu reduzieren" (Break-even-Analyse)
+
+  Der Selektor läuft auf jedem Frame, spart aber bei jeder vermiedenen KF ~1194 ms Mapping. Break-even:
+
+  S_ms (pro Frame) < 1194 ms × (gesparte_KFs / total_Frames)
+
+  Konkrete Beispiele aus deinen 200 Frames:
+
+  ┌───────────────────────┬───────────────────────┬───────────────────────────────┐
+  │     Reduktion KFs     │     Gesparte Zeit     │ Max-Budget Selektor pro Frame │
+  ├───────────────────────┼───────────────────────┼───────────────────────────────┤
+  │ 192 → 150 KFs (−22 %) │ 42 × 1194 ms = 50 s   │ 250 ms                        │
+  ├───────────────────────┼───────────────────────┼───────────────────────────────┤
+  │ 192 → 100 KFs (−48 %) │ 92 × 1194 ms = 110 s  │ 550 ms                        │
+  ├───────────────────────┼───────────────────────┼───────────────────────────────┤
+  │ 192 → 60 KFs (−69 %)  │ 132 × 1194 ms = 158 s │ 790 ms                        │
+  ├───────────────────────┼───────────────────────┼───────────────────────────────┤
+  │ 192 → 30 KFs (−84 %)  │ 162 × 1194 ms = 193 s │ 965 ms                        │
+  └───────────────────────┴───────────────────────┴───────────────────────────────┘
+
+  Meine konkrete Empfehlung als Zielzahl
+  Konkrete Beispiele aus deinen 200 Frames:
+
+  ┌───────────────────────┬───────────────────────┬───────────────────────────────┐
+  │     Reduktion KFs     │     Gesparte Zeit     │ Max-Budget Selektor pro Frame │
+  ├───────────────────────┼───────────────────────┼───────────────────────────────┤
+  │ 192 → 150 KFs (−22 %) │ 42 × 1194 ms = 50 s   │ 250 ms                        │
+  ├───────────────────────┼───────────────────────┼───────────────────────────────┤
+  │ 192 → 100 KFs (−48 %) │ 92 × 1194 ms = 110 s  │ 550 ms                        │
+  ├───────────────────────┼───────────────────────┼───────────────────────────────┤
+  │ 192 → 60 KFs (−69 %)  │ 132 × 1194 ms = 158 s │ 790 ms                        │
+  ├───────────────────────┼───────────────────────┼───────────────────────────────┤
+  │ 192 → 30 KFs (−84 %)  │ 162 × 1194 ms = 193 s │ 965 ms                        │
+  └───────────────────────┴───────────────────────┴───────────────────────────────┘
+
+  Meine konkrete Empfehlung als Zielzahl
+
+  ~50 ms pro Frame ist eine vernünftige Obergrenze, und zwar weil:
+
+  1. Tracking ist eh ~500 ms → 50 ms sind +10 % Overhead pro Frame, kaum spürbar.
+  2. Break-even erreicht ab ~9 gesparten KFs auf 200 Frames (4,5 %) → realistisches Minimum für jeden vernünftigen Selektor.
+  3. Headroom für komplexere Heuristiken (z.B. View-Overlap, Feature-Coverage, kleine GPU-Kernels) — diese liegen typischerweise bei 10-50 ms wenn sie auf Tracking-Outputs
+  aufsetzen.
+  4. Real-time-kompatibel bleibt nichts ohnehin: 614 ms/Frame ist schon weit weg von 33 ms@30FPS. Du bist also nicht durch Echtzeit gebunden, sondern nur durch "schneller als das
+  Mapping spart" → siehe Tabelle.
+
+  Hartes Maximum
+
+  ~1000 ms pro Frame. Darüber kostet der Selektor mehr Zeit als das gesamte Mapping einsparen könnte (selbst bei 0 KFs auf 200 Frames sparst du nur 1194 × 192/200 ≈ 1147 ms/Frame),
+   und du verlierst Wandzeit netto.
+
+  TL;DR: Ziel 50 ms, weich bis 250 ms, hart unter 1 s. Wenn dein Algorithmus GPU-Operationen nutzt und auf Tracking-Outputs (Korrelationsvolumen, Posen) aufsetzt, bist du
+  typischerweise sowieso weit unter 50 ms.

@@ -1,0 +1,8 @@
+[sweep] 90 runs total. CSV → /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/sweep_results.csv
+[sweep] timeout=21600s, vram_idle≤800MiB, ram_free≥2.0GB
+[sweep] AGZ 0..10000 already extracted (10000 frames)
+
+============================================================
+ [1/90] amtown03 / vings_filter
+ cfg: configs/local/amtown03/exp/baseline/amtown03_full_vings_filter.yaml
+============================================================

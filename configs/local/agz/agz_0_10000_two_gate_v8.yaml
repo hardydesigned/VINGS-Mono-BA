@@ -1,0 +1,148 @@
+adc_args:
+  accum_thresh: 0.99
+dataset:
+  ext_poses_file: /home/philipp/Dokumente/datasets/agz/agz_0_10000/agz_poses_w2c.txt
+  image_dir: images
+  image_ext: '*.jpg'
+  max_frames: 10000
+  module: datasets.generic_vo
+  rgb_strip: 1
+  root: /home/philipp/Dokumente/datasets/agz/agz_0_10000/rectified/
+  start_frame: 0
+debug_mode: false
+device:
+  mapper: cuda:0
+  tracker: cuda:0
+frame_selector:
+  alpha: 0.3
+  covis_thresh: 0.85
+  decay: 0.85
+  dino_device: cuda
+  dino_image_size: 224
+  dino_max_kfs: 10
+  dino_model: dinov2_vits14
+  enable_b3: true
+  force_after: 200
+  gps_d_min_m: 0.8
+  gps_noise_floor_m: 0.4
+  kind: two_gate
+  max_depth: 60.0
+  max_per_window: 1
+  min_depth: 0.2
+  min_spacing: 20
+  n_samples_covis: 2048
+  pose_d_min_m: 0.2
+  rate_window: 60
+  sensitivity: 0.5
+  ssim_resize: 80
+  theta0: 0.15
+  theta_init: 0.2
+  visual_change_max_ssim: 0.985
+  window_size: 30
+frontend:
+  active_window: 12
+  beta: 0.3
+  buffer: 80
+  c2i: None
+  far_threshold: 0.02
+  filter_thresh: 2.4
+  frontend_nms: 1
+  frontend_radius: 2
+  frontend_thresh: 16.0
+  frontend_window: 5
+  image_size:
+  - 240
+  - 432
+  inac_range: 3
+  keyframe_thresh: 0.0
+  mask_threshold: -1.0
+  max_factors: 48
+  save_buffer_size: 10500
+  show_plot: false
+  skip_edge:
+  - -4
+  - -5
+  - -6
+  translation_threshold: 0.5
+  upsample: false
+  warm_up: 8
+  weight: /home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+gate_a:
+  blur_thresh: 60.0
+  enable_a1: false
+  enable_a2: true
+  enabled: true
+  grad_density_thresh: 0.02
+  image_resize_for_a2: 240
+  overexp_thresh: 245.0
+  sobel_T: 25.0
+  underexp_thresh: 10.0
+intrinsic:
+  H: 1080
+  W: 1920
+  bg: 0
+  cu: 555.133501
+  cv: 951.131004
+  fu: 898.326486
+  fv: 893.390108
+  resolution_scale: 1.0
+mapper_kf_skip: 1
+middleware:
+  cov_times: 1000
+  max_cov: 3000.0
+  max_depth: 200
+mode: vo
+output:
+  save_dir: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_agz_0_10000_rtk/
+ply_checkpoint_every_kf: 5
+storage_manager:
+  cpu_prune_opacity_threshold: 0.3
+  distance_threshold: 15.0
+training_args:
+  iters: 20
+  loss_weights:
+    alpha_loss: 0.1
+    depth_loss: 0.5
+    dist_loss: 0.0
+    normal_loss: 0.1
+    rgb_loss: 1.0
+  lr:
+    _opacity_lr: 0.05
+    _rgb_lr: 0.0005
+    _rotation_lr: 0.001
+    _scaling_lr: 0.001
+    _xyz_lr: 0.0001
+  num_keyframe: 4
+use_dynamic: false
+use_metric: false
+use_pose_refine: false
+use_sky: false
+use_storage_manager: true
+use_vis: false
+use_wandb: false
+vis:
+  bev_intrinsic_dict:
+    H: 758
+    W: 1372
+    cu: 378.5
+    cv: 685.5
+    fu: 656.4
+    fv: 656.4
+  bev_w2c:
+  - - 1
+    - 0
+    - 0
+    - 0
+  - - 0
+    - 1
+    - 0
+    - 0
+  - - 0
+    - 0
+    - 1
+    - 0
+  - - 0
+    - 0
+    - 0
+    - 1
+  pose_scale: 1.0

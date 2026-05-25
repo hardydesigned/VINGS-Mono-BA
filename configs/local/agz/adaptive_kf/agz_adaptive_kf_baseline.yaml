@@ -1,0 +1,158 @@
+# AGZ (Air-Ground Zurich) MAV + Adaptive-KF Frame-Selector.
+# Paper: "Adaptive Keyframe Selection for Scalable 3D Scene Reconstruction in
+# Dynamic Environments" (ROBOVIS 2026 Submission). Algorithmus 2 verbatim aus
+# Paper, Algorithmus 1 rekonstruiert (siehe docs/ADAPTIVE_KF.md).
+#
+# BASELINE: defensive Paper-Defaults, an Aerial-Szenen angepasst.
+#   theta0=0.05, theta_init=0.10, W=30, k=2.0, gamma=0.85
+#   w_photo=0.85, w_ssim=0.15, min_overlap_pixels=1000
+# Erwartung: ~30-50% Accept-Rate. Erst dieser Config laufen lassen, dann
+# strict/loose/fastdecay als Vergleich.
+#
+# AGZ-Anpassung der Adaptive-KF-Defaults:
+#   min_depth: 0.2 -> 5.0       In der Luft existiert nichts unter ~5 m AGL.
+#   max_depth: 35 -> 200        Luftaufnahme 25-150 m AGL.
+# Hyperparameter unveraendert vom Smoketest-Default; theta0/k mit force_accept_all
+# diagnostic config tunen (siehe agz_adaptive_kf_diag.yaml).
+#
+# Hinweis: bei aktivem frame_selector ignoriert run.py mapper_kf_skip.
+
+adc_args:
+  accum_thresh: 0.98
+
+dataset:
+  image_dir: "MAV Images"
+  image_ext: '*.jpg'
+  max_frames: -1
+  module: datasets.generic_vo
+  rgb_strip: 1
+  root: /media/philipp/USB_STICK/datasets/AGZ/
+
+debug_mode: false
+
+device:
+  mapper: cuda:0
+  tracker: cuda:0
+
+frame_selector:
+  kind: adaptive_kf
+  # Algorithmus 2 (verbatim aus Paper)
+  theta0: 0.05              # untere Schwelle (Eq. 6)
+  theta_init: 0.10          # Warm-up-Startwert
+  window_size: 30           # W
+  sensitivity: 2.0          # k (Multiplikator auf σ)
+  decay: 0.85               # γ (Eq. 7), nach Accept θ ← γ·θ
+  # Algorithmus 1 (rekonstruiert: Depth-Warping + L1 + masked SSIM)
+  w_photo: 0.85
+  w_ssim: 0.15
+  min_overlap_pixels: 1000  # |M|-Fail-safe (rapid motion -> force-accept)
+  # Depth-Gate (Aerial)
+  min_depth: 5.0
+  max_depth: 200.0
+  # Diagnose
+  force_accept_all: false
+
+frontend:
+  active_window: 12
+  beta: 0.3
+  buffer: 80
+  c2i: None
+  far_threshold: 0.02
+  filter_thresh: -1.0
+  frontend_nms: 1
+  frontend_radius: 2
+  frontend_thresh: 16.0
+  frontend_window: 5
+  image_size:               # [H, W] fuer den Tracker. 16:9, beides /8.
+  - 288
+  - 512
+  inac_range: 3
+  keyframe_thresh: 0.0
+  mask_threshold: -1.0
+  max_factors: 48
+  save_buffer_size: 4800    # 3622 * 1.3, deckt den Vollset-Fall ab
+  upsample: false           # spart shm bei 3622 Frames
+  show_plot: false
+  skip_edge:
+  - -4
+  - -5
+  - -6
+  translation_threshold: 0.5
+  warm_up: 8
+  weight: /home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+
+intrinsic:                  # VINGS-Konvention: fu=fy, fv=fx, cu=cy, cv=cx
+  H: 1080
+  W: 1920
+  bg: 0
+  cu: 555.13350077          # = cy
+  cv: 951.13100430          # = cx
+  fu: 898.32648616          # = fy
+  fv: 893.39010814          # = fx
+  resolution_scale: 1.0
+
+middleware:
+  cov_times: 1000
+  max_cov: 3e3
+  max_depth: 200
+
+ply_checkpoint_every_kf: 50
+mode: vo
+
+output:
+  save_dir: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/agz_adaptive_kf_baseline/
+
+storage_manager:
+  distance_threshold: 30.0
+  cpu_prune_opacity_threshold: 0.10
+
+training_args:
+  iters: 50
+  loss_weights:
+    alpha_loss: 1.0
+    depth_loss: 1.0
+    dist_loss: 0.0
+    normal_loss: 0.1
+    rgb_loss: 1.0
+  lr:
+    _opacity_lr: 0.05
+    _rgb_lr: 0.0005
+    _rotation_lr: 0.001
+    _scaling_lr: 0.001
+    _xyz_lr: 0.0001
+  num_keyframe: 8
+
+use_dynamic: false
+use_metric: true
+use_pose_refine: false
+use_sky: false
+use_storage_manager: true
+use_vis: false
+use_wandb: false
+
+vis:
+  bev_intrinsic_dict:
+    H: 758
+    W: 1372
+    cu: 378.5
+    cv: 685.5
+    fu: 656.4
+    fv: 656.4
+  bev_w2c:
+  - - 1
+    - 0
+    - 0
+    - 0
+  - - 0
+    - 1
+    - 0
+    - 0
+  - - 0
+    - 0
+    - 1
+    - 0
+  - - 0
+    - 0
+    - 0
+    - 1
+  pose_scale: 1.0
