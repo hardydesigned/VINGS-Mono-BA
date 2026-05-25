@@ -11,17 +11,17 @@ source /home/philipp/anaconda3/etc/profile.d/conda.sh
 conda activate vings
 
 CONFIGS=(
-  configs/local/exp/smallcity_800_nofilter.yaml
-  configs/local/exp/smallcity_200_nofilter.yaml
-  configs/local/exp/smallcity_200_nofilter_skip2.yaml
-  configs/local/exp/smallcity_200_nofilter_skip3.yaml
-  configs/local/exp/smallcity_200_nofilter_skip4.yaml
-  configs/local/exp/smallcity_200_nofilter_skip5.yaml
-  configs/local/exp/smallcity_200_nofilter_skip6.yaml
-  configs/local/exp/smallcity_200_nofilter_skip7.yaml
-  configs/local/exp/smallcity_200_nofilter_skip8.yaml
-  configs/local/exp/smallcity_200_nofilter_skip9.yaml
-  configs/local/exp/smallcity_200_nofilter_skip10.yaml
+  configs/local/skip_no_filter/smallcity_800_nofilter.yaml
+  # configs/local/skip_no_filter/smallcity_200_nofilter.yaml
+  # configs/local/skip_no_filter/smallcity_200_nofilter_skip2.yaml
+  # configs/local/skip_no_filter/smallcity_200_nofilter_skip3.yaml
+  # configs/local/skip_no_filter/smallcity_200_nofilter_skip4.yaml
+  # configs/local/skip_no_filter/smallcity_200_nofilter_skip5.yaml
+  # configs/local/skip_no_filter/smallcity_200_nofilter_skip6.yaml
+  # configs/local/skip_no_filter/smallcity_200_nofilter_skip7.yaml
+  # configs/local/skip_no_filter/smallcity_200_nofilter_skip8.yaml
+  # configs/local/skip_no_filter/smallcity_200_nofilter_skip9.yaml
+  # configs/local/skip_no_filter/smallcity_200_nofilter_skip10.yaml
 )
 
 TOTAL=${#CONFIGS[@]}
