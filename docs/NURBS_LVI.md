@@ -41,6 +41,34 @@ vergleicht die Migration `Or + Oc` mit Q. Die publizierte C++-Test-Datei macht
 Richtung vom **reference-Kamerazentrum** zum 3D-Punkt. Center-Sektor = 1
 (Winkel zur Hauptachse < sector_angle_deg / 2).
 
+> **Achtung — Sektor-Design weicht vom Paper ab.** Das Paper hat *drei*
+> gleich-breite 15°-Bins, also **zwei** Migrations-Schwellen (bei 15° und 30°).
+> Die Implementierung hat **einen** Center-Bin der Breite `sector_angle_deg`
+> und zwei „outside"-Bins die per `np.cross(a,b)[2]`-Vorzeichen split werden —
+> also **eine** echte Migrations-Schwelle bei `sector_angle_deg/2`. Der
+> z-Achsen-Cross-Product ist im 3D-Welt-Frame geometrisch willkürlich,
+> kollabiert bei kleinen Baselines aber in der Praxis auf „beide views im
+> selben outer bin", sodass das Drei-Sektor-Design effektiv ein binäres
+> „inner-vs-outer"-Signal ist. Funktional ähnlich aber nicht paper-äquivalent.
+>
+> **Implikation fürs Tuning**: `sector_angle_deg = 15°` im Code entspricht
+> *nicht* dem Paper-Default (Paper-Default hätte erste Migration bei 15°, Code
+> bei 7.5°). Wer dem Paper möglichst nahekommen will, müsste `sector_angle_deg
+> = 30°` setzen (erste Schwelle dann bei 15°). Für VINGS irrelevant weil die
+> Inter-Frame-Parallaxe so klein ist, dass das Paper-Setup sowieso nie feuern
+> würde — der gewählte `sector_angle_deg = 2°` ist eine **deliberate
+> Re-Skalierung**, kein Paper-Mapping.
+
+**Reference-Frame**: laut Paper Sec. III.A.3 ist der reference-Frame der
+*direkte Nachfolger* von `prev_kf` und dient **ausschließlich** als Anker für
+die Hauptachse — er wird ausdrücklich „**not selected as keyframes**"
+beschrieben. Der Selector gibt ihn deshalb mit `accept=False` zurück (Mapper
+sieht ihn nicht), behält ihn aber intern für die Sektor-Geometrie.
+
+**Chamfer-λ**: Paper Eq. 3 definiert `λ = 1/|P₂|` (Inverse der Punktzahl im
+current-Frame). Das ist **kein freier Hyperparameter** — die Implementierung
+berechnet λ pro Frame aus der Zahl der gemeinsam-validen Matches.
+
 ## Adaptionen vs. Original (NTU-VIRAL LiDAR-VIO)
 
 | Original | VINGS-Adaption |

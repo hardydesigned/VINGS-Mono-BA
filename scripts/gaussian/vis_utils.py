@@ -262,6 +262,131 @@ def save_ply(gaussian_model, idx, save_mode='3dgs'):
         assert False, "Invalid save_mode."
 
 
+def save_ply_streaming(mapper, storage_manager, idx, save_mode='2dgs', chunk_size=500_000):
+    """PLY-Datei chunk-weise schreiben, um Peak-RAM zu minimieren.
+
+    Problem mit save_ply() bei grossen Szenen (z.B. 8 Mio. Gaussians):
+      1. torch.zeros((N, 3, 16)) für SH-Features belegt ~1.6 GB (nur DC wird genutzt).
+      2. np.concatenate aller Attribute erzeugt ein zweites ~2 GB-Array.
+      3. list(map(tuple, ...)) ist langsam und verdoppelt den Speicher nochmals.
+    Gesamt-Peak: ~5-6 GB zusätzlich zur laufenden Mapper+StorageManager-Last.
+
+    Lösung: PLY-Header mit der Gesamtanzahl vorab schreiben, danach die Gaussians
+    quellweise in Chunks (CPU-StorageManager, dann GPU-Mapper) als rohe float32-Bytes
+    anfügen. Pro Chunk werden nur ~120 MB benötigt (bei chunk_size=500k, 2DGS-Format).
+
+    PLY-Format: ASCII-Header + 'end_header\n' + binäre float32-Zeilen (little-endian).
+    Der Header muss die Gesamtanzahl 'element vertex N' enthalten — daher wird N vorab
+    aus beiden Quellen addiert.
+
+    Args:
+        mapper:           GaussianModel mit GPU-Tensoren (_xyz, _rgb, _opacity, ...).
+        storage_manager:  StorageManager mit CPU-Tensoren. Kann None sein.
+        idx:              Frame-Index für den Dateinamen.
+        save_mode:        '2dgs' (2 Skalierungsdimensionen) oder '3dgs' (3).
+        chunk_size:       Gaussians pro Schreibdurchgang (default 500k → ~120 MB/Chunk).
+    """
+    assert save_mode in ('2dgs', '3dgs'), f"Unbekannter save_mode: {save_mode}"
+    C0 = 0.28209479177387814  # SH-DC-Normierung, identisch zu save_ply()
+
+    n_cpu = storage_manager._xyz.shape[0] if storage_manager is not None else 0
+    n_gpu = mapper._xyz.shape[0]
+    N = n_cpu + n_gpu
+    if N == 0:
+        return
+
+    attr_names = construct_list_of_attributes(save_mode)
+    # 2dgs: 3+3+3+45+1+2+4 = 61 Spalten; 3dgs: 62 Spalten
+    n_cols = len(attr_names)
+
+    save_dir = mapper.cfg['output']['save_dir']
+    os.makedirs(os.path.join(save_dir, 'ply'), exist_ok=True)
+    save_path = os.path.join(save_dir, 'ply', f'idx={idx}_{save_mode}.ply')
+
+    with open(save_path, 'wb') as f:
+        # --- PLY-Header ---
+        # 'element vertex N' muss die exakte Gesamtanzahl enthalten; deshalb vorab
+        # berechnen statt iterativ hinzufügen.
+        header = 'ply\nformat binary_little_endian 1.0\n'
+        header += f'element vertex {N}\n'
+        for name in attr_names:
+            header += f'property float {name}\n'
+        header += 'end_header\n'
+        f.write(header.encode('ascii'))
+
+        def _write_chunk(xyz, rgb, opacity, scaling, rotation):
+            """Konvertiert einen Tensor-Chunk in PLY-Zeilen und schreibt sie direkt."""
+            # Alle Tensoren auf CPU + float32 numpy bringen.
+            # _opacity, _scaling, _rotation werden RAW (vor Aktivierung) gespeichert —
+            # identisch zu save_ply(), das ebenfalls direkt auf ._opacity usw. zugreift.
+            def to_np(t):
+                if isinstance(t, torch.Tensor):
+                    return t.detach().cpu().float().numpy()
+                return np.asarray(t, dtype=np.float32)
+
+            xyz_np      = to_np(xyz)
+            normals_np  = np.zeros_like(xyz_np)                         # PLY-Konvention: Normalen = 0
+            rgb_np      = to_np(rgb)
+            opacity_np  = to_np(opacity)
+            scaling_np  = to_np(scaling)
+            rotation_np = to_np(rotation)
+
+            # RGB → SH-DC-Koeffizient (identisch zu RGB2SH in save_ply)
+            f_dc_np   = (rgb_np - 0.5) / C0                             # shape (chunk, 3)
+            # Höhere SH-Ordnungen werden nicht genutzt → Nullen
+            f_rest_np = np.zeros((xyz_np.shape[0], 45), dtype=np.float32)
+
+            # 3DGS benötigt eine dritte Skalierungsachse (degenerate, -10 log-scale)
+            if save_mode == '3dgs':
+                extra = np.full((xyz_np.shape[0], 1), -10.0, dtype=np.float32)
+                scaling_np = np.concatenate((scaling_np, extra), axis=1)
+
+            # Spalten zusammenführen und als binäre float32-Zeilen schreiben.
+            # np.concatenate benötigt nur ~n_cols × chunk × 4 Bytes gleichzeitig.
+            row = np.concatenate(
+                [xyz_np, normals_np, f_dc_np, f_rest_np, opacity_np, scaling_np, rotation_np],
+                axis=1,
+            ).astype(np.float32)
+            f.write(row.tobytes())
+
+        # --- CPU-Gaussians (StorageManager) ---
+        # Direkte Slice-Operationen auf CPU-Tensoren — kein GPU-Transfer nötig.
+        if n_cpu > 0:
+            for start in range(0, n_cpu, chunk_size):
+                end = min(start + chunk_size, n_cpu)
+                _write_chunk(
+                    storage_manager._xyz[start:end],
+                    storage_manager._rgb[start:end],
+                    storage_manager._opacity[start:end],
+                    storage_manager._scaling[start:end],
+                    storage_manager._rotation[start:end],
+                )
+
+        # --- GPU-Gaussians (Mapper) ---
+        # Chunk-weise CPU-Transfer statt einmaligem Bulk-Upload.
+        for start in range(0, n_gpu, chunk_size):
+            end = min(start + chunk_size, n_gpu)
+            _write_chunk(
+                mapper._xyz[start:end],
+                mapper._rgb[start:end],
+                mapper._opacity[start:end],
+                mapper._scaling[start:end],
+                mapper._rotation[start:end],
+            )
+
+    # Kamera-Intrinsik neben die PLY-Datei schreiben (identisch zu save_ply)
+    intrinsic_dict = {
+        'fu': mapper.tfer.fu, 'fv': mapper.tfer.fv,
+        'cu': mapper.tfer.cu, 'cv': mapper.tfer.cv,
+        'H': mapper.tfer.H,   'W': mapper.tfer.W,
+    }
+    intrinsic_path = os.path.join(save_dir, 'ply', 'intrinsic.yaml')
+    with open(intrinsic_path, 'w', encoding='utf-8') as fp:
+        yaml.dump(intrinsic_dict, fp, allow_unicode=True, sort_keys=False)
+
+    print(f"[save_ply_streaming] {N} Gaussians ({n_cpu} CPU + {n_gpu} GPU) → {save_path}")
+
+
 def load_ply(ply_path):
 
     plydata = PlyData.read(ply_path)

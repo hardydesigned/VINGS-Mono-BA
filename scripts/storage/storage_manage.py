@@ -15,26 +15,120 @@ class StorageManager: # Works in the same thread as the mapper.
     def __init__(self, cfg):
         self.cfg = cfg
         
-        self._xyz           = torch.empty(0, dtype=torch.float32, device='cpu')
-        self._rgb           = torch.empty(0, dtype=torch.float32, device='cpu')
-        self._scaling       = torch.empty(0, dtype=torch.float32, device='cpu')
-        self._rotation      = torch.empty(0, dtype=torch.float32, device='cpu')
-        self._opacity       = torch.empty(0, dtype=torch.float32, device='cpu')
-        self._global_scores = torch.empty(0, dtype=torch.float32, device='cpu')
-        self._local_scores  = torch.empty(0, dtype=torch.float32, device='cpu')
+        # float16 statt float32: halbiert den RAM-Bedarf des StorageManagers
+        # (~300 MB statt ~600 MB bei 7.5M Gaussians). float16 hat ~3 signifikante
+        # Stellen; für CPU-seitige Positionen (±5 cm bei 10 m) und Rotations-
+        # Quaternionen ausreichend. Auf der GPU werden die Tensoren beim cpu2gpu-
+        # Transfer automatisch zurück auf float32 konvertiert.
+        self._xyz           = torch.empty(0, dtype=torch.float16, device='cpu')
+        self._rgb           = torch.empty(0, dtype=torch.float16, device='cpu')
+        self._scaling       = torch.empty(0, dtype=torch.float16, device='cpu')
+        self._rotation      = torch.empty(0, dtype=torch.float16, device='cpu')
+        self._opacity       = torch.empty(0, dtype=torch.float16, device='cpu')
+        self._global_scores = torch.empty(0, dtype=torch.float16, device='cpu')
+        self._local_scores  = torch.empty(0, dtype=torch.float16, device='cpu')
         self._stable_mask   = torch.empty(0, dtype=torch.bool,    device='cpu')
 
         self._globalkf_id         = torch.empty(0, dtype=torch.long,    device='cpu')
-        self._globalkf_max_scores = torch.empty(0, dtype=torch.float32, device='cpu')
+        self._globalkf_max_scores = torch.empty(0, dtype=torch.float16, device='cpu')
         self.c2ws_storage_place   = torch.empty(0, device='cpu') # Same size with global history keyframes, 0 means cpu and 1 means gpu.
 
         # Color Poses.
         self.dataset_length = None
-        
+
+        # Zähler für periodisches CPU-Pruning (analog zu storage_control auf der GPU-Seite,
+        # das alle 4 Keyframes aufgerufen wird). Wird in run() inkrementiert.
+        self._run_call_counter = 0
+
+    # ------------------------------------------------------------------
+    # CPU-Pruning: Pendant zu GaussianModel.storage_control()
+    # ------------------------------------------------------------------
+
+    def _apply_keep_mask(self, keep: torch.BoolTensor) -> None:
+        """Wendet eine Boolean-Keep-Maske auf alle CPU-Tensoren des StorageManagers an.
+
+        Auf der GPU-Seite übernimmt prune_tensors_from_optimizer() diese Aufgabe —
+        dort muss zusätzlich der Adam-Optimizer-State (exp_avg, exp_avg_sq) synchron
+        gehalten werden, weil die Gaussians nn.Parameter mit Gradientenhistorie sind.
+        Hier auf der CPU gibt es keinen Optimizer und keine nn.Parameter, daher genügt
+        einfaches Boolean-Indexing auf allen Tensoren.
+        """
+        self._xyz                 = self._xyz[keep]
+        self._rgb                 = self._rgb[keep]
+        self._scaling             = self._scaling[keep]
+        self._rotation            = self._rotation[keep]
+        self._opacity             = self._opacity[keep]
+        self._global_scores       = self._global_scores[keep]
+        self._local_scores        = self._local_scores[keep]
+        self._stable_mask         = self._stable_mask[keep]
+        self._globalkf_id         = self._globalkf_id[keep]
+        self._globalkf_max_scores = self._globalkf_max_scores[keep]
+
+    def prune_cpu_gaussians(self) -> None:
+        """CPU-seitiges Pendant zu GaussianModel.storage_control().
+
+        --- Warum _global_scores als Criterion nicht funktioniert ---
+        Der ursprüngliche Ansatz nutzte _global_scores[:, 0] < 0.05 als Threshold.
+        _global_scores akkumuliert jedoch über ALLE Trainingsiterationen (50 Iters/KF
+        × viele KFs). Schon ein schwach sichtbarer Gaussian mit Score 1e-4/Iter hat
+        nach 1000 Iterationen global_score = 0.1 — deutlich über 0.05. In der Praxis
+        liegt kein einziger CPU-Gaussian unter diesem Threshold, der Prune entfernt
+        daher 0 Gaussians und hilft überhaupt nicht gegen RAM-Erschöpfung.
+
+        --- Warum sigmoid(_opacity) besser geeignet ist ---
+        Auf der GPU verwaltet der Adam-Optimizer die Opacity implizit: Gaussians, die
+        beim Rendering nichts beitragen, bekommen negatives Opacity-Gradient → ihr
+        logit sinkt → sigmoid(logit) → 0. Dieser Mechanismus ist unabhängig von der
+        Anzahl der Iterationen und liefert einen direkten, skaleninvarianten Wert:
+            sigmoid(logit) ∈ (0, 1)  mit  1 = voll opak, 0 = unsichtbar
+
+        storage_control() pruned auf der GPU Gaussians mit mittlerer Gradient-Importance
+        (~0.05–0.8). Das Opacity-Kriterium erfasst eine andere, aber komplementäre
+        Menge: Gaussians, die durch den Optimizer bereits als "tot" markiert wurden
+        (negative logits), unabhängig davon, ob sie stabil sind oder nicht.
+
+        Stabile Gaussians mit niedriger Opacity sind ebenfalls tote Gaussians — auf der
+        GPU werden sie vom storage_control() nicht berührt (stable = immer geschützt),
+        aber auf der CPU werden sie nie mehr gerendert oder trainiert. Hier macht der
+        Schutz keinen Sinn, deshalb prunen wir opacity-basiert OHNE stable_mask-Gate.
+
+        Konfiguration: storage_manager.cpu_prune_opacity_threshold (default 0.05).
+        sigmoid(logit) < 0.05  ↔  logit < -2.944  → Gaussian trägt <5% Deckkraft.
+        """
+        if self._xyz.shape[0] == 0:
+            return
+
+        # Threshold aus Config; 0.05 = 5% Deckkraft, in der Praxis kaum sichtbar.
+        threshold = self.cfg.get('storage_manager', {}).get('cpu_prune_opacity_threshold', 0.05)
+
+        # sigmoid(_opacity) ist der aktivierte Opacity-Wert in [0,1].
+        # _opacity wird als Logit gespeichert (vor Aktivierung), identisch zum Mapper.
+        # squeeze(-1): _opacity hat Shape (N, 1), squeeze → (N,) für Boolean-Indexing.
+        # .float(): sigmoid_cpu ist nicht fuer Half implementiert; CPU-Storage haelt
+        # _opacity als float16, also vor der Aktivierung auf float32 casten.
+        opacity_activated = torch.sigmoid(self._opacity.squeeze(-1).float())
+
+        # Prune: Opacity unter Schwellwert → Gaussian ist effektiv unsichtbar.
+        # Kein stable_mask-Gate: stabile unsichtbare Gaussians sind auf CPU genauso
+        # nutzlos wie instabile — sie werden hier nie mehr gerendert oder trainiert.
+        prune_mask = opacity_activated < threshold
+
+        n_before = self._xyz.shape[0]
+        if prune_mask.any():
+            self._apply_keep_mask(~prune_mask)
+        n_pruned = n_before - self._xyz.shape[0]
+
+        print(f"[CPU-Prune] {n_pruned}/{n_before} Gaussians entfernt "
+              f"(opacity < {threshold}). "
+              f"Verbleibend auf CPU: {self._xyz.shape[0]}")
+
     def gpu2cpu(self, mapper, distance_to_cur_c2w):
         # 全都放到GPU上算了，啥时候用再在每一次跑之前丢到GPU上更新mapper;
         # 感觉这里还是按照frame_id合理些，把on_gpu_kfid对应的gaussians在cpu上删除然后替换为GPU上的就行;
-        ongpu_kf_id_mask   = (self.c2ws_storage_place==1)
+        # Trim c2ws_storage_place auf same size wie distance_to_cur_c2w fuer
+        # bitwise_and (analog zum cpu2gpu-Fix).
+        n_kfs = distance_to_cur_c2w.shape[0]
+        ongpu_kf_id_mask   = (self.c2ws_storage_place[:n_kfs] == 1)
         convey_kf_id_mask  = torch.bitwise_and(ongpu_kf_id_mask,\
                                                distance_to_cur_c2w>self.cfg['storage_manager']['distance_threshold'])
         convey_kf_id       = torch.arange(ongpu_kf_id_mask.shape[0])[convey_kf_id_mask]
@@ -43,17 +137,19 @@ class StorageManager: # Works in the same thread as the mapper.
         convey_gaussian_mask = torch.isin(mapper._globalkf_id, convey_kf_id.to(mapper.device))
         
         if convey_kf_id.sum() > 0:
-            # Update storage manager. 
-            self._xyz           = torch.concat((self._xyz[~delete_gaussian_mask], mapper._xyz[convey_gaussian_mask].cpu()), dim=0)
-            self._rgb           = torch.concat((self._rgb[~delete_gaussian_mask], mapper._rgb[convey_gaussian_mask].cpu()), dim=0)
-            self._scaling       = torch.concat((self._scaling[~delete_gaussian_mask], mapper._scaling[convey_gaussian_mask].cpu()), dim=0)
-            self._rotation      = torch.concat((self._rotation[~delete_gaussian_mask], mapper._rotation[convey_gaussian_mask].cpu()), dim=0)
-            self._opacity       = torch.concat((self._opacity[~delete_gaussian_mask], mapper._opacity[convey_gaussian_mask].cpu()), dim=0)
-            self._global_scores = torch.concat((self._global_scores[~delete_gaussian_mask], mapper._global_scores[convey_gaussian_mask].cpu()), dim=0)
-            self._local_scores  = torch.concat((self._local_scores[~delete_gaussian_mask], mapper._local_scores[convey_gaussian_mask].cpu()), dim=0)
-            self._stable_mask   = torch.concat((self._stable_mask[~delete_gaussian_mask], mapper._stable_mask[convey_gaussian_mask].cpu()), dim=0)
-            self._globalkf_id         = torch.concat((self._globalkf_id[~delete_gaussian_mask], mapper._globalkf_id[convey_gaussian_mask].cpu()), dim=0)
-            self._globalkf_max_scores = torch.concat((self._globalkf_max_scores[~delete_gaussian_mask], mapper._globalkf_max_scores[convey_gaussian_mask].cpu()), dim=0)
+            # Update storage manager.
+            # .half(): GPU-float32 → CPU-float16 (halbiert den RAM-Bedarf).
+            # _stable_mask (bool) und _globalkf_id (long) bleiben unverändert.
+            self._xyz           = torch.concat((self._xyz[~delete_gaussian_mask],           mapper._xyz[convey_gaussian_mask].cpu().half()), dim=0)
+            self._rgb           = torch.concat((self._rgb[~delete_gaussian_mask],           mapper._rgb[convey_gaussian_mask].cpu().half()), dim=0)
+            self._scaling       = torch.concat((self._scaling[~delete_gaussian_mask],       mapper._scaling[convey_gaussian_mask].cpu().half()), dim=0)
+            self._rotation      = torch.concat((self._rotation[~delete_gaussian_mask],      mapper._rotation[convey_gaussian_mask].cpu().half()), dim=0)
+            self._opacity       = torch.concat((self._opacity[~delete_gaussian_mask],       mapper._opacity[convey_gaussian_mask].cpu().half()), dim=0)
+            self._global_scores = torch.concat((self._global_scores[~delete_gaussian_mask], mapper._global_scores[convey_gaussian_mask].cpu().half()), dim=0)
+            self._local_scores  = torch.concat((self._local_scores[~delete_gaussian_mask],  mapper._local_scores[convey_gaussian_mask].cpu().half()), dim=0)
+            self._stable_mask   = torch.concat((self._stable_mask[~delete_gaussian_mask],   mapper._stable_mask[convey_gaussian_mask].cpu()), dim=0)
+            self._globalkf_id         = torch.concat((self._globalkf_id[~delete_gaussian_mask],         mapper._globalkf_id[convey_gaussian_mask].cpu()), dim=0)
+            self._globalkf_max_scores = torch.concat((self._globalkf_max_scores[~delete_gaussian_mask], mapper._globalkf_max_scores[convey_gaussian_mask].cpu().half()), dim=0)
             self.c2ws_storage_place[convey_kf_id] = 0
 
             # Update mapper.
@@ -69,23 +165,28 @@ class StorageManager: # Works in the same thread as the mapper.
     def cpu2gpu(self, mapper, distance_to_cur_c2w):
         
         near_kf_id_mask  = distance_to_cur_c2w < self.cfg['storage_manager']['distance_threshold'] # (N, )
-        oncpu_kf_id_mask = (self.c2ws_storage_place==0)
-        convey_kf_id     = torch.arange(oncpu_kf_id_mask.shape[0])[oncpu_kf_id_mask & near_kf_id_mask]        
+        # Trim c2ws_storage_place auf same size wie near_kf_id_mask, falls
+        # storage_place durch KF-Rejection groesser ist.
+        n_kfs = near_kf_id_mask.shape[0]
+        oncpu_kf_id_mask = (self.c2ws_storage_place[:n_kfs] == 0)
+        convey_kf_id     = torch.arange(oncpu_kf_id_mask.shape[0])[oncpu_kf_id_mask & near_kf_id_mask]
         convey_gaussian_mask = torch.isin(self._globalkf_id, convey_kf_id)
         
         if convey_gaussian_mask.sum() > 0:
             # Update mapper.
-            mapper._xyz           = nn.Parameter(torch.concat((mapper._xyz, self._xyz[convey_gaussian_mask].cuda())).requires_grad_(True))
-            mapper._rgb           = nn.Parameter(torch.concat((mapper._rgb, self._rgb[convey_gaussian_mask].cuda())).requires_grad_(True))
-            mapper._scaling       = nn.Parameter(torch.concat((mapper._scaling, self._scaling[convey_gaussian_mask].cuda())).requires_grad_(True))
-            mapper._rotation      = nn.Parameter(torch.concat((mapper._rotation, self._rotation[convey_gaussian_mask].cuda())).requires_grad_(True))
-            mapper._opacity       = nn.Parameter(torch.concat((mapper._opacity, self._opacity[convey_gaussian_mask].cuda())).requires_grad_(True))
-            
-            mapper._global_scores = torch.concat((mapper._global_scores, self._global_scores[convey_gaussian_mask].cuda()))
-            mapper._local_scores  = torch.concat((mapper._local_scores, self._local_scores[convey_gaussian_mask].cuda()))
-            mapper._stable_mask   = torch.concat((mapper._stable_mask, self._stable_mask[convey_gaussian_mask].cuda()))
-            mapper._globalkf_id         = torch.concat((mapper._globalkf_id, self._globalkf_id[convey_gaussian_mask].cuda()))
-            mapper._globalkf_max_scores = torch.concat((mapper._globalkf_max_scores, self._globalkf_max_scores[convey_gaussian_mask].cuda()))
+            # .float(): CPU-float16 → float32 vor dem GPU-Transfer, weil der Mapper
+            # und sein Adam-Optimizer float32 nn.Parameter erwarten.
+            mapper._xyz           = nn.Parameter(torch.concat((mapper._xyz, self._xyz[convey_gaussian_mask].float().cuda())).requires_grad_(True))
+            mapper._rgb           = nn.Parameter(torch.concat((mapper._rgb, self._rgb[convey_gaussian_mask].float().cuda())).requires_grad_(True))
+            mapper._scaling       = nn.Parameter(torch.concat((mapper._scaling, self._scaling[convey_gaussian_mask].float().cuda())).requires_grad_(True))
+            mapper._rotation      = nn.Parameter(torch.concat((mapper._rotation, self._rotation[convey_gaussian_mask].float().cuda())).requires_grad_(True))
+            mapper._opacity       = nn.Parameter(torch.concat((mapper._opacity, self._opacity[convey_gaussian_mask].float().cuda())).requires_grad_(True))
+
+            mapper._global_scores = torch.concat((mapper._global_scores, self._global_scores[convey_gaussian_mask].float().cuda()))
+            mapper._local_scores  = torch.concat((mapper._local_scores,  self._local_scores[convey_gaussian_mask].float().cuda()))
+            mapper._stable_mask   = torch.concat((mapper._stable_mask,   self._stable_mask[convey_gaussian_mask].cuda()))
+            mapper._globalkf_id         = torch.concat((mapper._globalkf_id,         self._globalkf_id[convey_gaussian_mask].cuda()))
+            mapper._globalkf_max_scores = torch.concat((mapper._globalkf_max_scores, self._globalkf_max_scores[convey_gaussian_mask].float().cuda()))
             mapper.setup_optimizer()
 
             self.c2ws_storage_place[convey_kf_id] = 1   
@@ -97,14 +198,29 @@ class StorageManager: # Works in the same thread as the mapper.
         cur_c2w       = viz_out['poses'][-1] # (4, 4)
         distance_to_cur_c2w = torch.norm(torch.matmul(torch.linalg.inv(cur_c2w).unsqueeze(0).cpu(), globalkf_c2ws.cpu())[:, :3, -1], dim=-1) # (N, ), cpu
 
-        new_added_size = viz_out['global_kf_id'][-1] - self.c2ws_storage_place.shape[0]
-        self.c2ws_storage_place = torch.concat((self.c2ws_storage_place, torch.ones(new_added_size, dtype=torch.float32)), dim=0)
+        # FIX: distance_to_cur_c2w hat shape = global_kf_id[-1] (Slice [:N-1] aus
+        # poses_save). Die c2ws_storage_place muss dieselbe shape haben fuer das
+        # &-op in cpu2gpu. NUR GROW (nie shrinken) -- wenn KFs zurueckgenommen
+        # werden, ist storage_place groesser; das wird in cpu2gpu via [:n_kfs]
+        # gekuerzt.
+        target_size = int(viz_out['global_kf_id'][-1])
+        if target_size > self.c2ws_storage_place.shape[0]:
+            new_added_size = target_size - self.c2ws_storage_place.shape[0]
+            self.c2ws_storage_place = torch.concat(
+                (self.c2ws_storage_place, torch.ones(new_added_size, dtype=torch.float32)), dim=0)
 
-        # STEP 2 
+        # STEP 2
         self.cpu2gpu(mapper, distance_to_cur_c2w)
 
-        # STEP 3 
+        # STEP 3
         self.gpu2cpu(mapper, distance_to_cur_c2w)
+
+        # STEP 4  Periodisches CPU-Pruning, analog zu storage_control() auf der GPU-Seite.
+        # storage_control() läuft alle 4 Keyframes; run() wird ebenfalls pro Keyframe
+        # aufgerufen → gleiche Kadenz durch Modulo-4-Bedingung.
+        self._run_call_counter += 1
+        if self._run_call_counter % 4 == 0:
+            self.prune_cpu_gaussians()
     
         
     def vis_map_storage(self, visual_frontend, mapper):

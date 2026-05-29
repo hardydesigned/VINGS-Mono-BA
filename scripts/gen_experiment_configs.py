@@ -102,12 +102,21 @@ SELECTOR_DEFAULTS = {
         "max_depth": 35.0,
     },
     "coko_slam": {
+        # Repo-treuer Default (configs/ReplicaMultiagent/replica_multiagent.yaml):
+        # Stage 2 (in-submap KF):      cosine-dist > alpha (0.02)
+        # Stage 1 (data-driven reset): cosine-dist > submap_threshold (0.05)
+        #                              AND |K| >= min_kfs_per_submap (10)
         "kind": "coko_slam",
-        "alpha": 0.4,
+        "alpha": 0.02,
+        "distance_metric": "cosine",
+        "submap_threshold": 0.05,
+        "min_kfs_per_submap": 10,
+        "max_kfs": 0,
+        "memory_mode": "submap_reset",
+        "feature_aggregation": "patch_mean_with_cls",
         "model_name": "dinov2_vits14",
         "image_size": 224,
         "device": "cuda",
-        "max_kfs": 10,
         "force_accept_all": False,
     },
     "aim_slam": {
@@ -174,11 +183,14 @@ SELECTOR_VARIANTS: dict[str, dict[str, dict]] = {
         "max60":  {"max_frames": 60},
         "ratio80": {"tracked_ratio_thresh": 0.8},
     },
-    # Coko-SLAM: accept iff min DINO L2-dist ≥ alpha. ↓ ⇒ more KFs.
+    # Coko-SLAM: Stage 2 accept iff min DINO cosine-dist > alpha.
+    # alpha ↓ ⇒ more KFs. Repo default 0.02; sweep one tighter, one looser.
+    # st* sweeps submap_threshold (data-driven reset trigger).
     "coko_slam": {
-        "a025": {"alpha": 0.25},
-        "a055": {"alpha": 0.55},
-        "win20": {"max_kfs": 20},
+        "a005":  {"alpha": 0.005},   # ~strict
+        "a050":  {"alpha": 0.050},   # ~loose
+        "st010": {"submap_threshold": 0.10},  # rarer submap resets
+        "min05": {"min_kfs_per_submap": 5},   # smaller submaps
     },
     # AIM-SLAM: skip iff voxel-overlap > overlap_thresh. ↑ ⇒ accept more.
     # gain_thresh_per_ray ↓ also accepts more.

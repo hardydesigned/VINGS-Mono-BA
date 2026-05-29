@@ -20,10 +20,25 @@ class DBAFusion:
         self.load_weights(cfg['frontend']['weight']) # load DroidNet weights
 
         # store images, depth, poses, intrinsics (shared between processes)
-        self.video = DepthVideo(cfg, cfg['frontend']['image_size'], cfg['frontend']['buffer'])
+        # frontend.upsample (default True): allokiert disps_up_save / depths_cov_up_save /
+        # images_up_save mit save_buffer_size * H * W * (4|4|12) Bytes als shared memory.
+        # Auf NTU eee_03 full (1813 Frames, sbs=2400, 480x752) sind das ~17 GB virtuell und
+        # paged-in genug Pages um systemd-oomd zu triggern. Wenn weder Loop noch
+        # Checkpoint-Save noch use_vis aktiv ist, sind diese Tensoren ungenutzt.
+        _upsample = cfg.get('frontend', {}).get('upsample', True)
+        self.video = DepthVideo(cfg, cfg['frontend']['image_size'], cfg['frontend']['buffer'],
+                                upsample=_upsample)
         self.video.Ti1c = cfg['frontend']['c2i']
         self.video.Tbc = gtsam.Pose3(self.video.Ti1c)
-        self.video.state.set_imu_params([ 0.0003924 * 25,0.000205689024915 * 25, 0.004905 * 10, 0.000001454441043 * 500])
+        # Default values = KITTI-Xsens (acc_n~0.0003924, gyr_n~0.000206). Bell412
+        # ist mit acc_n=0.08 / gyr_n=0.004 ~200x rauschiger (Rotorvibration). Falls
+        # frontend.imu_params im Config gesetzt, das verwenden -- gtsam-Slots sind
+        # [acc_noise_sigma^2*hz, gyr_noise_sigma^2*hz, acc_bias_sigma^2*hz, gyr_bias_sigma^2*hz]
+        # (Quadrate, mit Frequenz multipliziert -- siehe DepthVideo.set_imu_params).
+        _imu_p = cfg.get('frontend', {}).get('imu_params', None)
+        if _imu_p is None:
+            _imu_p = [0.0003924 * 25, 0.000205689024915 * 25, 0.004905 * 10, 0.000001454441043 * 500]
+        self.video.state.set_imu_params(list(_imu_p))
         self.video.init_pose_sigma = np.array([1.0, 1.0, 0.0001, 1.0, 1.0, 1.0])
         self.video.init_bias_sigma = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
 

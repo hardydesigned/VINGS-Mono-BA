@@ -5,7 +5,7 @@ from lietorch import SE3
 import os
 from frontend.dbaf import DBAFusion
 from gaussian.gaussian_model import GaussianModel
-from gaussian.vis_utils import save_ply, vis_map, vis_bev
+from gaussian.vis_utils import save_ply, save_ply_streaming, vis_map, vis_bev
 import argparse
 parser = argparse.ArgumentParser(description="Add config path.")
 parser.add_argument("config")
@@ -17,6 +17,10 @@ config = load_config(config_path)
 import importlib
 get_dataset = importlib.import_module(config["dataset"]["module"]).get_dataset
 from vings_utils.middleware_utils import judge_and_package, retrieve_to_tracker, datapacket_to_nerfslam
+from vings_utils.frame_selector import FrameSelector
+from vings_utils.selector_factory import make_frame_selector
+from vings_utils.gate_a import GateA
+from vings_utils.gate_a_v2 import GateAV2
 from storage.storage_manage import StorageManager
 from loop.loop_model import LoopModel
 from metric.metric_model import Metric_Model
@@ -123,34 +127,6 @@ class _CallableProxy:
         setattr(self._target, attr, value)
 
 
-class _MergedForSave:
-    """Leichter Proxy fuer save_ply: konkateniert Mapper-GPU- und
-    StorageManager-CPU-Gaussians auf der CPU, ohne Optimizer/nn.Parameter.
-    Vermeidet OOM beim finalen Save grosser Szenen — save_ply lifet nur
-    den kleinen RGB-Tensor kurz auf die GPU.
-    """
-    def __init__(self, mapper, sm):
-        cat = lambda a, b: torch.cat([a.detach().cpu(), b.detach().cpu()], dim=0)
-        self._xyz         = cat(mapper._xyz,         sm._xyz)
-        self._rgb         = cat(mapper._rgb,         sm._rgb)
-        self._scaling     = cat(mapper._scaling,     sm._scaling)
-        self._rotation    = cat(mapper._rotation,    sm._rotation)
-        self._opacity     = cat(mapper._opacity,     sm._opacity)
-        self._globalkf_id = cat(mapper._globalkf_id, sm._globalkf_id)
-        self.cfg            = mapper.cfg
-        self.tfer           = mapper.tfer
-        self.activate_dict  = mapper.activate_dict
-
-    def get_property(self, name):
-        if name == '_xyz':      return self._xyz
-        if name == '_rgb':      return self._rgb
-        if name == '_opacity':  return self.activate_dict['_opacity'](self._opacity)
-        if name == '_rotation': return self.activate_dict['_rotation'](self._rotation)
-        if name == '_scaling':  return self.activate_dict['_scaling'](self._scaling)
-        if name == '_zeros':    return torch.zeros_like(self._xyz[:, :2])
-        raise ValueError(f"Invalid property name: {name}")
-
-
 class Runner:
     def __init__(self, cfg):
         self.cfg = cfg
@@ -173,7 +149,11 @@ class Runner:
             self.looper = None
         
         if 'use_metric' in cfg.keys() and cfg['use_metric']:
-            self.metric_predictor = Metric_Model(cfg) 
+            self.metric_predictor = Metric_Model(cfg)
+        # Cache Metric3D depths indexed by cam-timestamp so the mapper can
+        # consume the direct metric prior instead of DROID-DBA's noisy output.
+        # Enable via cfg['use_metric_for_mapper'] (default true if use_metric).
+        self.metric_depth_cache = {}
         
         if 'use_storage_manager' in cfg.keys() and cfg['use_storage_manager']:
             self.use_storage_manager = True
@@ -186,6 +166,75 @@ class Runner:
         # Profiling: hierarchische Sub-Timer mit cuda.synchronize().
         self.timer = PhaseTimer(sync=True)
         self._install_phase_patches()
+
+        # Frame selector (optional, off by default). Wenn aktiv, entscheidet er
+        # anstelle von mapper_kf_skip ob ein KF gemappt wird. Auswahl ueber
+        # frame_selector.kind in der Config (vista | nurbs_lvi | none); neue
+        # Selektoren registrieren sich in vings_utils.selector_factory.
+        #
+        # WICHTIG: Tracker-Depths kommen in der downsampled frontend.image_size
+        # (z.B. 240x288), NICHT in der Voll-K-Aufloesung (z.B. 1024x1224).
+        # K muss entsprechend skaliert werden, sonst projizieren die Selektoren
+        # pixel-Koordinaten in den falschen Wertebereich (vgl. adaptive_kf
+        # shape-mismatch / aim_slam IndexError aus 2026-05-21).
+        intr = cfg['intrinsic']
+        K_full = np.array([[intr['fu'], 0.0,        intr['cu']],
+                           [0.0,        intr['fv'], intr['cv']],
+                           [0.0,        0.0,        1.0]], dtype=np.float32)
+        H_full, W_full = int(intr['H']), int(intr['W'])
+        fe_img_size = cfg.get('frontend', {}).get('image_size')
+        if fe_img_size and len(fe_img_size) == 2:
+            H_low, W_low = int(fe_img_size[0]), int(fe_img_size[1])
+            sx = W_low / float(W_full)
+            sy = H_low / float(H_full)
+            K = K_full.copy()
+            K[0, 0] *= sx; K[0, 2] *= sx
+            K[1, 1] *= sy; K[1, 2] *= sy
+            image_hw = (H_low, W_low)
+        else:
+            K = K_full
+            image_hw = (H_full, W_full)
+        self.frame_selector = make_frame_selector(cfg, K, image_hw)
+
+        # Gate A: optionaler Pre-Tracker-Filter (altitude + visual quality).
+        # Trennt sich konzeptionell vom frame_selector (Gate B): Gate A
+        # verwirft Frames VOR dem Tracker (spart ~450 ms/Frame), Gate B
+        # verwirft Tracker-KFs vor dem Mapper.
+        # `gate_a.version: v2` schaltet auf GateAV2 (zusätzlich A3-GPS-Motion-
+        # Gate als Pre-Tracker-Analog des MotionFilters); ohne version-Feld
+        # bleibt der v1-Pfad aktiv.
+        ga_cfg = (cfg.get('gate_a') or {})
+        if ga_cfg.get('enabled', False):
+            ga_version = str(ga_cfg.get('version', 'v1')).lower()
+            if ga_version == 'v2':
+                self.gate_a = GateAV2.from_config(ga_cfg)
+            elif ga_version in ('v1', ''):
+                self.gate_a = GateA.from_config(ga_cfg)
+            else:
+                raise ValueError(
+                    f"Unknown gate_a.version={ga_version!r}. Known: v1, v2")
+            # Warn if A1 is enabled but the loader has no GPS source.
+            if ga_cfg.get('enable_a1', True) and getattr(self.dataset, '_gps_t', None) is None:
+                print('WARN: gate_a.enable_a1=true but loader has no GPS source -- A1 dormant')
+            # Warn if A3 is enabled (v2 only) but loader has no GPS source.
+            if (ga_version == 'v2'
+                    and ga_cfg.get('enable_a3', False)
+                    and getattr(self.dataset, '_gps_t', None) is None):
+                print('WARN: gate_a.enable_a3=true but loader has no GPS source '
+                      '-- A3 fail-open (every frame passes)')
+        else:
+            self.gate_a = None
+
+    def _rgb_tensor_to_uint8_bgr(self, rgb_tensor):
+        """Convert tracker rgb tensor (1, 3, H, W) on cuda, RGB float [0,1]/255 ->
+        (H, W, 3) uint8 BGR numpy on CPU. Used by GateA for cv2-style operations."""
+        # The loader's rgb is uint8 [0,255] cast to float (cv2.resize keeps dtype);
+        # tensor(...).permute uses the raw values, so the tensor is float-valued
+        # in [0,255]. See GenericVODataset.__getitem__.
+        img = rgb_tensor[0].detach().cpu().numpy()           # (3, H, W) float
+        img = np.transpose(img, (1, 2, 0))                   # (H, W, 3) RGB
+        img = np.clip(img, 0.0, 255.0).astype(np.uint8)
+        return img[..., ::-1].copy()                         # -> BGR contig
 
     def _install_phase_patches(self):
         """Wrappt interne Methoden, sodass jeder Aufruf seine Phase befuellt."""
@@ -211,6 +260,210 @@ class Runner:
             if hasattr(self.mapper, attr):
                 self.timer.patch(self.mapper, attr, phase)
 
+    def _apply_ext_poses_to_vizout(self, viz_out):
+        """Ersetze viz_out['poses'] durch RTK c2w aus dataset.ext_poses, und
+        skaliere viz_out['depths'] um den per-window Skalenfaktor.
+
+        Rationale: judge_and_package_v3 liefert Posen aus DROID-DBA's lokalem
+        Koordinatensystem -- auf Nadir-Aerial bricht der Maßstab (35× Shrink
+        auf amtown03 dokumentiert). Override an dieser Stelle ist sauber:
+        - keine Beruehrung von video.poses oder video.poses_save (kein BA-Risiko)
+        - Mapper sieht konsistente RTK-Posen + RTK-skalierte Depths
+        - alle KFs im selben aktiven Window haben einheitlichen Frame -> kein Mix
+
+        Skala kommt aus dem Verhaeltnis konsekutiver Distanzen RTK / DROID-DBA
+        im aktiven Window (Median ueber Paare). EMA-glaettung ueber Aufrufe
+        gegen Burst-Rauschen. Bei n=1 oder degeneriertem droid-Window (alle
+        Distanzen ~0) fallback auf letzte cached Skala.
+        """
+        if not (hasattr(self.dataset, 'ext_poses') and self.dataset.ext_poses is not None):
+            return viz_out
+        if viz_out is None or 'poses' not in viz_out:
+            return viz_out
+
+        tstamps = viz_out['viz_out_idx_to_f_idx']
+        n = tstamps.shape[0]
+        if n == 0:
+            return viz_out
+
+        from scipy.spatial.transform import Rotation as _R
+
+        # 1) Gather RTK w2c [tx,ty,tz,qx,qy,qz,qw] for each KF in window.
+        ext_arr = self.dataset.ext_poses
+        rtk_tq = np.zeros((n, 7), dtype=np.float32)
+        any_missing = False
+        for i in range(n):
+            fi = int(tstamps[i].item())
+            if not (0 <= fi < len(ext_arr)):
+                any_missing = True
+                break
+            rtk_tq[i] = ext_arr[fi]
+        if any_missing:
+            return viz_out  # bail; don't half-override
+
+        # 2) Convert RTK w2c -> c2w 4x4 numpy.
+        Rw2c = _R.from_quat(rtk_tq[:, 3:7]).as_matrix()        # (n,3,3)
+        tw2c = rtk_tq[:, 0:3]                                  # (n,3)
+        Rc2w = Rw2c.transpose(0, 2, 1)                         # (n,3,3)
+        tc2w = -np.einsum('nij,nj->ni', Rc2w, tw2c)            # (n,3)
+        rtk_c2w = np.zeros((n, 4, 4), dtype=np.float32)
+        rtk_c2w[:, :3, :3] = Rc2w
+        rtk_c2w[:, :3, 3]  = tc2w
+        rtk_c2w[:, 3,  3]  = 1.0
+
+        # 3) Scale from RTK/DROID consecutive-distance ratio over the ENTIRE
+        # known trajectory so far (cumulative path lengths), not just per-pair.
+        # Per-pair is unstable when DROID drifts and produces near-zero motion
+        # while RTK reports normal motion -> ratio explodes (saw scale=460
+        # crash gaussian rasterizer). Cumulative ratio is robust to local
+        # zero-motion segments.
+        #
+        # Strategy: collect (d_rtk, d_droid) pairs over all calls into running
+        # sums. Discard pairs where either distance is near zero. The scale =
+        # sum(d_rtk) / sum(d_droid) is the global Procrustes-like scale.
+        droid_xyz = viz_out['poses'][:, :3, 3].detach().cpu().numpy()  # (n,3)
+        if not hasattr(self, '_ext_pose_dist_sums'):
+            self._ext_pose_dist_sums = [0.0, 0.0]  # [sum_d_rtk, sum_d_droid]
+        if n >= 2:
+            d_rtk   = np.linalg.norm(np.diff(tc2w,     axis=0), axis=1)
+            d_droid = np.linalg.norm(np.diff(droid_xyz, axis=0), axis=1)
+            # Require meaningful motion in BOTH frames (filter hovering / drift).
+            mask = (d_droid > 5e-3) & (d_rtk > 0.05)
+            if mask.sum() > 0:
+                # Use the LAST pair only -- avoids double-counting across calls
+                # since adjacent calls share most KFs. The last pair is the
+                # newest one not yet integrated.
+                if mask[-1]:
+                    self._ext_pose_dist_sums[0] += float(d_rtk[-1])
+                    self._ext_pose_dist_sums[1] += float(d_droid[-1])
+
+        sum_rtk, sum_droid = self._ext_pose_dist_sums
+        if sum_droid > 0.01:  # need enough cumulative motion
+            scale = sum_rtk / sum_droid
+        else:
+            scale = getattr(self, '_ext_pose_cached_scale', 1.0)
+        # Hard clamp -- amtown03 measured ratio is ~327x (cf. drift_diagnostic
+        # plot v5/v9), Bell412/smaller scenes are deutlich darunter. Wir
+        # erlauben grosszuegig bis 1000x, damit Aerial-Nadir nicht aufs
+        # alte 100x-Limit clipt (das hat depths um Faktor 3 unter-skaliert).
+        scale = float(np.clip(scale, 0.1, 1000.0))
+        self._ext_pose_cached_scale = scale
+        scale_est = scale  # for logging compatibility
+        hist = self._ext_pose_dist_sums  # for log formatting
+
+        # 4) Apply.
+        device = viz_out['poses'].device
+        dtype  = viz_out['poses'].dtype
+        viz_out['poses'] = torch.from_numpy(rtk_c2w).to(device=device, dtype=dtype)
+        viz_out['depths'] = viz_out['depths'] * scale
+        if 'depths_cov' in viz_out and viz_out['depths_cov'] is not None:
+            viz_out['depths_cov'] = viz_out['depths_cov'] * (scale * scale)
+
+        if not getattr(self, '_ext_pose_logged_apply_first', False):
+            print(f"[ext_pose] first viz_out apply: n_kfs={n} scale={scale:.4f} "
+                  f"rtk_xyz_first={tc2w[0]} droid_xyz_first={droid_xyz[0]}")
+            self._ext_pose_logged_apply_first = True
+        # Log scale every K calls so we can spot spikes.
+        c = getattr(self, '_ext_pose_call_count', 0) + 1
+        self._ext_pose_call_count = c
+        if c % 100 == 1 or scale > 200.0:
+            est_str = f"{scale_est:.3f}" if scale_est is not None else "None"
+            print(f"[ext_pose] call={c} n={n} scale_est={est_str} "
+                  f"rolling={scale:.4f} hist_len={len(hist)}")
+
+        return viz_out
+
+    def _seed_video_poses_with_ext(self):
+        """Schreibe RTK-Posen + rescale disparity in video.poses / video.disps,
+        damit die naechste BA-Iteration von einer RTK-verankerten Skala
+        startet. Greift nur wenn dataset.ext_poses_file gesetzt UND
+        cfg['seed_video_with_ext_pose'] == True.
+
+        Mechanik:
+          1) Bestimme aktuelle Scale-Schaetzung (gleicher Algorithmus wie
+             _apply_ext_poses_to_vizout: kumulatives sum_rtk / sum_droid).
+          2) Fuer jede aktive KF k im Active-Window (0..counter):
+             - Setze video.poses[k] auf RTK c2w-pose (in TUM-tq w2c-Format)
+             - Skaliere video.disps[k] um 1/scale (so dass Tiefe der RTK-Skala
+               entspricht; disparity = 1/depth).
+
+        Caveat: BA wird in den naechsten Aufrufen die Posen wieder optimieren
+        und ggf. zurueck-driften. Aber jedes track() startet von der
+        RTK-Seed -- der Scale kann nicht mehr unbeschraenkt collapsen.
+        """
+        if not self.cfg.get('seed_video_with_ext_pose', False):
+            return
+        if not (hasattr(self.dataset, 'ext_poses')
+                and self.dataset.ext_poses is not None):
+            return
+
+        video = (self.tracker.video if hasattr(self.tracker, 'video')
+                 else self.tracker.frontend.video)
+        counter = video.counter.value if hasattr(video, 'counter') else 0
+        if counter < 2:
+            return  # zu frueh fuer scale-Schaetzung
+
+        scale = float(getattr(self, '_ext_pose_cached_scale', 1.0))
+        if scale <= 0.0 or scale == 1.0:
+            # Wir haben noch keine valide Scale-Messung -- skippe.
+            return
+
+        # Per-KF tstamp im DROID-Buffer ist der Dataset-Frame-Idx.
+        tstamps = video.tstamp[:counter].detach().cpu().numpy().astype(np.int64)
+        n_ext = len(self.dataset.ext_poses)
+        # Build TUM-tq w2c poses (the format video.poses expects).
+        seed = np.zeros((counter, 7), dtype=np.float32)
+        seed[:, -1] = 1.0  # qw
+        valid_mask = np.zeros(counter, dtype=bool)
+        for k in range(counter):
+            f = int(tstamps[k])
+            if 0 <= f < n_ext:
+                seed[k] = self.dataset.ext_poses[f]
+                valid_mask[k] = True
+        if not valid_mask.any():
+            return
+
+        device = video.poses.device
+        dtype  = video.poses.dtype
+        # Write seed where valid.
+        seed_t = torch.from_numpy(seed[valid_mask]).to(device=device, dtype=dtype)
+        idx_t  = torch.from_numpy(np.nonzero(valid_mask)[0]).to(device=device)
+        video.poses[idx_t] = seed_t
+
+        # Rescale disparity in proportion. disparity = 1/depth. RTK-scaled
+        # depth = DROID_depth * scale -> RTK_disp = DROID_disp / scale.
+        if hasattr(video, 'disps'):
+            video.disps[:counter] = video.disps[:counter] / float(scale)
+
+        if not getattr(self, '_seed_logged_first', False):
+            print(f"[seed] erste video.poses-Seed: counter={counter} "
+                  f"scale={scale:.2f} valid={int(valid_mask.sum())}/{counter}")
+            self._seed_logged_first = True
+
+    def _write_profiling(self, n_keyframes, n_mapped, n_processed, wall_t0,
+                          frame_skip, mapper_kf_skip, last_idx, partial):
+        """Atomic profiling.json dump. Survives SIGKILL/OOM mid-run."""
+        try:
+            out_path = os.path.join(self.cfg['output']['save_dir'], 'profiling.json')
+            tmp_path = out_path + '.tmp'
+            payload = {
+                'wall_total_s': time.time() - wall_t0,
+                'n_keyframes': n_keyframes,
+                'n_mapped': n_mapped,
+                'n_processed': n_processed,
+                'n_frames': len(self.dataset),
+                'last_idx': last_idx,
+                'frame_skip': frame_skip,
+                'mapper_kf_skip': mapper_kf_skip,
+                'partial': partial,
+                'records': self.timer.records,
+            }
+            with open(tmp_path, 'w') as f:
+                json.dump(payload, f)
+            os.replace(tmp_path, out_path)
+        except Exception as e:
+            print(f"profiling.json write failed: {e}")
+
     def run(self):
         # Load imu data.
         self.tracker.frontend.all_imu   = self.dataset.preload_imu()
@@ -218,19 +471,49 @@ class Runner:
 
         # Profiling-Counter und Print-Throttle.
         n_keyframes = 0
+        n_mapped = 0
         n_processed = 0
+        last_idx = -1
         log_every = int(self.cfg.get('profiling', {}).get('log_every', 1))
+        # Crash-resilient snapshot: profiling.json alle N Tracker-KFs neu schreiben,
+        # damit auch FAIL-Runs (OOM/SIGKILL) ihre Progress-Counts hinterlassen.
+        snapshot_every = int(self.cfg.get('profiling', {}).get('snapshot_every_kf', 10))
         # Naive temporal sampling: nimm nur jedes N-te Eingangs-Frame.
         frame_skip = int(self.cfg.get('frame_skip', 1))
+        # Mapper-Subsampling: gib nur jeden N-ten Tracker-KF an den Mapper.
+        # Erste KF wird immer gemappt (init_first_frame), unabhaengig vom skip.
+        mapper_kf_skip = int(self.cfg.get('mapper_kf_skip', 1))
         wall_t0 = time.time()
 
         # Run Tracking.
+        n_gate_a_rejected = 0
         for idx in tqdm(range(len(self.dataset))):
             if frame_skip > 1 and idx % frame_skip != 0:
                 continue
-            n_processed += 1
 
             data_packet = self.dataset[idx]
+
+            # Gate A: pre-tracker eligibility filter. We need rgb (cheap blur /
+            # exposure / gradient density), so we load data_packet first. The
+            # GPS-altitude check still saves the ~450 ms tracker.frontend_ba.
+            if self.gate_a is not None:
+                meta_a = {
+                    'alt_m':   data_packet.get('alt_m'),
+                    'xyz_enu': data_packet.get('xyz_enu'),
+                    't_sec':   data_packet.get('t_sec', float(idx)),
+                }
+                rgb_for_a = self._rgb_tensor_to_uint8_bgr(data_packet['rgb'])
+                with self.timer.time('gate_a'):
+                    ok_a, score_a = self.gate_a.should_track(meta_a, rgb=rgb_for_a)
+                if not ok_a:
+                    n_gate_a_rejected += 1
+                    if (n_gate_a_rejected % 50) == 1:
+                        print(f'[GateA] reject idx={idx} reason={score_a.reject_reason} '
+                              f'alt={score_a.alt_m} agl={score_a.agl_m} '
+                              f'lap={score_a.lap_var:.1f} mean={score_a.mean_gray:.1f} '
+                              f'grad={score_a.grad_density:.3f}')
+                    continue
+            n_processed += 1
 
             if 'use_mobile' in self.cfg.keys() and self.cfg['use_mobile']:
                 self.tracker.frontend.all_imu   = self.dataset.preload_imu()
@@ -242,12 +525,48 @@ class Runner:
                     with self.timer.time('metric'):
                         data_packet['depth'] = self.metric_predictor.predict(data_packet['rgb'][0])
                     t_metric = self.timer.last('metric')
+                # Cache for mapper injection (key = cam timestamp matched against
+                # tracker.video.tstamp in viz_out_idx_to_f_idx).
+                if data_packet.get('depth') is not None:
+                    self.metric_depth_cache[float(data_packet['timestamp'])] = data_packet['depth'].detach().clone()
 
             with self.timer.time('track.total'):
                 self.tracker.track(data_packet if not self.cfg['mode']=='vo_nerfslam' else datapacket_to_nerfslam(data_packet, idx))
+                # Per-iteration RTK-Seed in video.poses/disps fuer die NAECHSTE
+                # BA-Iteration (anti-scale-collapse-Prior). No-op wenn das
+                # Feature im Config nicht aktiviert.
+                self._seed_video_poses_with_ext()
             t_track = self.timer.last('track.total')
             t_mf = self.timer.last('track.motion_filter')
             t_fe = self.timer.last('track.frontend_ba')
+
+            # Pose-Override aus externer Pose-Source (z.B. DJI RTK).
+            # Wenn der Tracker count_save inkrementiert hat (1+ neue KFs gefreezed),
+            # iteriere ueber alle neuen Save-Slots [_last_pose_override_idx, count_save)
+            # und schreibe pro Slot k die ext_pose fuer Frame tstamp_save[k]. Die
+            # frueher verwendete data_packet['pose']-Variante hat fuer alle Slots
+            # die *aktuelle* Frame-Pose geschrieben -- falsch wenn der gefreezte KF
+            # eigentlich N Frames zurueck liegt. tstamp_save[k] gibt den Original-
+            # Frame-Index fuer Slot k zurueck.
+            # Legacy poses_save override (one-shot per marginalized slot)
+            # left in for completeness of the history-buffer. The actual
+            # mapper override happens AFTER judge_and_package via
+            # _apply_ext_poses_to_vizout below -- that's where it lands in
+            # viz_out['poses'] which the mapper consumes.
+            if (hasattr(self.dataset, 'ext_poses')
+                    and self.dataset.ext_poses is not None
+                    and self.cfg['mode'] != 'vo_nerfslam'):
+                video = self.tracker.video if hasattr(self.tracker, 'video') else self.tracker.frontend.video
+                if hasattr(video, 'count_save'):
+                    cs = int(video.count_save)
+                    last_k = getattr(self, '_last_pose_override_idx', 0)
+                    if cs > last_k:
+                        for k in range(last_k, cs):
+                            frame_idx = int(video.tstamp_save[k].item())
+                            if 0 <= frame_idx < len(self.dataset.ext_poses):
+                                video.poses_save[k] = torch.as_tensor(
+                                    self.dataset.ext_poses[frame_idx], dtype=torch.float32)
+                        self._last_pose_override_idx = cs
 
             # empty_cache() ist Cleanup, kein Algorithmus -- ausserhalb der Phasen-Timer.
             torch.cuda.empty_cache()
@@ -256,6 +575,36 @@ class Runner:
                 viz_out = judge_and_package(self.tracker, data_packet['intrinsic'])
             t_pkg = self.timer.last('judge_pkg')
 
+            # Pre-Override Drift-Log: schreibt die ROHE Tracker-BA-Pose des
+            # neuesten KFs pro Iteration in einen Append-Only-Log. Liefert die
+            # vollstaendige Tracker-Historie (statt nur Active-Window-Snapshot
+            # am Ende), nuetzlich fuer Drift-Diagnose.
+            if viz_out is not None:
+                try:
+                    raw_pose_c2w = viz_out['poses'][-1].detach().cpu().numpy()  # (4,4) c2w
+                    log_dir = self.cfg['output']['save_dir']
+                    log_path = os.path.join(log_dir, 'tracker_raw_c2w.txt')
+                    write_header = not os.path.exists(log_path)
+                    with open(log_path, 'a') as _lf:
+                        if write_header:
+                            _lf.write('# kf_idx t_sec r00 r01 r02 tx r10 r11 r12 ty '
+                                      'r20 r21 r22 tz  (4x4 c2w, raw DROID-BA, pre-override)\n')
+                        flat = raw_pose_c2w[:3].flatten()  # 12 numbers
+                        t_sec = float(data_packet.get('t_sec', idx))
+                        _lf.write(f"{n_keyframes} {t_sec:.6f} "
+                                  + " ".join(f"{v:.6f}" for v in flat) + "\n")
+                except Exception:
+                    pass  # best-effort logging; don't fail the run
+
+            # Pose-Override an viz_out: ersetzt DROID-DBA-Posen durch RTK c2w
+            # (aus ext_poses_file) UND skaliert depths/depths_cov um den per-window
+            # geschaetzten Skalenfaktor, damit Gaussians an metrisch korrekten
+            # Positionen platziert werden. Greift nur wenn dataset.ext_poses_file
+            # gesetzt ist; legt viz_out unveraendert bei jeder anderen Konfig.
+            if viz_out is not None:
+                with self.timer.time('ext_pose_apply'):
+                    viz_out = self._apply_ext_poses_to_vizout(viz_out)
+
             t_map = 0.0
             t_prep = 0.0
             t_train = 0.0
@@ -263,16 +612,72 @@ class Runner:
             if viz_out is not None and (self.cfg['mode'] in ['vo', 'vo_nerfslam'] or self.tracker.video.imu_enabled):
                 kf_flag = 'Y'
                 n_keyframes += 1
-                # Snapshot der Sub-Phase-Counts: nur Inkremente dieses Calls anzeigen.
-                _n_prep_before = len(self.timer.records.get('map.add_new_frame', []))
-                _n_train_before = len(self.timer.records.get('map.train_loop', []))
-                with self.timer.time('map.total'):
-                    new_viz_out = self.mapper.run(viz_out, True)
-                t_map = self.timer.last('map.total')
-                if len(self.timer.records.get('map.add_new_frame', [])) > _n_prep_before:
-                    t_prep = self.timer.last('map.add_new_frame')
-                if len(self.timer.records.get('map.train_loop', [])) > _n_train_before:
-                    t_train = self.timer.last('map.train_loop')
+                # KF-Filter: entweder VISTA-Selector (wenn konfiguriert) oder
+                # naives Modulo-Subsampling. Init-KF wird in beiden Faellen gemappt
+                # (Selector akzeptiert ersten Frame; modulo-Pfad: (n_keyframes-1)%N==0).
+                if self.frame_selector is not None:
+                    with self.timer.time('frame_select'):
+                        depth_np = viz_out['depths'][-1, :, :, 0].detach().cpu().numpy()
+                        t_np     = viz_out['poses'][-1, :3, 3].detach().cpu().numpy()
+                        R_np     = viz_out['poses'][-1, :3, :3].detach().cpu().numpy()
+                        # rgb optional (nur fuer feature-basierte Selektoren wie nurbs_lvi);
+                        # viz_out['images'][-1] ist HxWx3 in [0,1] float -> uint8 BGR.
+                        rgb_np = None
+                        if 'images' in viz_out:
+                            img = viz_out['images'][-1].detach().cpu().numpy()
+                            rgb_np = (np.clip(img, 0.0, 1.0) * 255.0).astype(np.uint8)
+                        # depth_cov optional (nur game_kfs nutzt es; andere ignorieren es ueber **_).
+                        cov_np = None
+                        if 'depths_cov' in viz_out:
+                            cov_np = viz_out['depths_cov'][-1, :, :, 0].detach().cpu().numpy()
+                        meta_b = {
+                            'alt_m':   data_packet.get('alt_m'),
+                            'xyz_enu': data_packet.get('xyz_enu'),
+                            't_sec':   data_packet.get('t_sec', float(idx)),
+                        }
+                        accept, fs_score = self.frame_selector.should_accept(
+                            depth_np, t_np, R_np, rgb=rgb_np, depth_cov=cov_np,
+                            meta=meta_b)
+                    do_map = bool(accept)
+                else:
+                    do_map = (mapper_kf_skip <= 1) or ((n_keyframes - 1) % mapper_kf_skip == 0)
+                if do_map:
+                    n_mapped += 1
+                    # Snapshot der Sub-Phase-Counts: nur Inkremente dieses Calls anzeigen.
+                    _n_prep_before = len(self.timer.records.get('map.add_new_frame', []))
+                    _n_train_before = len(self.timer.records.get('map.train_loop', []))
+                    # Replace DROID-DBA depths in viz_out with cached Metric3D
+                    # depths (matched by tracker.video.tstamp). Keep sky pixels
+                    # (rgb==0) at depth=0 so VINGS' sky_mask path still works.
+                    # depths_cov is tightened where overwritten -> the
+                    # weighted_l1 in get_loss() (weight=1/cov) trusts the prior.
+                    if self.cfg.get('use_metric', False) and self.cfg.get('use_metric_for_mapper', True) \
+                            and len(self.metric_depth_cache) > 0 and 'depths' in viz_out:
+                        ts_tensor = viz_out['viz_out_idx_to_f_idx']
+                        ts_list = ts_tensor.detach().cpu().tolist() if hasattr(ts_tensor, 'detach') else list(ts_tensor)
+                        for i, ts in enumerate(ts_list):
+                            ts_key = float(ts)
+                            if ts_key in self.metric_depth_cache:
+                                m_d = self.metric_depth_cache[ts_key].to(viz_out['depths'].device)
+                                if m_d.shape[:2] == viz_out['depths'].shape[1:3]:
+                                    img_i = viz_out['images'][i]
+                                    sky_mask = (img_i.sum(dim=-1) == 0)
+                                    viz_out['depths'][i, :, :, 0] = torch.where(sky_mask, torch.zeros_like(m_d), m_d)
+                                    if 'depths_cov' in viz_out:
+                                        # weighted_l1 in get_loss uses weight=1/cov.
+                                        # 0.01 -> weight 100 dominiert RGB-Loss.
+                                        # cfg['metric_cov'] (Default 1.0) -> weight ~1.
+                                        _cov = float(self.cfg.get('metric_cov', 1.0))
+                                        viz_out['depths_cov'][i, :, :, 0] = _cov
+                    with self.timer.time('map.total'):
+                        new_viz_out = self.mapper.run(viz_out, True)
+                    t_map = self.timer.last('map.total')
+                    if len(self.timer.records.get('map.add_new_frame', [])) > _n_prep_before:
+                        t_prep = self.timer.last('map.add_new_frame')
+                    if len(self.timer.records.get('map.train_loop', [])) > _n_train_before:
+                        t_train = self.timer.last('map.train_loop')
+                else:
+                    kf_flag = 'S'  # KF vom Tracker, aber Mapper geskippt
 
                 if 'use_loop' in list(self.cfg.keys()) and self.cfg['use_loop']:
                     if viz_out["global_kf_id"][-1] > 10 and viz_out["global_kf_id"][-1] % 3 == 0:
@@ -283,6 +688,20 @@ class Runner:
                     with self.timer.time('storage'):
                         self.storage_manager.run(self.tracker, self.mapper, viz_out)
                     torch.cuda.empty_cache()
+
+                # Periodischer PLY-Checkpoint (Crash-Schutz). Wenn der Run vom
+                # vram-watchdog/OOMd SIGKILLed wird, hat man wenigstens einen
+                # partiellen PLY-Snapshot. Default = 0 (aus).
+                ply_ckpt = int(self.cfg.get('ply_checkpoint_every_kf', 0))
+                if ply_ckpt > 0 and do_map and n_mapped > 0 and n_mapped % ply_ckpt == 0:
+                    try:
+                        torch.cuda.empty_cache()
+                        sm = self.storage_manager if self.use_storage_manager else None
+                        with self.timer.time('save_ply_ckpt'):
+                            save_ply_streaming(self.mapper, sm, idx, save_mode='2dgs')
+                        print(f"[PLY-CKPT] idx={idx} n_mapped={n_mapped} written.")
+                    except Exception as e:
+                        print(f"[PLY-CKPT] failed at idx={idx}: {e}")
 
                 if self.cfg['use_vis'] and (idx+1) % 1 == 0:
                     with self.timer.time('vis'):
@@ -295,50 +714,89 @@ class Runner:
 
             t_total = t_metric + t_track + t_pkg + t_map
             if log_every <= 1 or idx % log_every == 0:
+                # Selector-Score anhaengen, wenn vorhanden -- hilft beim
+                # threshold_Q-Tuning bzw. zur Diagnose, warum Frames rejected werden.
+                fs_str = ""
+                fs_score_local = locals().get('fs_score', None)
+                if fs_score_local is not None and hasattr(fs_score_local, 'Q'):
+                    # NURBS-LVI: Q ist Schwelle, migration (=Or+Oc) ist die Evidenz.
+                    fs_str = (f" fs(mig={fs_score_local.migration:+.1f}"
+                              f" Q={fs_score_local.Q:+.2f}"
+                              f" phi={fs_score_local.phi:+.2f}"
+                              f" m={fs_score_local.n_matches})")
+                elif isinstance(fs_score_local, (int, float)):
+                    fs_str = f" fs(g={fs_score_local:.3f})"
                 print(f"[{idx:5d}] kf={kf_flag} metric={t_metric:.3f} "
                       f"track={t_track:.3f}(mf={t_mf:.3f} fe={t_fe:.3f}) "
                       f"pkg={t_pkg:.3f} "
                       f"map={t_map:.3f}(prep={t_prep:.3f} train={t_train:.3f}) "
-                      f"total={t_total:.3f}")
+                      f"total={t_total:.3f}{fs_str}")
 
-        # Storage-Manager-Bug-Fix: CPU-Gaussians muessen mit in die finale PLY.
-        # Statt cpu2gpu() (laedt alles + Optimizer-State auf GPU -> OOM-Risiko)
-        # bauen wir einen leichten Proxy mit CPU-konkatenierten Tensoren.
-        # save_ply zieht nur das kleine RGB-Stueck kurz auf die GPU.
-        if self.use_storage_manager and self.storage_manager._xyz.shape[0] > 0:
-            print(f"Merging {self.storage_manager._xyz.shape[0]} CPU + "
-                  f"{self.mapper._xyz.shape[0]} GPU Gaussians for PLY save "
-                  f"(CPU-side, no bulk GPU upload).")
-            save_target = _MergedForSave(self.mapper, self.storage_manager)
-        else:
-            save_target = self.mapper
+            last_idx = idx
+            if snapshot_every > 0 and n_keyframes > 0 and n_keyframes % snapshot_every == 0:
+                self._write_profiling(n_keyframes, n_mapped, n_processed, wall_t0,
+                                       frame_skip, mapper_kf_skip, last_idx, partial=True)
 
-        # save_ply ausserhalb der Loop: bei frame_skip>1 wuerde der letzte
-        # idx (len-1) sonst vom continue verworfen und nichts gespeichert.
-        if save_target._xyz.shape[0] > 0:
+        # PLY-Save: chunk-weise schreiben, um Peak-RAM zu minimieren.
+        # save_ply_streaming iteriert über StorageManager (CPU) und Mapper (GPU)
+        # getrennt in Chunks von 500k Gaussians (~120 MB/Chunk statt ~5 GB auf einmal).
+        n_cpu = self.storage_manager._xyz.shape[0] if self.use_storage_manager else 0
+        n_gpu = self.mapper._xyz.shape[0]
+        if n_cpu + n_gpu > 0:
+            sm = self.storage_manager if self.use_storage_manager else None
             with self.timer.time('save_ply'):
-                save_ply(save_target, len(self.dataset) - 1, save_mode='2dgs')
+                save_ply_streaming(self.mapper, sm, len(self.dataset) - 1, save_mode='2dgs')
+
+        # Dump finale Tracker-Posen (w2c in TUM-tq) fuer Drift-Diagnose.
+        # Kombiniert MARGINALISIERTE KFs (poses_save[:count_save]) + ACTIVE-Window
+        # (poses[:counter.value]) -- die zweite Quelle ist wichtig bei kurzen
+        # Sequenzen wo viele KFs noch nicht marginalisiert wurden.
+        try:
+            video = (self.tracker.video if hasattr(self.tracker, 'video')
+                     else self.tracker.frontend.video)
+            chunks = []
+            # 1) Marginalisierte (append-only history)
+            poses_save = video.poses_save.detach().cpu().numpy()
+            n_save = int(getattr(video, 'count_save', 0))
+            n_save = max(0, min(n_save, poses_save.shape[0]))
+            if n_save > 0:
+                chunks.append(('marg', poses_save[:n_save]))
+            # 2) Active-Window-Posen (aktuelle BA-Schaetzungen)
+            poses_act = video.poses.detach().cpu().numpy()
+            counter_val = getattr(video, 'counter', None)
+            n_act = int(counter_val.value) if counter_val is not None else 0
+            n_act = max(0, min(n_act, poses_act.shape[0]))
+            if n_act > 0:
+                chunks.append(('act', poses_act[:n_act]))
+            if chunks:
+                rows = []
+                idx = 0
+                for src, arr in chunks:
+                    for tq in arr:
+                        rows.append([idx, src] + [float(x) for x in tq])
+                        idx += 1
+                # Write with mixed int/str/float: do it manually since np.savetxt struggles.
+                out_path = os.path.join(self.cfg['output']['save_dir'],
+                                        'tracker_poses_w2c.txt')
+                with open(out_path, 'w') as f:
+                    f.write('# idx src tx ty tz qx qy qz qw  (w2c, VINGS)\n')
+                    for r in rows:
+                        f.write(f"{r[0]} {r[1]} " + " ".join(f"{v:.6f}" for v in r[2:]) + "\n")
+                print(f"tracker_poses_w2c.txt geschrieben "
+                      f"({n_save} marginalisiert + {n_act} aktiv).")
+        except Exception as _e:
+            print(f"[WARN] tracker_poses_w2c dump failed: {_e}")
 
         wall_total = time.time() - wall_t0
-        print(f"\n=== Profiling Summary ({n_keyframes} KFs / {n_processed} processed "
-              f"/ {len(self.dataset)} dataset, frame_skip={frame_skip}, "
+        print(f"\n=== Profiling Summary ({n_keyframes} KFs, {n_mapped} mapped "
+              f"/ {n_processed} processed / {len(self.dataset)} dataset, "
+              f"frame_skip={frame_skip}, mapper_kf_skip={mapper_kf_skip}, "
               f"wall={wall_total:.1f}s) ===")
         self.timer.summary(total_wall=wall_total)
 
-        try:
-            out_path = os.path.join(self.cfg['output']['save_dir'], 'profiling.json')
-            with open(out_path, 'w') as f:
-                json.dump({
-                    'wall_total_s': wall_total,
-                    'n_keyframes': n_keyframes,
-                    'n_processed': n_processed,
-                    'n_frames': len(self.dataset),
-                    'frame_skip': frame_skip,
-                    'records': self.timer.records,
-                }, f)
-            print(f"profiling.json -> {out_path}")
-        except Exception as e:
-            print(f"profiling.json write failed: {e}")
+        self._write_profiling(n_keyframes, n_mapped, n_processed, wall_t0,
+                              frame_skip, mapper_kf_skip, last_idx, partial=False)
+        print(f"profiling.json -> {os.path.join(self.cfg['output']['save_dir'], 'profiling.json')}")
             
 
 if __name__ == '__main__':

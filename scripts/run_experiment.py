@@ -144,8 +144,11 @@ def compute_metrics(rgbdnua_dir: Path, logger: logging.Logger) -> dict:
 def cleanup(out_dir: Path, logger: logging.Logger):
     droid_dir = out_dir / "droid_c2w"
     if droid_dir.exists():
-        shutil.rmtree(droid_dir)
-        logger.info("droid_c2w/ gelöscht")
+        if os.environ.get("KEEP_DROID_C2W") == "1":
+            logger.info("droid_c2w/ behalten (KEEP_DROID_C2W=1)")
+        else:
+            shutil.rmtree(droid_dir)
+            logger.info("droid_c2w/ gelöscht")
 
     rgbdnua_dir = out_dir / "rgbdnua"
     if rgbdnua_dir.exists():

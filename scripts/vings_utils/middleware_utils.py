@@ -230,7 +230,7 @@ def judge_and_package_v3(dba_fusion, intrinsics):
             # zero_mask = depths > dba_fusion.cfg['middleware']['max_depth']
             depths[zero_mask] = 0.0
             depths_cov[depths==0] = depths_cov[depths>0].max()
-            
+
             # depths_cov[zero_mask] = 0.0
             w2c_tqs    = dba_fusion.video.poses[valid_localkf_id]
             c2ws       = torch.linalg.inv(tq_to_matrix(w2c_tqs))

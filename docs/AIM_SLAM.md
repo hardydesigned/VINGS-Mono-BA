@@ -75,9 +75,20 @@ Information-Gain als Entropie-Reduktion (alle Punkte summiert):
 
 `W_v` wird absteigend nach `Γ` umsortiert.
 
-**Stage 3 — Adaptive Subset Activation (Eq. 4)**
-Reduced-Chi-Square als Stabilitätsmaß auf den (whitened) Residuen `b` und
-deren Jacobian `A`:
+**Stage 3 — Adaptive Subset Activation (Eq. 4 + Hybrid-Residual Eq. 5)**
+Reduced-Chi-Square auf dem **Hybrid-Residual** aus Eq. 5 (Ray + Pixel
+gestackt), whitened mit den jeweiligen Mess-Sigmas. Pro adjacent pair
+`(I_i, I_j)` ist das Per-Korrespondenz-Residual:
+
+```
+r_ij = [ Ψ_ray(X_i|i) − Ψ_ray(T^i_j X_j|j),         (3D, Eq. 5 erster Term)
+         Ψ_π (K_i, X_i|i) − Ψ_π (K_i, T^i_j X_j|j) ] (2D, Eq. 5 zweiter Term)
+```
+
+mit `Ψ_ray(X) = X / ‖X‖` (Einheitssphäre) und `Ψ_π` als Pinhole-Projektion.
+Whitened als `b = [r_ray/σ_ray, r_pix/σ_pix]` mit `σ_ray = σ_pix / f`.
+
+Eq. 4 liefert dann:
 
 ```
 κ = bᵀb / ( M − rank(A) )                                    (Eq. 4)
@@ -100,6 +111,8 @@ einen binären Slot (mappen wir den aktuellen Tracker-KF?). Die Übersetzung:
 | Messkovarianz `R` aus VGGT-Confidence | `R = σ²_pix · I_2` (fixer Pixel-Rausch-Term). |
 | Prior `P_k` aus VGGT-Pointmap-Confidence | `P_k = σ²_d(u,v) · I_3` aus DBAF `depths_cov` (falls vorhanden), sonst `P_k = σ²_default · I_3`. |
 | 3×3 invers-Projektion-Jacobian für `J_r` | 2×3 Standard-Pinhole-Jacobian `∂π/∂X` (übliche EKF-VIO-Formulierung); Tiefe dominiert die 3D-Kovarianz, deswegen kein Genauigkeitsverlust. |
+| Korrespondenz für Eq. 5 via VGGT-Pointmap-Ray-Matching | **ORB-BFMatch zwischen letztem KF und aktuellem Frame** (paper-treuer Pfad, wenn `rgb` verfügbar). Wichtig: Korrespondenz ist damit **pose-unabhängig** — Voraussetzung dafür, dass κ tatsächlich Pose-Konsistenz testet (nicht Tiefen-Konsistenz unter gegebener Pose). Fallback auf Reprojection-basierte Korrespondenz mit bilinearem Depth-Sampling wenn cv2 fehlt oder ORB zu wenig Matches findet. |
+| rank(A) in Eq. 4 aus Sim(3)-Variablen | rank(A) = 0, weil VINGS die Pose nicht optimiert (DBAF-Output ist fix). DoF = M. |
 
 **Decision-Rule (verbatim umgesetzt):**
 
@@ -132,8 +145,9 @@ mit Failsafes:
 | `R` | 2×2 Mess-Kovarianz im Pixel-Raum | `σ²_pix · I_2` (Pixel-Rausch-Term, fix) |
 | `P_k⁺` | Posterior nach EKF-Update | `_ekf_update()` vektorisiert über alle Sample-Punkte |
 | `Γ` | Summe der Log-Determinanten-Differenzen | `0.5 · Σ log(det(P_k⁻)/det(P_k⁺))` |
-| `b` | Whitened Residuen-Vektor | `r / σ_pix` |
-| `κ` | Reduced-Chi-Square | `bᵀb / (M − chi_dof_offset)` |
+| `r_ij` | Hybrid-Residuum aus Eq. 5 (Ray + Pixel gestackt, 5D pro Korrespondenz) | `_stage3_chi_square()`; Korrespondenz via Reprojektion mit DBAF-Pose |
+| `b` | Whitened Residuen-Vektor | `[r_ray/σ_ray, r_pix/σ_pix]` mit `σ_ray = σ_pix / f̄` |
+| `κ` | Reduced-Chi-Square | `bᵀb / (M − chi_dof_offset)`, `chi_dof_offset = 0` weil keine Pose-Optimierung |
 
 ## Sensitivität / Tuning
 
@@ -171,9 +185,12 @@ Standalone-Smoketest:
 PYTHONPATH=scripts python scripts/vings_utils/aim_slam_selector.py
 ```
 
-Erwartung: Box-Room-Szene, 30 Frames, Seed-KF wird akzeptiert, bei sanfter
-Bewegung 3-6 weitere Akzepts; `O`, `Γ`, `κ` werden pro Frame geloggt und sind
-in plausiblen Wertebereichen (`O ∈ [0,1]`, `Γ ≥ 0`, `κ ≥ 0`).
+Erwartung: Box-Room-Szene, 15 Frames, Seed-KF wird akzeptiert, danach gehen
+die meisten Frames durch Stage 3 mit `κ ≈ 0` (synthetische Tiefe ist perfekt
+konsistent — der Test funktioniert wie erwartet). Bei `O = 0` (komplett
+neuer Bereich) greift die `min_overlap_ratio`-Force-Accept-Klausel.
+Smoketest nutzt `rgb=None` → Reprojection-Fallback (`chi_source =
+"reproject"`); in echten Sequenzen mit rgb wird der ORB-Pfad aktiv.
 
 ## Beispiel-Config
 
@@ -191,10 +208,17 @@ frame_selector:
   pixel_sigma: 1.0            # Mess-Rauschen σ_pix
   prior_sigma_d: 0.10         # σ_d Default wenn depths_cov fehlt
   cov_clip: 4.0               # Clip-Range für depths_cov
-  # Stage 3: Reduced-Chi-Square (Eq. 4)
+  # Stage 3: Reduced-Chi-Square (Eq. 4 + Hybrid-Residual Eq. 5)
   use_chi_square: true
-  chi_thresh: 1.0             # κ > 1 → instabil → accept
-  chi_dof_offset: 6           # M - rank(A); 6 für Sim(3)-Rumpf (R + t)
+  chi_thresh: 1.0             # κ > 1 → residuen über rauschen → accept
+  chi_dof_offset: 0           # M - rank(A); 0 weil keine Pose-Optimierung
+  chi_ray_weight: 1.0         # optionales Gewicht für Ray-Term (Eq. 5 1. Term)
+  chi_pix_weight: 1.0         # optionales Gewicht für Pixel-Term (Eq. 5 2. Term)
+  # ORB-Korrespondenz (paper-treu, pose-unabhängig). Bei rgb=None,
+  # fehlendem cv2 oder < chi_min_matches Matches → Reprojection-Fallback.
+  chi_orb_n_features: 800
+  chi_min_matches: 20
+  chi_max_disparity_px: 200.0
   # Tiefen-Gate
   min_depth: 0.2
   max_depth: 35.0
@@ -209,7 +233,10 @@ Was **verbatim** aus dem Paper kommt:
 - Voxel-Overlap-Formel (Eq. 1) inkl. der Idee, Keyframe-Visibility statt
   Punkt-Landmarks zu hashen.
 - EKF-Kovarianz-Update (Eq. 2) und Log-Determinant-Information-Gain (Eq. 3).
-- Reduced-Chi-Square-Stabilitätstest (Eq. 4) und der Schwellwert `κ = 1`.
+- Reduced-Chi-Square-Stabilitätstest (Eq. 4) **inkl. Hybrid-Residual aus
+  Eq. 5** (Ray-Term auf der Einheitssphäre + Pixel-Reprojektions-Term,
+  gestackt zu einem 5D-Residuum pro Korrespondenz), und der Schwellwert
+  `κ = 1`.
 
 Was **adaptiert** wurde:
 
@@ -221,10 +248,26 @@ Was **adaptiert** wurde:
 - **Prior-Kovarianz**: 3×3 isotrope σ²_d aus DBAF `depths_cov` statt
   VGGT-Confidence. Grund: nutzt die Tracker-seitige Unsicherheit, die wir
   ohnehin haben.
-- **Chi-Square-DoF**: fixer `chi_dof_offset = 6` für den Sim(3)-Rumpf
-  (Rotation+Translation, Skala bleibt gauge-fixed). Im Paper iteriert das
-  über tatsächliche Optimierungs-Variablen — bei uns gibt es keine
-  Optimierung, also fixer DoF.
+- **Chi-Square-DoF**: `chi_dof_offset = 0` (Default), weil VINGS die Pose
+  nicht optimiert — die DBAF-Pose ist gegeben, `rank(A) = 0`, also `dof = M`.
+  Im Paper sind das die Sim(3)-Variablen pro Frame-Pair (7 pro Paar). Der
+  Offset bleibt als Tuning-Knob konfigurierbar, ist aber bei `M ≫ 7` ohnehin
+  numerisch irrelevant.
+- **Korrespondenz**: Paper nutzt VGGT-Pointmap-Ray-Matching, um die
+  Korrespondenz `(p_i, p_j)` zwischen Frames aufzubauen. Wir haben kein
+  Foundation-Model-Matching; stattdessen nutzen wir **ORB-Features +
+  BFMatch (Hamming, Crosscheck)** zwischen letztem KF und aktuellem Frame.
+  Das ist der entscheidende Paper-Treue-Punkt: die Korrespondenz ist
+  **pose-unabhängig**, dadurch testet Eq. 4 tatsächlich, ob die DBAF-
+  Pose-Hypothese mit den unabhängig gefundenen Matches konsistent ist —
+  und nicht nur die Tiefen-Konsistenz unter gegebener Pose. Fallback auf
+  Reprojection-basierte Korrespondenz wenn `rgb` fehlt, cv2 nicht
+  importierbar, oder ORB < `chi_min_matches` Matches findet; in diesem
+  Fall misst κ einen schwächeren *joint-Tiefen-Pose*-Konsistenz-Proxy
+  (in `score.chi_source = "reproject"` markiert).
+- **Bilineares Depth-Sampling**: an Sub-Pixel-Match-Koordinaten (vs.
+  Nearest-Neighbor) — wichtig für die ORB-Subpixel-Genauigkeit und
+  konsistenter mit dem kontinuierlichen Pointmap-Sampling im Paper.
 
 Was **weggelassen** wurde:
 

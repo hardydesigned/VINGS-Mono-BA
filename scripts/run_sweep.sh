@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Master experiment sweep — runs all 46 amtown03+AGZ variants sequentially.
+# Master experiment sweep — runs the configured sweep variants sequentially.
 # Order (per dataset): cheap-to-expensive baselines, then selectors.
+#
+# Modes:
+#   default       full sweep (amtown03 6.2k + AGZ 10k)
+#   --smoke       100-frame smoke variant for both datasets
+#   --s3100       200-frame amtown03 slice starting at frame 3100 (single
+#                 dataset, short selector folder names, skip values 1..20)
 #
 # For each run we:
 #   • snapshot output dir contents BEFORE
 #   • spawn `run_experiment.py <cfg>` with a wall-clock timeout
 #   • collect metrics.json + profiling.json + ply scan (also on crash)
-#   • append one row to output/sweep_results.csv
+#   • append one row to a per-mode CSV (sweep_results.csv / smoke_results.csv /
+#     s3100_200f_results.csv)
 #   • flush page cache (best effort), wait until VRAM drops below threshold
 #
 # Idempotent: rows already present in the CSV with status=OK get SKIPPED on
@@ -15,7 +22,8 @@
 # <variant> to limit the loop.
 #
 # Pre-step: if AGZ frames 0..10000 are not extracted yet, prepare_agz.py is
-# invoked once before the AGZ runs start.
+# invoked once before the AGZ runs start. The s3100 mode skips this entirely
+# since AGZ is not enqueued.
 # =============================================================================
 
 set -u
@@ -40,6 +48,8 @@ FORCE=0
 ONLY=""
 START_AT=""
 SMOKE=0
+S3100=0
+S1000=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --force)        FORCE=1; shift ;;
@@ -47,12 +57,25 @@ while [[ $# -gt 0 ]]; do
     --start-at)     START_AT="$2"; shift 2 ;;
     --csv)          CSV="$2"; shift 2 ;;
     --smoke)        SMOKE=1; shift ;;
+    --s3100)        S3100=1; shift ;;
+    --s1000)        S1000=1; shift ;;
     -h|--help)
       sed -n '2,30p' "$0"; exit 0 ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
 
+if (( SMOKE + S3100 + S1000 > 1 )); then
+  echo "[sweep] --smoke / --s3100 / --s1000 are mutually exclusive" >&2
+  exit 2
+fi
+
+# Mode selection ---------------------------------------------------------------
+# - default :  full sweep (amtown03 6.2k + AGZ 10k)
+# - --smoke :  100-frame smoke (both datasets)
+# - --s3100 :  200-frame amtown03 slice starting at frame 3100. Single dataset,
+#              short selector folder names (aim/coko/game/nurbs/orbslam),
+#              skip values capped at 20.
 if (( SMOKE )); then
   CSV="${CSV/sweep_results.csv/smoke_results.csv}"
   EXP_SUBDIR="exp_smoke"
@@ -62,12 +85,39 @@ if (( SMOKE )); then
   SAVE_AGZ="exp_agz_smoke"
   TIMEOUT_PER_RUN="${TIMEOUT_PER_RUN:-1800}"          # 30min per smoke run
   SLEEP_BETWEEN="${SLEEP_BETWEEN:-5}"
+  SKIP_VALUES=(100 20 10 5 3 2 1)
+  SELECTOR_DIRS=(adaptive_kf aim_slam coko_slam game_kfs mm3dgs nurbs_lvi orbslam3 vista)
+  DATASETS=("amtown03|$SAVE_AMTOWN03|$NAME_AMTOWN03" "agz|$SAVE_AGZ|$NAME_AGZ")
+elif (( S3100 )); then
+  CSV="${CSV/sweep_results.csv/s3100_200f_results.csv}"
+  EXP_SUBDIR="s3100_200f"
+  NAME_AMTOWN03="amtown03_s3100_200f"
+  SAVE_AMTOWN03="exp_amtown03_s3100_200f"
+  TIMEOUT_PER_RUN="${TIMEOUT_PER_RUN:-3600}"          # 60min hard cap per 200f run
+  SLEEP_BETWEEN="${SLEEP_BETWEEN:-10}"
+  SKIP_VALUES=(20 10 5 3 2 1)
+  # Short folder names per the s3100_200f layout
+  SELECTOR_DIRS=(adaptive_kf aim coko game mm3dgs nurbs orbslam two_gate two_gate_v2 vista)
+  DATASETS=("amtown03|$SAVE_AMTOWN03|$NAME_AMTOWN03")
+elif (( S1000 )); then
+  CSV="${CSV/sweep_results.csv/s1000_400f_results.csv}"
+  EXP_SUBDIR="s1000_400f"
+  NAME_AMTOWN03="amtown03_s1000_400f"
+  SAVE_AMTOWN03="exp_amtown03_s1000_400f"
+  TIMEOUT_PER_RUN="${TIMEOUT_PER_RUN:-3600}"          # 60min hard cap per 400f run
+  SLEEP_BETWEEN="${SLEEP_BETWEEN:-10}"
+  SKIP_VALUES=(20 10 5 3 2 1)
+  SELECTOR_DIRS=(adaptive_kf aim coko game mm3dgs nurbs orbslam two_gate two_gate_v2 vista)
+  DATASETS=("amtown03|$SAVE_AMTOWN03|$NAME_AMTOWN03")
 else
   EXP_SUBDIR="exp"
   NAME_AMTOWN03="amtown03_full"
   NAME_AGZ="agz_10k"
   SAVE_AMTOWN03="exp_amtown03_full"
   SAVE_AGZ="exp_agz_0_10000"
+  SKIP_VALUES=(100 20 10 5 3 2 1)
+  SELECTOR_DIRS=(adaptive_kf aim_slam coko_slam game_kfs mm3dgs nurbs_lvi orbslam3 vista)
+  DATASETS=("amtown03|$SAVE_AMTOWN03|$NAME_AMTOWN03" "agz|$SAVE_AGZ|$NAME_AGZ")
 fi
 
 # ── Run list (dataset|group|variant|config_path|save_dir) ───────────────────
@@ -75,10 +125,7 @@ fi
 # expensive nofilter → selectors (per dataset). amtown03 first (smaller).
 build_runs() {
   local DS BASE OUT
-  for ds_pair in \
-    "amtown03|$SAVE_AMTOWN03|$NAME_AMTOWN03" \
-    "agz|$SAVE_AGZ|$NAME_AGZ"
-  do
+  for ds_pair in "${DATASETS[@]}"; do
     IFS='|' read -r DS OUT NAME <<< "$ds_pair"
     BASE="configs/local/$DS/$EXP_SUBDIR"
     SAVE="$REPO/output/$OUT"
@@ -87,19 +134,21 @@ build_runs() {
     echo "$DS|baseline|vings_filter|$BASE/baseline/${NAME}_vings_filter.yaml|$SAVE"
 
     # 2) mapskip (cheap to expensive)
-    for n in 100 20 10 5 3 2 1; do
+    for n in "${SKIP_VALUES[@]}"; do
       echo "$DS|mapskip|mapskip_$n|$BASE/mapskip/${NAME}_mapskip_$n.yaml|$SAVE"
     done
 
     # 3) skip_no_filter (cheap to expensive)
-    for n in 100 20 10 5 3 2 1; do
+    for n in "${SKIP_VALUES[@]}"; do
       echo "$DS|skip_no_filter|nofilter_skip_$n|$BASE/skip_no_filter/${NAME}_nofilter_skip_$n.yaml|$SAVE"
     done
 
-    # 4) selectors (alphabetical). Pick up ALL yamls in the selector dir,
-    # default-variant first, then param variants in sorted order. Variant name
-    # = filename minus the leading "<NAME>_" prefix and ".yaml" suffix.
-    for sel in adaptive_kf aim_slam coko_slam game_kfs mm3dgs nurbs_lvi orbslam3 vista; do
+    # 4) selectors. Pick up ALL yamls in the selector dir, default-variant
+    # first, then param variants in sorted order. Variant name = filename
+    # minus the leading "<NAME>_" prefix and ".yaml" suffix. Folder names
+    # may be short forms (aim/coko/...) in s3100 mode -- they're treated
+    # uniformly as both the directory name AND the default-variant name.
+    for sel in "${SELECTOR_DIRS[@]}"; do
       local sel_dir="$BASE/$sel"
       [[ -d "$sel_dir" ]] || continue
       # default ('<NAME>_<sel>.yaml') first

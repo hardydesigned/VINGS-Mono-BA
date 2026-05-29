@@ -30,11 +30,16 @@ def get_pointcloud_v1(tfer, c2w, gt_rgb: torch.Tensor, gt_depth: torch.Tensor, p
     H, W = gt_rgb.shape[-2], gt_rgb.shape[-1]
     rgb = gt_rgb.unsqueeze(0)
     all_valid_num = (gt_depth>0).sum()
-    
+
     gt_depth_cp = gt_depth.squeeze(0) + 0.0
     gt_depth_cp[pred_accum.squeeze(0)>tfer.cfg['adc_args']['accum_thresh']] = 0
     accum_valid_num = (gt_depth_cp>0).sum()
-    N_samples = int(accum_valid_num/all_valid_num * N_points)
+    # Guard against frames with zero valid depth (filter_thresh=-1.0 lets even
+    # blank/degenerate frames through). 0/0 -> NaN -> int(NaN) crashes.
+    if all_valid_num.item() == 0:
+        N_samples = 0
+    else:
+        N_samples = int(accum_valid_num.item() / all_valid_num.item() * N_points)
 
     pc_all = tfer.transform(gt_depth.squeeze(0), 'depth', 'world', pose=c2w) # (N, 3)
     N_samples = min(N_samples, pc_all.shape[0])
