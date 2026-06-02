@@ -283,6 +283,9 @@ Beispiel-Configs: `configs/local/{frameselector,nurbs_lvi,mm3dgs,game_kfs,adapti
 | `REPO.md` | Repo-Struktur, Submodule, kritische Dateien |
 | `MAPPING_TRACKING.md` | Tracking ↔ Mapping erklärt, frame_skip-Folgen |
 | `KEYFRAME.md` | Profiling-Zahlen, Budget-Tabelle für den Selector, mapskip-Ergebnisse |
+| `FAIR_EVAL.md` | Faire Selektor-Eval: Sim(3)-ATE + Held-out-Novel-View-PSNR (warum train-view-PSNR unfair ist); `scripts/eval/fair_eval.py`, `fair_eval.enabled` |
+| `docs/VIO_GPS_AMTOWN.md` | VIO+GPS auf amtown03 (Stage C): full_6199f-Sweep, Gravity-Leak-Diagnose, hartes GPS schlägt VO (ATE 6.14 vs 12.76 m), GPS-Gewicht-Sättigung, DJI-GT-Verzerrung, Extrinsik-Optimierung; Configs `configs/local/amtown03/vio_spike/` |
+| `docs/INTERVAL1_LIDAR_PIPELINE.md` | Kompletter driftfreier interval1-Survey-PLY: GT-Posen (ATE 0.07 m) + LiDAR-Tiefe + Chunk&Merge; echter Render-Check via `render_ply_views.py`; Ergebnis `output/exp_interval1_lidarchunks/survey_lidar_complete.ply` |
 | `HOW_TO_RUN.md` | Run-Anleitung |
 | `COMMANDS.md` | nützliche Aufrufe |
 | `README.md` | Originale Repo-README (vorgelagertes Projekt) |

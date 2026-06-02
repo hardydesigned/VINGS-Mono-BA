@@ -23,6 +23,7 @@ from vings_utils.gate_a import GateA
 from vings_utils.gate_a_v2 import GateAV2
 from storage.storage_manage import StorageManager
 from loop.loop_model import LoopModel
+from eval.fair_eval import run_fair_eval
 from metric.metric_model import Metric_Model
 import time
 import json
@@ -148,7 +149,11 @@ class Runner:
         else:
             self.looper = None
         
-        if 'use_metric' in cfg.keys() and cfg['use_metric']:
+        # LiDAR-Tiefe (dataset.lidar_dir) liefert depth direkt aus dem Loader ->
+        # Metric3D-Modell NICHT laden (spart ~1.5 GB GPU). use_metric bleibt true,
+        # damit der use_metric_for_mapper-Injektionspfad (viz_out-depth-Override) laeuft.
+        self.metric_predictor = None
+        if 'use_metric' in cfg.keys() and cfg['use_metric'] and not cfg['dataset'].get('lidar_dir'):
             self.metric_predictor = Metric_Model(cfg)
         # Cache Metric3D depths indexed by cam-timestamp so the mapper can
         # consume the direct metric prior instead of DROID-DBA's noisy output.
@@ -469,6 +474,16 @@ class Runner:
         self.tracker.frontend.all_imu   = self.dataset.preload_imu()
         self.tracker.frontend.all_stamp = self.dataset.preload_camtimestamp()
 
+        # Stage C: GNSS fuer den DBA-Fusion-GPSFactor laden (nur wenn der Loader es
+        # anbietet UND dataset.gnss_file gesetzt ist; sonst bleibt all_gnss=[] -> GNSS aus).
+        if hasattr(self.dataset, 'preload_gnss'):
+            _gnss = self.dataset.preload_gnss()
+            if _gnss is not None and len(_gnss) > 0:
+                self.tracker.frontend.all_gnss = _gnss
+                # Body->GNSS-Antenne-Hebel (tbg) ist sonst None -> GPSFactor crasht.
+                # Spike: Antenne ~= Body -> Null-Hebel.
+                self.tracker.frontend.video.tbg = np.zeros(3)
+
         # Profiling-Counter und Print-Throttle.
         n_keyframes = 0
         n_mapped = 0
@@ -612,6 +627,10 @@ class Runner:
             if viz_out is not None and (self.cfg['mode'] in ['vo', 'vo_nerfslam'] or self.tracker.video.imu_enabled):
                 kf_flag = 'Y'
                 n_keyframes += 1
+                # Stash the camera intrinsic the mapper sees, for post-run
+                # fair-eval rendering (same {fu,fv,cu,cv,H,W} render() expects).
+                if 'intrinsic' in viz_out:
+                    self._last_map_intrinsic = viz_out['intrinsic']
                 # KF-Filter: entweder VISTA-Selector (wenn konfiguriert) oder
                 # naives Modulo-Subsampling. Init-KF wird in beiden Faellen gemappt
                 # (Selector akzeptiert ersten Frame; modulo-Pfad: (n_keyframes-1)%N==0).
@@ -726,6 +745,11 @@ class Runner:
                               f" m={fs_score_local.n_matches})")
                 elif isinstance(fs_score_local, (int, float)):
                     fs_str = f" fs(g={fs_score_local:.3f})"
+                elif fs_score_local is not None and hasattr(fs_score_local, 'triggered_by'):
+                    # two_gate / two_gate_v2: emit the exact pipeline step that
+                    # decided this frame, frame-indexed, so notebooks can plot
+                    # per-frame WHY a frame was dropped (B1_*/B2B3_*/force/budget).
+                    fs_str = f" fs(step={fs_score_local.triggered_by})"
                 print(f"[{idx:5d}] kf={kf_flag} metric={t_metric:.3f} "
                       f"track={t_track:.3f}(mf={t_mf:.3f} fe={t_fe:.3f}) "
                       f"pkg={t_pkg:.3f} "
@@ -746,6 +770,25 @@ class Runner:
             sm = self.storage_manager if self.use_storage_manager else None
             with self.timer.time('save_ply'):
                 save_ply_streaming(self.mapper, sm, len(self.dataset) - 1, save_mode='2dgs')
+
+        # Faire, selektionsunabhaengige Eval (Sim(3)-ATE + Held-out-Novel-View-
+        # PSNR an FIXEN Frame-Positionen aus der finalen Map). Gated ueber
+        # cfg['fair_eval']['enabled']; Mapper ist hier noch GPU-resident.
+        if (self.cfg.get('fair_eval', {}) or {}).get('enabled', False):
+            try:
+                video = (self.tracker.video if hasattr(self.tracker, 'video')
+                         else self.tracker.frontend.video)
+                intr = getattr(self, '_last_map_intrinsic', None)
+                if intr is None:
+                    print('[fair_eval] no map intrinsic captured (no KF mapped?); skipping.')
+                else:
+                    with self.timer.time('fair_eval'):
+                        run_fair_eval(self.mapper, video, self.cfg, intr,
+                                      self.cfg['output']['save_dir'])
+            except Exception as _e:
+                import traceback
+                print(f"[fair_eval] failed: {_e}")
+                traceback.print_exc()
 
         # Dump finale Tracker-Posen (w2c in TUM-tq) fuer Drift-Diagnose.
         # Kombiniert MARGINALISIERTE KFs (poses_save[:count_save]) + ACTIVE-Window

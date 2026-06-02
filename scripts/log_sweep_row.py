@@ -42,6 +42,10 @@ COLUMNS = [
     "mapper_kf_skip", "frame_skip", "filter_thresh", "selector_kind",
     "ply_mb_final", "ply_count", "last_ply_kf",
     "psnr", "ssim", "lpips", "n_metric_frames",
+    # Fair, selection-independent eval (fair_metrics.json): Sim(3)-ATE +
+    # held-out novel-view PSNR/SSIM/LPIPS on a FIXED frame set vs GT.
+    "ate_rmse_m", "ate_mean_m", "n_ate_pairs", "n_tracked",
+    "psnr_ho", "ssim_ho", "lpips_ho", "n_eval_ho",
     # Phase means / p95 from profiling.json[records] (all milliseconds).
     "wall_total_s",
     "track_total_mean_ms", "track_total_p95_ms",
@@ -121,6 +125,20 @@ def parse_profiling_json(out_dir: Path) -> dict:
         return json.loads(p.read_text())
     except Exception:
         return {}
+
+
+def parse_fair_metrics(out_dir: Path) -> dict:
+    """Read fair_metrics.json (selection-independent eval); blank if absent."""
+    p = out_dir / "fair_metrics.json"
+    if not p.exists():
+        return {}
+    try:
+        d = json.loads(p.read_text())
+    except Exception:
+        return {}
+    keys = ["ate_rmse_m", "ate_mean_m", "n_ate_pairs", "n_tracked",
+            "psnr_ho", "ssim_ho", "lpips_ho", "n_eval_ho"]
+    return {k: (d.get(k) if d.get(k) is not None else "") for k in keys}
 
 
 def parse_config(config_path: Path) -> dict:
@@ -335,6 +353,7 @@ def main():
     row.pop("cfg_max_frames", None)  # internal field, do not emit
     row.update(ply)
     row.update(phases)
+    row.update(parse_fair_metrics(out_dir))
 
     log = newest_log(out_dir)
     if log is not None:

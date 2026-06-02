@@ -179,6 +179,9 @@ SELECTOR_DEFAULTS: dict[str, dict] = {
         "max_per_window": 2,
         "rate_window": 30,
         "force_after": 100,
+        # Per-Frame-Decision-Log: zeigt im Run-Log an welchem Pipeline-Schritt
+        # (B1_*/B2B3_*/force/budget) ein Frame aussortiert wurde.
+        "verbose": True,
     },
     # v2: GPS-Motion-Check aus B1 raus + neuer Pre-Tracker-A3-Sub-Gate.
     # Identische B2/B3/Theta/Budget wie two_gate; B1 ohne GPS-Pfad.
@@ -213,6 +216,8 @@ SELECTOR_DEFAULTS: dict[str, dict] = {
         "max_per_window": 2,
         "rate_window": 30,
         "force_after": 100,
+        # Per-Frame-Decision-Log (siehe two_gate).
+        "verbose": True,
         # Pre-Tracker Gate A v2 (A3 GPS-Motion neu). Geschrieben als
         # cfg['gate_a'] via patch_selector. A1 aus (start_frame=3100 ist
         # bereits Cruise), A2 mit relaxten Aerial-Thresholds.
@@ -292,6 +297,10 @@ SELECTOR_VARIANTS: dict[str, dict[str, dict]] = {
         "a3_loose":  {"_gate_a": {"gps_d_min_m": 0.4}},                # mehr Frames durch
         "a3_strict": {"_gate_a": {"gps_d_min_m": 1.6}},                # weniger Frames durch
         "a3off":     {"_gate_a": {"enable_a3": False}},                # Isolation: B1 ohne GPS, A3 aus
+        # B1 (Gate B, pre-mapper) gatet auf GPS-Distanz statt Tracker-Pose:
+        "b1gps":         {"b1_motion_source": "gps", "gps_d_min_m": 0.8},
+        "a3_loose_b1gps": {"b1_motion_source": "gps", "gps_d_min_m": 0.8,
+                           "_gate_a": {"gps_d_min_m": 0.4}},
     },
 }
 
@@ -388,6 +397,15 @@ def main() -> None:
     # Force the shared output dir for every variant; per-config save_dir
     # would scatter results otherwise.
     base["output"]["save_dir"] = SAVE_DIR
+    # SelektionsUNABHAENGIGE Eval fuer JEDE Variante: Sim(3)-ATE + Held-out-
+    # Novel-View-PSNR an fixen Frame-Positionen (jeder 10.) gegen GT. Macht den
+    # Selektor-Vergleich fair (gleiches Eval-Set, Novel-View statt train-view).
+    base["fair_eval"] = {
+        "enabled": True,
+        "eval_stride": 10,
+        "gt_poses_file": "dji_poses_all_w2c.txt",
+        "save_renders": True,
+    }
 
     plan: list[tuple[str, str, dict]] = []
 

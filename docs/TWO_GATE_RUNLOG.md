@@ -472,3 +472,71 @@ TwoGate, sparse mapping via mapskip, but with corrected poses.
 
 
 
+
+---
+
+## GPS-Gate Sweep (2026-05-30, s1000_400f)
+
+### What this is (plain language)
+
+TwoGate v2's Gate-B motion check (B1) can read its "how far did we move?" signal
+from **GPS** instead of the tracker pose (`b1_motion_source: gps`). The drone has
+to travel at least `gps_d_min_m` metres of GPS distance before a new mapper
+keyframe is allowed. Same knob also lives in Gate A (the A3 GPS check). Two
+questions: **what's a good `gps_d_min_m`**, and **does Gate A's copy of it matter
+independently of Gate B's?**
+
+This ran on the short benchmark `amtown03 s1000_400f` (start_frame 1000, 400
+frames, img 240×288), not the full 6199-frame sequence the rest of this log uses.
+Metric is **fair_eval** (held-out `psnr_ho` + `ate_rmse_m`), serial runs, ~0.5 min each.
+
+### Sweep 1 — `gps_d_min_m` (B1 and A3 together)
+
+| gps_d_min_m | mapper KFs | ate_rmse_m ↓ | psnr_ho ↑ |
+|---|---:|---:|---:|
+| **0.5** | 6 | **4.51** | **14.97** |
+| 0.8 (old default) | 6 | 26.37 | 13.01 |
+| 1.0 | 7 | 26.17 | 13.20 |
+| 1.5 | — | **CRASH** | — |
+| 3.0 | 4 | 3.86 | 7.02 |
+| 5.0 | 3 | 3.90 | 11.89 |
+
+**Winner: `gps_d_min_m = 0.5`** (best psnr_ho, low ATE). 0.8/1.0 drift badly
+(ate ~26 m); 3.0/5.0 starve the map (3–4 KFs) so psnr_ho collapses.
+
+### Sweep 2 — Gate A in isolation (B1 fixed at 0.5, only `gate_a` changed)
+
+| gate_a setting | mapper KFs | n_ate_pairs | ate_rmse_m | psnr_ho |
+|---|---:|---:|---:|---:|
+| A3 = 0.5 (reference) | 6 | 87 | **4.51** | **14.97** |
+| A3 = 0.3 | 8 | 89 | 27.34 | 13.80 |
+| A3 = 0.8 | 6 | 84 | 26.36 | 13.26 |
+| A3 = 1.5 | — | — | **CRASH** | — |
+| A3 off (`enable_a3: false`) | 12 | 400 | 8.40 | 12.91 |
+
+**No Gate-A variant beats A3 = 0.5.** Only `a3off` is structurally interesting:
+without the GPS gate in A, more KFs pass (12) and fair_eval matches all 400 frames
+(n_ate_pairs 400 vs ~85) → ate 8.4 m over the *full* trajectory, but lowest psnr_ho.
+
+### Two hard findings
+
+1. **fair-eval ATE is run-to-run noisy here.** `n_ate_pairs` jumps 40 → 400, and
+   pure *mapper-gate* changes produce ATE swings of 4.5 → 27 m that can't be a real
+   gate effect (Sim(3) alignment is fragile with few pairs). `psnr_ho` (12.9–15.0)
+   is steadier but uniformly low (sparse maps, 3–12 KFs). **For trustworthy
+   comparisons, repeat key configs 2–3× and report mean/std.**
+2. **`gps_d_min_m = 1.5` crashes reproducibly** — both d15 (B1+A3) and ga15 (A3
+   only) die in the 2DGS rasterizer backward
+   (`gaussian/gaussian_base.py:382 total_loss.backward()` →
+   `RuntimeError: CUDA error: invalid configuration argument`). Not transient.
+   Same crash signature as v5/v7 above. Debug with `CUDA_LAUNCH_BLOCKING=1`.
+
+### Configs & mechanics
+- `configs/local/amtown03/s1000_400f/two_gate_v2/`:
+  `…_b1gps_d{05,10,15,30,50}.yaml` (sweep 1),
+  `…_b1gps_d05_ga{03,08,15,_a3off}.yaml` (sweep 2).
+- Run with `conda run -n vings python scripts/run_experiment.py <config>` — config
+  is **positional** (not `--config`), and base-anaconda has no torch.
+- These were run via a hand driver, **not** the sweep harness, so they are **not**
+  in `docs/results/s1000_400f_results.csv`. Raw numbers live in each run's
+  `output/exp_amtown03_s1000_400f/<ts>-…/fair_metrics.json`.

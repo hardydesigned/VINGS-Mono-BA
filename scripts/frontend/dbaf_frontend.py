@@ -129,7 +129,10 @@ class DBAFusionFrontend:
 
         self.video.last_t0 -= roll
         self.video.last_t1 -= roll
-        if self.cfg['mode'] == 'vio':
+        if self.cfg['mode'] == 'vio' and self.video.cur_ii is not None:
+            # cur_ii/cur_jj werden nur im aktiven VIO-BA-Pfad gesetzt. Faellt VIO
+            # mangels IMU-Anregung auf visual-only zurueck (imu_enabled=False),
+            # bleiben sie None -> hier nicht dekrementieren (sonst TypeError).
             self.video.cur_ii  -= roll
             self.video.cur_jj  -= roll
         
@@ -471,7 +474,10 @@ class DBAFusionFrontend:
             tmp_g = self.video.state.preintegrations[i].deltaVij()/dt
             var_g += np.linalg.norm(tmp_g - aver_g)**2
         var_g =math.sqrt(var_g/ccount)
-        if var_g < 0.25:
+        _exc_thresh = float(self.cfg.get('frontend', {}).get('vio_excitation_thresh', 0.25))
+        print(f"[vio_spike] init_VI: IMU-Anregung var_g={var_g:.4f} (Schwelle {_exc_thresh})", flush=True)
+        if var_g < _exc_thresh:
+            print("[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)", flush=True)
             # Remember to Delete, 2024/11/03
             self.graph.update(None, None, use_inactive=True)
             self.graph.update(None, None, use_inactive=True)
@@ -507,6 +513,7 @@ class DBAFusionFrontend:
                 self.graph.update(None, None, use_inactive=True)
                 self.VisualIMUAlignment(self.t1 - 8 ,self.t1, ignore_lever= False)
                 self.video.imu_enabled = True
+                print("[vio_spike] -> VisualIMUAlignment OK: imu_enabled=True (VIO AKTIV)", flush=True)
             else:
                 self.VisualIMUAlignment(self.t1 - 8 ,self.t1, ignore_lever= True)
                 self.graph.update(None, None, use_inactive=True)
@@ -547,12 +554,22 @@ class DBAFusionFrontend:
 
     def init_GNSS(self):
         """ initialize the GNSS for geo-referencing fusion """
-        ten0 = np.array([self.all_gt[self.all_gt_keys[0]]['X0'],\
-                         self.all_gt[self.all_gt_keys[0]]['Y0'],\
-                         self.all_gt[self.all_gt_keys[0]]['Z0']])
+        if self.all_gt is not None:
+            ten0 = np.array([self.all_gt[self.all_gt_keys[0]]['X0'],\
+                             self.all_gt[self.all_gt_keys[0]]['Y0'],\
+                             self.all_gt[self.all_gt_keys[0]]['Z0']])
+        else:
+            # Kein GT-File (generic_vo): erste gueltige GNSS-Position als ECEF-Ursprung.
+            ten0 = None
+            for _i in range(len(self.video.state.gnss_valid)):
+                if self.video.state.gnss_valid[_i]:
+                    ten0 = np.asarray(self.video.state.gnss_position[_i], dtype=np.float64)
+                    break
+            if ten0 is None:
+                return
         self.video.ten0 = ten0
         tn0 = []; tw =[]
-        for i in range(len(self.video.state.wTbs) - 10,len(self.video.state.wTbs)):
+        for i in range(max(0, len(self.video.state.wTbs) - 30),len(self.video.state.wTbs)):
             if self.video.state.gnss_valid[i]:
                 # if not is_ref_set:
                 #     ten0 = self.video.sgraph.gnss_position[i]
@@ -601,6 +618,7 @@ class DBAFusionFrontend:
                 self.video.disps[i] /= s
 
             self.video.gnss_init_t1 = self.t1
+            print(f"[vio_spike] -> GNSS init OK: gnss_init_t1={self.t1}, scale s={s:.4f} (GPSFactor AKTIV)", flush=True)
             self.video.gnss_init_time = self.video.tstamp[self.t1-1]
             
             self.video.set_prior(self.video.last_t0,self.t1)

@@ -58,11 +58,18 @@ except ImportError as e:
 
 @dataclass
 class TwoGateV2Config:
-    # ---- B1 motion (pose-translation only + optional SSIM veto) ---------
-    pose_d_min_m: float = 0.15
+    # ---- B1 motion (pose-translation or gps-distance + optional SSIM veto)
+    # b1_motion_source picks WHICH distance B1 gates on:
+    #   "pose" (default) -> tracker-BA translation (arbitrary SLAM scale, model-only)
+    #   "gps"            -> GPS/ENU distance from meta['xyz_enu'] (metric); falls
+    #                        back to pose when no GPS is available so it never
+    #                        silently passes every frame.
+    b1_motion_source: str = "pose"       # "pose" | "gps"
+    pose_d_min_m: float = 0.15           # threshold when source == "pose"
+    gps_d_min_m: float = 0.5             # threshold [m] when source == "gps"
     visual_change_max_ssim: float = 0.98
     ssim_resize: int = 80                # downsample short side for cheap SSIM
-    enable_ssim_veto: bool = True        # off -> pure pose-translation B1
+    enable_ssim_veto: bool = True        # off -> pure motion-distance B1
 
     # ---- B2 covisibility -------------------------------------------------
     covis_thresh: float = 0.85
@@ -100,6 +107,7 @@ class TwoGateV2Config:
 class TwoGateV2Score:
     b1_pass: bool = False
     pose_d_m: float = 0.0
+    gps_d_m: float = 0.0
     visual_ssim: float = 1.0
     b2_pass: bool = False
     covis: float = 1.0
@@ -181,6 +189,7 @@ class TwoGateV2Selector:
         # ---- B1 state (no GPS in v2) ------------------------------------
         self.prev_kf_t:   Optional[np.ndarray] = None  # (3,)
         self.prev_kf_R:   Optional[np.ndarray] = None  # (3,3)
+        self.prev_kf_xyz: Optional[np.ndarray] = None  # ENU (3,), for gps-based B1
         self.prev_kf_rgb_small: Optional[np.ndarray] = None  # gray, uint8
 
         # ---- Adaptive theta state ---------------------------------------
@@ -213,6 +222,7 @@ class TwoGateV2Selector:
         **_: object,
     ) -> tuple[bool, TwoGateV2Score]:
         score = TwoGateV2Score(theta=self._theta)
+        meta = meta or {}
         self._frames_since_kf += 1
         self._call_idx += 1
 
@@ -221,7 +231,7 @@ class TwoGateV2Selector:
 
         # ---- Bootstrap ---------------------------------------------------
         if self.prev_kf_t is None:
-            self._commit(t, R, rgb, depth)
+            self._commit(t, R, rgb, depth, meta)
             score.b1_pass = score.b2_pass = score.b3_pass = True
             score.forced = True
             score.accepted = True
@@ -229,13 +239,26 @@ class TwoGateV2Selector:
             self._log(score)
             return True, score
 
-        # ---- B1 motion (pose-translation + optional SSIM veto) ----------
-        # GPS handling has moved upstream to Gate A v2 (A3). Here we only
-        # need to check that the tracker reports meaningful motion since
-        # the last KF, plus an anti-drift SSIM veto for scale-collapse.
+        # ---- B1 motion (pose-translation OR gps-distance + optional SSIM veto)
+        # b1_motion_source selects which distance gates B1. "pose" = tracker-BA
+        # translation (default); "gps" = metric GPS distance from meta['xyz_enu']
+        # (the same A3 signal, but applied here at Gate B / pre-mapper). GPS falls
+        # back to pose when meta has no xyz_enu so it never passes everything.
         score.pose_d_m = float(np.linalg.norm(t - self.prev_kf_t))
-        motion_ok = score.pose_d_m >= self.cfg.pose_d_min_m
-        b1_reason = "" if motion_ok else "B1_pose_below_min"
+        if self.cfg.b1_motion_source == "gps":
+            gps_xyz = meta.get("xyz_enu")
+            if gps_xyz is not None and self.prev_kf_xyz is not None:
+                score.gps_d_m = float(np.linalg.norm(
+                    np.asarray(gps_xyz, dtype=np.float32) - self.prev_kf_xyz))
+                motion_ok = score.gps_d_m >= self.cfg.gps_d_min_m
+                b1_reason = "" if motion_ok else "B1_gps_below_min"
+            else:
+                # no GPS this call -> fall back to pose so B1 still gates
+                motion_ok = score.pose_d_m >= self.cfg.pose_d_min_m
+                b1_reason = "" if motion_ok else "B1_pose_below_min(no_gps)"
+        else:
+            motion_ok = score.pose_d_m >= self.cfg.pose_d_min_m
+            b1_reason = "" if motion_ok else "B1_pose_below_min"
 
         if (motion_ok
                 and self.cfg.enable_ssim_veto
@@ -326,7 +349,7 @@ class TwoGateV2Selector:
         self._accept_history.append(1 if accept else 0)
 
         if accept:
-            self._commit(t, R, rgb, depth)
+            self._commit(t, R, rgb, depth, meta)
             score.accepted = True
             self._theta = float(self._theta * self.cfg.decay)
             score.theta = self._theta
@@ -341,15 +364,19 @@ class TwoGateV2Selector:
         R: np.ndarray,
         rgb: Optional[np.ndarray],
         depth: np.ndarray,
+        meta: Optional[Mapping[str, Any]] = None,
     ) -> None:
         """Update internal + helper state for a newly accepted keyframe.
 
-        Same direct-write into Mm3dgs helper attributes as v1. v2 no
-        longer touches prev_kf_xyz (that responsibility lives in Gate A
-        v2 / A3 now).
+        Same direct-write into Mm3dgs helper attributes as v1. prev_kf_xyz is
+        tracked only for gps-based B1 (b1_motion_source == "gps").
         """
         self.prev_kf_t = t.copy()
         self.prev_kf_R = R.copy()
+
+        gps_xyz = (meta or {}).get("xyz_enu")
+        if gps_xyz is not None:
+            self.prev_kf_xyz = np.asarray(gps_xyz, dtype=np.float32).copy()
 
         self._covis_helper.prev_kf_R = R.copy()
         self._covis_helper.prev_kf_t = t.copy()
@@ -372,6 +399,7 @@ class TwoGateV2Selector:
         fate via `score.triggered_by`:
           first                      -> bootstrap KF (always mapped)
           B1_pose_below_min          -> B1 motion gate: tracker-pose move too small
+          B1_gps_below_min           -> B1 motion gate: GPS move too small (b1_motion_source=gps)
           B1_ssim_veto               -> B1 motion gate: image ~identical (noise/scale-collapse)
           B2B3_novelty_below_theta   -> passed B1, but composite covis+DINO novelty < theta
           force_after                -> failsafe accept after starvation
@@ -386,7 +414,7 @@ class TwoGateV2Selector:
         print(
             f"[TwoGateV2] i={self._call_idx:5d} {flag} step={score.triggered_by:<28s} "
             f"b1={int(score.b1_pass)} b2={int(score.b2_pass)} b3={int(score.b3_pass)} "
-            f"pose_d={score.pose_d_m:.2f} ssim={score.visual_ssim:.3f} "
+            f"pose_d={score.pose_d_m:.2f} gps_d={score.gps_d_m:.2f} ssim={score.visual_ssim:.3f} "
             f"covis={score.covis:.2f} dino={score.dino_d_min:.2f} "
             f"comp={score.composite:.3f} theta={score.theta:.3f} "
             f"since_kf={self._frames_since_kf}",

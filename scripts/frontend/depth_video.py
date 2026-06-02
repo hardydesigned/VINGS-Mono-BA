@@ -145,6 +145,12 @@ class DepthVideo:
         self.gnss_init_t1 = -1
         self.gnss_init_time = 0.0
         self.ten0 = None
+        # GPSFactor-Gewichtung konfigurierbar (Stage C). Default = DBA-Fusion-Original
+        # (robust Cauchy + lockere Sigmas [1,1,5]m). frontend.gnss_sigma / gnss_robust
+        # erlauben "hartes GPS" (cm-Sigmas + robust aus) -> GPS dominiert die Posen.
+        _fe = (cfg.get('frontend', {}) if isinstance(cfg, dict) else {})
+        self.gnss_sigma  = list(_fe.get('gnss_sigma', [1.0, 1.0, 5.0]))
+        self.gnss_robust = bool(_fe.get('gnss_robust', True))
         
         
         self.height_dsf, self.width_dsf = self.ht//8, self.wd//8
@@ -320,10 +326,7 @@ class DepthVideo:
                 p = p - T1.translation() + T0.translation()
                 if not linear_point.exists(X(t1-1)):
                     linear_point.insert(X(t1-1), self.cur_result.atPose3(X(t1-1)))
-                gnss_factor = gtsam.GPSFactor(X(t1-1), p,\
-                              gtsam.noiseModel.Robust.Create(\
-                              gtsam.noiseModel.mEstimator.Cauchy(0.08),\
-                  gtsam.noiseModel.Diagonal.Sigmas(np.array([1.0,1.0,5.0]))))
+                gnss_factor = gtsam.GPSFactor(X(t1-1), p, self._gnss_noise())
                 graph_temp.push_back(gnss_factor)
             if self.state.odo_valid[t1]:
                 v1 = np.matmul(self.state.wTbs[t1].rotation().matrix().T, self.state.vs[t1])
@@ -358,6 +361,15 @@ class DepthVideo:
 
     
     
+    def _gnss_noise(self):
+        """GPSFactor-Rauschmodell aus Config. Default = robust+locker (Original);
+        gnss_robust=false + kleine gnss_sigma -> hartes GPS (Posen folgen GPS)."""
+        base = gtsam.noiseModel.Diagonal.Sigmas(np.array(self.gnss_sigma, dtype=np.float64))
+        if self.gnss_robust:
+            return gtsam.noiseModel.Robust.Create(
+                gtsam.noiseModel.mEstimator.Cauchy(0.08), base)
+        return base
+
     def ba(self, target, weight, eta, ii, jj, t0=1, t1=None, itrs=2, lm=1e-4, ep=0.1, motion_only=False):
         # self.ba_raw(target, weight, eta, ii, jj, t0, t1, itrs, lm, ep, motion_only)
         # self.ba_uncertainty_dbaf(target, weight, eta, ii, jj, t0, t1, itrs, lm, ep, motion_only)
@@ -508,10 +520,7 @@ class DepthVideo:
                                         p = np.matmul(trans.Cen(self.ten0).T, self.state.gnss_position[i] - self.ten0)
                                         n0pbg = self.state.wTbs[i].rotation().rotate(self.tbg)
                                         p = p - n0pbg
-                                        gnss_factor = gtsam.GPSFactor(X(i), p,\
-                                                      gtsam.noiseModel.Robust.Create(\
-                                                      gtsam.noiseModel.mEstimator.Cauchy(0.08),\
-                                          gtsam.noiseModel.Diagonal.Sigmas(np.array([1.0,1.0,5.0]))))
+                                        gnss_factor = gtsam.GPSFactor(X(i), p, self._gnss_noise())
                                         graph.push_back(gnss_factor)
                                 if self.state.odo_valid[i]:
                                     vb = self.state.odo_vel[i]
@@ -599,10 +608,7 @@ class DepthVideo:
                             p = np.matmul(trans.Cen(self.ten0).T, self.state.gnss_position[i] - self.ten0)
                             n0pbg = self.state.wTbs[i].rotation().rotate(self.tbg)
                             p = p - n0pbg
-                            gnss_factor = gtsam.GPSFactor(X(i), p,\
-                                          gtsam.noiseModel.Robust.Create(\
-                                                      gtsam.noiseModel.mEstimator.Cauchy(0.08),\
-                                          gtsam.noiseModel.Diagonal.Sigmas(np.array([1.0,1.0,5.0]))))
+                            gnss_factor = gtsam.GPSFactor(X(i), p, self._gnss_noise())
                             self.cur_graph.push_back(gnss_factor)
                 
                 # Odo factor

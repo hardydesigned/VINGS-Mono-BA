@@ -8,6 +8,9 @@
 #   --smoke       100-frame smoke variant for both datasets
 #   --s3100       200-frame amtown03 slice starting at frame 3100 (single
 #                 dataset, short selector folder names, skip values 1..20)
+#   --s1000       400-frame amtown03 slice starting at frame 1000 (same layout)
+#   --full        full amtown03 sequence (frames 0..6198), same selector layout
+#                 as --s1000 for direct comparability (CSV full_6199f_results.csv)
 #
 # For each run we:
 #   • snapshot output dir contents BEFORE
@@ -50,6 +53,7 @@ START_AT=""
 SMOKE=0
 S3100=0
 S1000=0
+FULL=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --force)        FORCE=1; shift ;;
@@ -59,14 +63,15 @@ while [[ $# -gt 0 ]]; do
     --smoke)        SMOKE=1; shift ;;
     --s3100)        S3100=1; shift ;;
     --s1000)        S1000=1; shift ;;
+    --full)         FULL=1; shift ;;
     -h|--help)
       sed -n '2,30p' "$0"; exit 0 ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
 
-if (( SMOKE + S3100 + S1000 > 1 )); then
-  echo "[sweep] --smoke / --s3100 / --s1000 are mutually exclusive" >&2
+if (( SMOKE + S3100 + S1000 + FULL > 1 )); then
+  echo "[sweep] --smoke / --s3100 / --s1000 / --full are mutually exclusive" >&2
   exit 2
 fi
 
@@ -106,6 +111,20 @@ elif (( S1000 )); then
   SAVE_AMTOWN03="exp_amtown03_s1000_400f"
   TIMEOUT_PER_RUN="${TIMEOUT_PER_RUN:-3600}"          # 60min hard cap per 400f run
   SLEEP_BETWEEN="${SLEEP_BETWEEN:-10}"
+  SKIP_VALUES=(20 10 5 3 2 1)
+  SELECTOR_DIRS=(adaptive_kf aim coko game mm3dgs nurbs orbslam two_gate two_gate_v2 vista)
+  DATASETS=("amtown03|$SAVE_AMTOWN03|$NAME_AMTOWN03")
+elif (( FULL )); then
+  # Full amtown03 sequence (frames 0..6198). Same selector folder layout and
+  # variant set as --s1000 so the results are directly comparable, just over
+  # the entire ~6200-frame flight instead of the 400-frame slice. Configs:
+  # configs/local/amtown03/full_6199f/ (gen_full_6199f_configs.py).
+  CSV="${CSV/sweep_results.csv/full_6199f_results.csv}"
+  EXP_SUBDIR="full_6199f"
+  NAME_AMTOWN03="amtown03_full_6199f"
+  SAVE_AMTOWN03="exp_amtown03_full_6199f"
+  TIMEOUT_PER_RUN="${TIMEOUT_PER_RUN:-21600}"         # 6h hard cap per full run
+  SLEEP_BETWEEN="${SLEEP_BETWEEN:-15}"
   SKIP_VALUES=(20 10 5 3 2 1)
   SELECTOR_DIRS=(adaptive_kf aim coko game mm3dgs nurbs orbslam two_gate two_gate_v2 vista)
   DATASETS=("amtown03|$SAVE_AMTOWN03|$NAME_AMTOWN03")
