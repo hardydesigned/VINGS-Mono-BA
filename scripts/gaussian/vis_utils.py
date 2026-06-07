@@ -151,14 +151,16 @@ def vis_rgbdnua(cfg, frame_id, pred_dict, gt_dict, return_image=False):
         #    cv2.imwrite(f"{cfg['output']['save_dir']}/rgbdnua/OpticalFlow_FrameId={str(frame_id.item()).zfill(5)}.png", flow_rgb)
     
     
-    # Draw query uv.
-    if 'use_dynamic' in list(cfg.keys()) and cfg['use_dynamic']:
-        query_uv = get_query_uv(gt_dict['uncert'].permute(1, 2, 0), gt_depth).cpu().numpy() # (N, 2)
-        img = cv2.imread(f"{cfg['output']['save_dir']}/rgbdnua/FrameId={str(frame_id.item()).zfill(5)}.png")
-        np.savetxt(f"{cfg['output']['save_dir']}/rgbdnua/FrameId={str(frame_id.item()).zfill(5)}.txt", query_uv)
-        
-        draw_circles(img, query_uv[:, ::-1])
-        cv2.imwrite(f"{cfg['output']['save_dir']}/rgbdnua/FrameId={str(frame_id.item()).zfill(5)}.png", img)
+    # Dynamic-object overlay: tint the SAM-flagged dynamic pixels (those dropped
+    # from the mapping loss) red on the GT frame, so the masking is visible.
+    if cfg.get('use_dynamic') and gt_dict.get('dynamic_mask') is not None:
+        os.makedirs(os.path.join(cfg['output']['save_dir'], 'dynamic'), exist_ok=True)
+        base = (gt_rgb.detach().cpu().numpy() * 255.0).clip(0, 255).astype(np.uint8)[..., ::-1].copy()  # BGR
+        dyn = gt_dict['dynamic_mask'].detach().cpu().numpy().astype(bool)
+        if dyn.any():
+            red = np.array([0, 0, 255], dtype=np.float32)
+            base[dyn] = (0.5 * base[dyn] + 0.5 * red).astype(np.uint8)
+        cv2.imwrite(f"{cfg['output']['save_dir']}/dynamic/FrameId={str(frame_id.item()).zfill(5)}.png", base)
 
     c2w = gt_dict['pose']
     np.savetxt(f"{cfg['output']['save_dir']}/droid_c2w/{str(frame_id.item()).zfill(8)}.txt", c2w.cpu().numpy())

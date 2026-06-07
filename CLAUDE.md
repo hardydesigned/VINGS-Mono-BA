@@ -286,6 +286,8 @@ Beispiel-Configs: `configs/local/{frameselector,nurbs_lvi,mm3dgs,game_kfs,adapti
 | `FAIR_EVAL.md` | Faire Selektor-Eval: Sim(3)-ATE + Held-out-Novel-View-PSNR (warum train-view-PSNR unfair ist); `scripts/eval/fair_eval.py`, `fair_eval.enabled` |
 | `docs/VIO_GPS_AMTOWN.md` | VIO+GPS auf amtown03 (Stage C): full_6199f-Sweep, Gravity-Leak-Diagnose, hartes GPS schlägt VO (ATE 6.14 vs 12.76 m), GPS-Gewicht-Sättigung, DJI-GT-Verzerrung, Extrinsik-Optimierung; Configs `configs/local/amtown03/vio_spike/` |
 | `docs/INTERVAL1_LIDAR_PIPELINE.md` | Kompletter driftfreier interval1-Survey-PLY: GT-Posen (ATE 0.07 m) + LiDAR-Tiefe + Chunk&Merge; echter Render-Check via `render_ply_views.py`; Ergebnis `output/exp_interval1_lidarchunks/survey_lidar_complete.ply` |
+| `docs/SEGMENTATION_BACKEND.md` | Dynamic-Object-Masking: swappable Segmentation-Backend (`kind: fastsam`/`sam2` live, `sam3` Code-da-Weights-gated), `use_dynamic: true` + `segmentation.kind`; SAM segmentiert pro KF, high-Error-Segmente raus aus dem Loss; Factory `segmentation_factory.py` |
+| `docs/OBJECT_DETECTION.md` | Objekterkennung + Online-3D-Lokalisierung: `detect_objects: true` + `object_detector.kind` (`yolo`/`rtdetr`, swappable via `detector_factory.py`); pro gemapptem KF Box→Tiefe→DROID-Welt, Fusion zu Objekt-Tracks; Output `objects_droid.csv`/`object_markers_droid.ply`/`object_overlay.mp4`; Metrik/GPS später via `sim3_unwarp` |
 | `HOW_TO_RUN.md` | Run-Anleitung |
 | `COMMANDS.md` | nützliche Aufrufe |
 | `README.md` | Originale Repo-README (vorgelagertes Projekt) |
@@ -330,10 +332,14 @@ Detailliert in `docs/SESSION_NOTES_2026_05_20.md`. Pro Thema separate Docs.
    DroidNet-Tiefe aus dem internen BA reicht (TartanAir-trainiert = passende Domäne).
    Siehe `docs/RUN_CONFIG_PATTERNS.md`.
 
-2. **`scripts/dynamic/dynamic_utils.py` ist DEAD CODE** — nicht in run.py-Mainloop
-   aufgerufen. `use_dynamic: true` in der Config setzt nur Vis-Flags, kein actual
-   dynamic removal. Wer das braucht, muss externe Masken via Loader liefern.
-   Siehe `docs/SEGMENTATION_AMTOWN.md`.
+2. **`scripts/dynamic/dynamic_utils.py` ist jetzt LIVE** (seit 2026-06-05).
+   `use_dynamic: true` + `segmentation.kind: fastsam` segmentiert jeden KF mit
+   FastSAM (via `ultralytics`, Gewichte `ckpts/FastSAM-x.pt`), markiert
+   high-Photometric-Error-Segmente als dynamisch und schließt sie aus dem
+   Mapping-Loss aus (`get_loss`: `valid_mask &= ~dynamic_mask`). Backend ist
+   austauschbar (FastSAM↔SAM3 via `segmentation.kind`, Registry-Factory wie bei
+   den Selektoren). Siehe `docs/SEGMENTATION_BACKEND.md`. (Externe semantische
+   Masken bleiben der Alternativweg, siehe `docs/SEGMENTATION_AMTOWN.md`.)
 
 3. **DJI `/local_position` hat 10 % Scale-Verzerrung** vs RTK + IMU-Velocity-
    Integration. Pose-Override mit local_position-basierten DJI-Posen ist deshalb

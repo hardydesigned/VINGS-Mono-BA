@@ -4,6 +4,15 @@ dataset:
   image_dir: interval1_CAM
   image_ext: '*.jpg'
   camstamp_file: /home/philipp/Dokumente/datasets/interval1_AMtown03/vings/camstamp.txt
+  # RTK-GPS pro Frame (nearest camstamp) -> data_packet['xyz_enu']/['alt_m'] fuer GateA(A3)/
+  # TwoGate(B1). Numerische LLA-Datei (t lat lon alt), abgeleitet aus rtk_positions_raw.csv
+  # (np.loadtxt kann die Roh-CSV mit Header+String-Spalte nicht lesen). Nicht-GPS-Selektoren
+  # ignorieren das Feld; bei fehlendem GPS faellt GateA(A3) ohnehin "open".
+  gps_csv: /home/philipp/Dokumente/datasets/interval1_AMtown03/vings/gps_lla.txt
+  gps_t_col: 0
+  gps_lat_col: 1
+  gps_lon_col: 2
+  gps_alt_col: 3
   # GT-Posen (UAVScenes T4x4 -> w2c) ueberschreiben Mapper-Posen via _apply_ext_poses_to_vizout
   ext_poses_file: /home/philipp/Dokumente/datasets/interval1_AMtown03/vings/poses_w2c.txt
   module: datasets.generic_vo

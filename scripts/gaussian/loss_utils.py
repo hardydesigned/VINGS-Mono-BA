@@ -112,6 +112,12 @@ def get_loss(cfg, pred_dict, gt_dict):
     sky_mask = gt_dict['rgb'].sum(axis=0) == 0.0 # (H, W)
     valid_mask = torch.bitwise_and(~sky_mask, gt_dict['depth'].sum(axis=0) > 0.0) # (H, W)
 
+    # Dynamic-object masking (use_dynamic): drop pixels flagged as dynamic
+    # (True = dynamic) from every photometric/geometric term. sky_mask is left
+    # untouched so dynamic pixels are not treated as sky in alpha_loss.
+    if gt_dict.get('dynamic_mask') is not None:
+        valid_mask = torch.bitwise_and(valid_mask, ~gt_dict['dynamic_mask'])
+
     ssim_timeidx_weight   = 0.2
     normal_timeidx_weight = 1.0
     accum_timeidx_weight  = 1.0

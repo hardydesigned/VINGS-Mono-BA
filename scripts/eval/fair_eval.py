@@ -52,6 +52,7 @@ Returns a dict (also written to `<save_dir>/fair_metrics.json`):
 from __future__ import annotations
 
 import json
+import glob
 import os
 from typing import Optional
 
@@ -215,9 +216,12 @@ def run_fair_eval(
     ds = cfg.get("dataset", {}) or {}
 
     start_frame = int(ds.get("start_frame", 0))
+    # Global, abs-indexed file list (index abs_idx -> path). Built once and reused
+    # for the held-out lookup so timestamp-named datasets resolve correctly.
+    image_files = _list_image_files(ds)
     n_frames = int(cfg.get("max_frames", ds.get("max_frames", 0)) or 0)
     if n_frames <= 0:
-        n_frames = len(_safe_listdir_images(ds))
+        n_frames = max(0, len(image_files) - start_frame)
 
     if gt_metadata_dir is None:
         gt_metadata_dir = fe.get("gt_metadata_dir")
@@ -227,9 +231,6 @@ def run_fair_eval(
     gt_fname = fe.get("gt_poses_file", "dji_poses_all_w2c.txt")
     if eval_stride is None:
         eval_stride = int(fe.get("eval_stride", 10))
-
-    images_dir = os.path.join(ds.get("root", ""), ds.get("image_dir", "images_all"))
-    img_ext = ds.get("image_ext", "*.jpg").lstrip("*").lstrip(".") or "jpg"
 
     result: dict = {
         "ate_rmse_m": None, "ate_mean_m": None, "n_ate_pairs": 0,
@@ -329,8 +330,9 @@ def run_fair_eval(
             abs_idx = start_frame + s_idx
             if abs_idx < 0 or abs_idx >= gt_w2c.shape[0]:
                 continue
-            img_path = os.path.join(images_dir, f"{abs_idx:06d}.{img_ext}")
-            gt_img = cv2.imread(img_path)
+            if abs_idx >= len(image_files):
+                continue
+            gt_img = cv2.imread(image_files[abs_idx])
             if gt_img is None:
                 continue
             gt_img = cv2.cvtColor(gt_img, cv2.COLOR_BGR2RGB)
@@ -374,12 +376,28 @@ def run_fair_eval(
     return result
 
 
-def _safe_listdir_images(ds: dict) -> int:
+def _list_image_files(ds: dict) -> list:
+    """Full sorted list of image paths, replicating GenericVODataset's globbing
+    (multi-ext, sorted(set)). NOT sliced by start_frame -- list index i is the
+    GLOBAL abs frame index, so callers index with abs_idx = start_frame + s_idx.
+
+    Works for both index-named files (000000.jpg) and timestamp-named files
+    (1658131847.149322787.jpg) -- the held-out loop must not assume a zero-padded
+    {abs_idx:06d} filename scheme (that only holds for amtown03-style datasets).
+    """
     try:
-        d = os.path.join(ds.get("root", ""), ds.get("image_dir", "images_all"))
-        return len([f for f in os.listdir(d) if f.lower().endswith(".jpg")])
+        image_base = os.path.join(ds.get("root", ""), ds.get("image_dir", "images_all"))
+        raw_ext = ds.get("image_ext", "") or ""
+        if raw_ext:
+            exts = [e.strip() for e in raw_ext.split(",")]
+        else:
+            exts = ["*.png", "*.jpg", "*.JPG", "*.jpeg", "*.JPEG"]
+        files = []
+        for ext in exts:
+            files += glob.glob(os.path.join(image_base, ext))
+        return sorted(set(files))
     except Exception:
-        return 0
+        return []
 
 
 def _write(result: dict, save_dir: str) -> None:

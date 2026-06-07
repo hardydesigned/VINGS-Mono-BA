@@ -33,3 +33,5 @@ kornia-moons==0.2.9
 onnx==1.16.1
 onnxruntime-gpu==1.18.1
 psutil
+# Segmentation backend (FastSAM via ultralytics; SAM3-swappable)
+ultralytics==8.4.60

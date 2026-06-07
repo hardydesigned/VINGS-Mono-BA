@@ -1,0 +1,113 @@
+adc_args: {accum_thresh: 0.98}
+dataset:
+  root: /home/philipp/Dokumente/datasets/interval1_AMtown03
+  image_dir: interval1_CAM
+  image_ext: '*.jpg'
+  camstamp_file: /home/philipp/Dokumente/datasets/interval1_AMtown03/vings/camstamp.txt
+  # GT-Posen (UAVScenes T4x4 -> w2c) ueberschreiben Mapper-Posen via _apply_ext_poses_to_vizout
+  ext_poses_file: /home/philipp/Dokumente/datasets/interval1_AMtown03/vings/poses_w2c.txt
+  lidar_dir: /home/philipp/Dokumente/datasets/interval1_AMtown03/interval1_LIDAR
+  lidar_sign_u: -1.0
+  lidar_sign_v: -1.0
+  module: datasets.generic_vo
+  start_frame: 300
+  max_frames: 600           # kurzer Slice fuer den Detektions-Testlauf
+  rgb_strip: 1
+debug_mode: false
+device: {mapper: 'cuda:0', tracker: 'cuda:0'}
+frame_selector: {kind: none}
+mapper_kf_skip: 8
+ply_checkpoint_every_kf: 50
+frontend:
+  active_window: 12
+  beta: 0.3
+  buffer: 80
+  c2i: None
+  far_threshold: 0.02
+  filter_thresh: -1.0
+  frontend_nms: 1
+  frontend_radius: 2
+  frontend_thresh: 16.0
+  frontend_window: 5
+  image_size: [240, 288]
+  inac_range: 3
+  keyframe_thresh: 0.0
+  mask_threshold: -1.0
+  max_factors: 48
+  save_buffer_size: 6500
+  upsample: false
+  show_plot: false
+  skip_edge: [-4, -5, -6]
+  translation_threshold: 0.5
+  warm_up: 8
+  weight: /home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+intrinsic: {H: 2048, W: 2448, bg: 0, cu: 1174.0, cv: 1049.9, fu: 1469.5, fv: 1469.5,
+  resolution_scale: 1.0}
+middleware: {cov_times: 1000, max_cov: 3000.0, max_depth: 1000}
+mode: vo
+output: {save_dir: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_interval1_objects/}
+storage_manager: {cpu_prune_opacity_threshold: 0.5, distance_threshold: 3.0}
+training_args:
+  iters: 50
+  loss_weights: {rgb_loss: 1.0, depth_loss: 0.5, normal_loss: 0.1, alpha_loss: 0.1, dist_loss: 0.0}
+  lr: {_opacity_lr: 0.05, _rgb_lr: 0.0005, _rotation_lr: 0.001, _scaling_lr: 0.001, _xyz_lr: 0.0001}
+  num_keyframe: 8
+use_dynamic: false
+use_loop: false
+use_metric: true
+use_pose_refine: false
+seed_video_with_ext_pose: false
+use_sky: false
+use_storage_manager: true
+use_vis: false
+use_wandb: false
+vis:
+  bev_intrinsic_dict: {H: 758, W: 1372, cu: 378.5, cv: 685.5, fu: 656.4, fv: 656.4}
+  bev_w2c: [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
+  pose_scale: 1.0
+fair_eval: {enabled: false}
+use_metric_for_mapper: true
+
+# --- Online object detection + 3D-localisation ------------------------------
+# Master-Gate. Mit detect_objects:true wird jeder gemappte Keyframe durch den
+# Detektor geschickt, jede Box per Tiefe+Pose in den DROID-Weltframe projiziert
+# und zu Objekt-Tracks fusioniert. Output: objects_droid.csv +
+# object_markers_droid.ply (+ object_overlay.mp4) im save_dir. Metrik/GPS spaeter
+# via scripts/eval/sim3_unwarp.py --gps-csv (transformiert die Marker wie die Map).
+detect_objects: true
+
+object_detector:
+  kind: yolo                 # yolo | rtdetr | none (austauschbar per Factory)
+  model: yolov8n             # frei: yolov8n/s/m/l/x bzw. rtdetr-l/x
+  ckpt_path: ckpts/yolov8n.pt   # fehlt -> ultralytics auto-download
+                             # ACHTUNG: COCO-YOLO ist auf Nadir-Aerial schwach
+                             # (Objekte winzig, falsche Klassen). Fuer echte
+                             # Aerial-Detektion ckpt_path auf VisDrone/DOTA-
+                             # trainierte yolo-.pt zeigen lassen (drop-in).
+  conf: 0.20                 # Aerial: niedriger; Bodendaten: 0.35
+  iou: 0.7
+  imgsz: 1280                # Aerial: hoch (winzige Objekte); sonst 640
+  device: cpu                # VRAM-schonend; cuda:0 wenn GPU frei
+  classes: [2, 5, 7]         # COCO car/bus/truck; null = alle 80
+  max_det: 100
+  # Tiefen-Sampling pro Box
+  box_shrink: 0.6            # zentrales Fenster (gegen Hintergrund am Rand)
+  depth_percentile: 30.0     # naehere Tiefe gewinnt ueber Boden dahinter
+  min_valid_px: 3            # kleine Aerial-Boxen (240x288-Depth) -> niedrig
+  min_depth: 0.2
+  max_depth: 150.0           # Nadir-Flug ~80 m AGL: Boden liegt bei ~70-90 m!
+
+object_tracker:              # Online-Fusion
+  # interval1 = GT-ext_poses + LiDAR => METRISCHER Weltframe, also Meter.
+  # (Reiner VO ohne ext_poses = gauge-frei -> assoc_radius klein, z.B. 0.05)
+  assoc_radius: 3.0          # m: NN-Assoziation derselben Detektion ueber KFs
+  min_hits: 2                # Vorwaerts-Aerial-Flug: Objekt nur in wenigen mapped KFs
+  class_agnostic: false      # true = klassen-uebergreifend mergen + Mehrheits-Voting
+  marker_radius: 1.5         # PLY-Marker-Radius in m
+
+object_output:               # welche Artefakte (online geschrieben, DROID-Frame)
+  csv: true
+  markers_ply: true
+  overlay_video: true
+  overlay_fps: 10
+  detections_csv: true     # Per-Frame-Detektions-Log (frame_idx,t_sec,object_id,bbox,depth,world)

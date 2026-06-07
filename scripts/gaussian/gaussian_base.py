@@ -367,7 +367,19 @@ class GaussianBase:
             pred_dict = self.render(w2c, intrinsic_dict, None, w2c2=torch.linalg.inv(poses[min(curr_id+1, poses.shape[0]-1)]))
             gt_dict = {'rgb': images[curr_id].permute(2,0,1), 'depth': depths[curr_id].permute(2,0,1), 'uncert': depths_cov[curr_id].permute(2,0,1), 'c2w': c2w}
             gt_dict['depth_cov'] = depths_cov[curr_id].permute(2,0,1)
-            
+
+            # Dynamic-object masking (use_dynamic): flag pixels of high-error
+            # SAM segments on the base render, before any sky fuse below.
+            if self.cfg.get('use_dynamic') and batch.get('sam_anns') is not None:
+                from dynamic.dynamic_utils import compute_dynamic_mask
+                seg_cfg = self.cfg.get('segmentation', {})
+                gt_dict['dynamic_mask'] = compute_dynamic_mask(
+                    batch['sam_anns'][curr_id], gt_dict['rgb'], pred_dict['rgb'],
+                    loss_quantile=seg_cfg.get('dyn_loss_quantile', 0.9),
+                    high_rate=seg_cfg.get('dyn_high_rate', 0.2),
+                    mean_loss=seg_cfg.get('dyn_mean_loss', 0.002),
+                )
+
             self.wandber.log_time('forward_time')
             
             if self.cfg['use_sky']:

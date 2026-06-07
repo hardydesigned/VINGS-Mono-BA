@@ -14,6 +14,31 @@ Usage:
 import argparse, numpy as np
 from plyfile import PlyData, PlyElement
 
+# numpy-dtype -> PLY-Property-Typname (für den blockweise gestreamten Write)
+_PLY_T = {"f4": "float", "f8": "double", "i4": "int", "u4": "uint",
+          "i2": "short", "u2": "ushort", "i1": "char", "u1": "uchar"}
+
+
+def _stream_write_ply(path, src, idx, block=1_000_000):
+    """Schreibt src[idx] als binary_little_endian PLY, blockweise (kein 5-GB-Materialize).
+
+    src ist das (typ. memmap-backed) structured vertex-array, idx die int-Indizes der
+    behaltenen Zeilen. Peak-RAM ~ block Zeilen statt der gesamten Auswahl.
+    """
+    dt = src.dtype
+    props = []
+    for name in dt.names:
+        t = _PLY_T.get(dt[name].str[1:])
+        if t is None:
+            raise ValueError(f"PLY-Property-Typ für {dt[name].str} ({name}) nicht unterstützt")
+        props.append(f"property {t} {name}")
+    header = ("ply\nformat binary_little_endian 1.0\n"
+              f"element vertex {idx.size}\n" + "\n".join(props) + "\nend_header\n")
+    with open(path, "wb") as f:
+        f.write(header.encode("ascii"))
+        for s in range(0, idx.size, block):
+            f.write(np.ascontiguousarray(src[idx[s:s + block]]).tobytes())
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -80,10 +105,9 @@ def main():
         keep &= np.abs(xyz[:, 2] - zmed) <= args.max_z_spread
         print(f"[clean] nach z-spread <= {args.max_z_spread} (med {zmed:.1f}): {keep.sum()}/{n0}")
 
-    kept = v[keep]
-    el = PlyElement.describe(kept, "vertex")
-    PlyData([el]).write(args.out)
-    print(f"[clean] {kept.shape[0]}/{n0} Gaussians behalten ({100*kept.shape[0]/n0:.1f}%) -> {args.out}")
+    idx = np.nonzero(keep)[0]
+    _stream_write_ply(args.out, v, idx)
+    print(f"[clean] {idx.size}/{n0} Gaussians behalten ({100*idx.size/n0:.1f}%) -> {args.out}")
 
 
 if __name__ == "__main__":

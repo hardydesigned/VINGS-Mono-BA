@@ -201,6 +201,34 @@ class Runner:
             image_hw = (H_full, W_full)
         self.frame_selector = make_frame_selector(cfg, K, image_hw)
 
+        # Dynamic-object masking (optional, off by default). When use_dynamic is
+        # set AND a segmentation backend is configured, each keyframe is segmented
+        # before the mapper runs; high-error segments are dropped from the mapping
+        # loss (see gaussian/loss_utils.get_loss). Swap FastSAM<->SAM3 via
+        # cfg['segmentation'].kind -- no other code changes needed.
+        self.dynamic_model = None
+        if cfg.get('use_dynamic') and (cfg.get('segmentation') or {}).get('kind') not in (None, 'none'):
+            from dynamic.dynamic_utils import DynamicModel
+            mapper_device = cfg.get('device', {}).get('mapper', 'cuda')
+            self.dynamic_model = DynamicModel(cfg, mapper_device)
+
+        # Object detection + online 3D-localisation (optional, off by default).
+        # When detect_objects is set AND a detector is configured, each mapped
+        # keyframe is run through YOLO/RT-DETR; each box is back-projected via
+        # the keyframe depth + c2w pose into the DROID world frame and fused
+        # into per-object tracks. At run end objects_droid.csv +
+        # object_markers_droid.ply (+ overlay video) are written. Metric/GPS
+        # conversion is a later step (sim3_unwarp transforms the markers like
+        # the map PLY). Swap YOLO<->RT-DETR via cfg['object_detector'].kind.
+        self.object_detector = None
+        self.object_tracker = None
+        if cfg.get('detect_objects') and (cfg.get('object_detector') or {}).get('kind') not in (None, 'none'):
+            from vings_utils.detector_factory import make_object_detector
+            from vings_utils.object_tracker import ObjectTracker
+            mapper_device = cfg.get('device', {}).get('mapper', 'cuda')
+            self.object_detector = make_object_detector(cfg, mapper_device)
+            self.object_tracker = ObjectTracker(cfg, cfg['output']['save_dir'])
+
         # Gate A: optionaler Pre-Tracker-Filter (altitude + visual quality).
         # Trennt sich konzeptionell vom frame_selector (Gate B): Gate A
         # verwirft Frames VOR dem Tracker (spart ~450 ms/Frame), Gate B
@@ -688,6 +716,60 @@ class Runner:
                                         # cfg['metric_cov'] (Default 1.0) -> weight ~1.
                                         _cov = float(self.cfg.get('metric_cov', 1.0))
                                         viz_out['depths_cov'][i, :, :, 0] = _cov
+                    # Segment each keyframe once (expensive) and stash the masks
+                    # on viz_out; the mapper turns them into per-iter dynamic
+                    # masks inside the (cheap) training loop.
+                    if self.dynamic_model is not None and 'images' in viz_out:
+                        with self.timer.time('segment'):
+                            viz_out['sam_anns'] = [
+                                self.dynamic_model.get_anns_raw(viz_out['images'][i])
+                                for i in range(viz_out['images'].shape[0])
+                            ]
+                    # Online object detection + 3D-localisation on the newest KF.
+                    # Uses the same depth/pose/intrinsic the mapper sees, so the
+                    # fused object points land on the map PLY (see object_tracker
+                    # coordinate-convention note). Best-effort: never fail the run.
+                    if self.object_detector is not None and 'images' in viz_out:
+                        try:
+                            with self.timer.time('detect'):
+                                f_idx = int(viz_out['viz_out_idx_to_f_idx'][-1])
+                                # Detect on the FULL-RES original frame -- the
+                                # 240x288 viz_out image is far too small for
+                                # aerial objects. Geometry is scaled back to the
+                                # depth resolution inside the tracker (det_hw).
+                                det_rgb = None
+                                try:
+                                    import cv2 as _cv2
+                                    fp = self.dataset.rgbinfo_dict['filepath'][f_idx]
+                                    bgr = _cv2.imread(fp)
+                                    if bgr is not None:
+                                        det_rgb = np.ascontiguousarray(bgr[..., ::-1])  # BGR->RGB
+                                except Exception:
+                                    det_rgb = None
+                                if det_rgb is None:  # fallback: low-res viz image
+                                    img = viz_out['images'][-1].detach().cpu().numpy()
+                                    det_rgb = (np.clip(img, 0.0, 1.0) * 255.0).astype(np.uint8)
+                                dets = self.object_detector.detect(det_rgb)
+                                depth_np = viz_out['depths'][-1, :, :, 0].detach().cpu().numpy()
+                                pose_c2w = viz_out['poses'][-1].detach().cpu().numpy()
+                                # True time of this keyframe's frame: the
+                                # camstamp (real Unix epoch, enables GPS/RTK
+                                # correlation later), not rgbinfo['timestamp']
+                                # which is just the frame index.
+                                try:
+                                    _cts = getattr(self.dataset, '_cam_t_sec', None)
+                                    if _cts is not None and f_idx < len(_cts):
+                                        kf_t_sec = float(_cts[f_idx])
+                                    else:
+                                        kf_t_sec = float(self.dataset.rgbinfo_dict['timestamp'][f_idx])
+                                except Exception:
+                                    kf_t_sec = float(data_packet.get('t_sec', f_idx))
+                                self.object_tracker.update(
+                                    dets, depth_np, pose_c2w, viz_out['intrinsic'],
+                                    f_idx, rgb_u8=det_rgb, det_hw=det_rgb.shape[:2],
+                                    t_sec=kf_t_sec)
+                        except Exception as _e:
+                            print(f"[detect] keyframe skipped: {_e}")
                     with self.timer.time('map.total'):
                         new_viz_out = self.mapper.run(viz_out, True)
                     t_map = self.timer.last('map.total')
@@ -770,6 +852,15 @@ class Runner:
             sm = self.storage_manager if self.use_storage_manager else None
             with self.timer.time('save_ply'):
                 save_ply_streaming(self.mapper, sm, len(self.dataset) - 1, save_mode='2dgs')
+
+        # Fuse + write the online object detections (objects_droid.csv,
+        # object_markers_droid.ply, object_overlay.mp4). Markers live in the
+        # same DROID frame as the map PLY just written above.
+        if self.object_tracker is not None:
+            try:
+                self.object_tracker.finalize(self.cfg['output']['save_dir'])
+            except Exception as _e:
+                print(f"[object_tracker] finalize failed: {_e}")
 
         # Faire, selektionsunabhaengige Eval (Sim(3)-ATE + Held-out-Novel-View-
         # PSNR an FIXEN Frame-Positionen aus der finalen Map). Gated ueber
