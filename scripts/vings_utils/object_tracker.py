@@ -304,6 +304,28 @@ class ObjectTracker:
         self._overlay_paths.append(path)
 
     # ------------------------------------------------------------------
+    def snapshot(self) -> list[dict]:
+        """Live, disk-free variant of finalize(): the currently fused objects.
+
+        Returns JSON-serialisable dicts (xyz as plain floats, in the DROID world
+        frame) for streaming to a frontend each keyframe. ``object_id`` is the
+        stable track id (``tid``) so the frontend can update markers in place.
+        """
+        objs = []
+        for tr in self.tracks:
+            if tr.n_hits < self.min_hits:
+                continue
+            cls_id, cls_name = (tr.majority_cls() if self.class_agnostic
+                                else (tr.cls_id, tr.cls_name))
+            x, y, z = (float(v) for v in tr.fused_position())
+            objs.append({
+                'object_id': int(tr.tid), 'class': cls_name, 'cls_id': int(cls_id),
+                'conf': float(tr.conf), 'n_hits': int(tr.n_hits), 'xyz': [x, y, z],
+            })
+        objs.sort(key=lambda o: (-o['n_hits'], -o['conf']))
+        return objs
+
+    # ------------------------------------------------------------------
     def finalize(self, save_dir: str | None = None):
         """Write CSV / marker-PLY / overlay-video. Returns the kept objects."""
         save_dir = save_dir or self.save_dir

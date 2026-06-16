@@ -288,6 +288,7 @@ Beispiel-Configs: `configs/local/{frameselector,nurbs_lvi,mm3dgs,game_kfs,adapti
 | `docs/INTERVAL1_LIDAR_PIPELINE.md` | Kompletter driftfreier interval1-Survey-PLY: GT-Posen (ATE 0.07 m) + LiDAR-Tiefe + Chunk&Merge; echter Render-Check via `render_ply_views.py`; Ergebnis `output/exp_interval1_lidarchunks/survey_lidar_complete.ply` |
 | `docs/SEGMENTATION_BACKEND.md` | Dynamic-Object-Masking: swappable Segmentation-Backend (`kind: fastsam`/`sam2` live, `sam3` Code-da-Weights-gated), `use_dynamic: true` + `segmentation.kind`; SAM segmentiert pro KF, high-Error-Segmente raus aus dem Loss; Factory `segmentation_factory.py` |
 | `docs/OBJECT_DETECTION.md` | Objekterkennung + Online-3D-Lokalisierung: `detect_objects: true` + `object_detector.kind` (`yolo`/`rtdetr`, swappable via `detector_factory.py`); pro gemapptem KF Box→Tiefe→DROID-Welt, Fusion zu Objekt-Tracks; Output `objects_droid.csv`/`object_markers_droid.ply`/`object_overlay.mp4`; Metrik/GPS später via `sim3_unwarp` |
+| `docs/STREAMING.md` | Live-Streaming von Gaussians (`.splat`) + Objekt-Markern zu einem Web-Frontend während des Runs via WebSocket: `stream.enabled: true`; frozen/active-Delta (StorageManager append-only vs Mapper full-replace, Key `_globalkf_id`); non-blocking daemon-Thread; `scripts/server/{stream_server,splat_encode}.py` + three.js-Frontend `static/viewer.html` (3D-Karte, Disks/Splats-Toggle, OD-Marker; `test_viewer.html` = Smoketest); braucht `pip install websockets` |
 | `HOW_TO_RUN.md` | Run-Anleitung |
 | `COMMANDS.md` | nützliche Aufrufe |
 | `README.md` | Originale Repo-README (vorgelagertes Projekt) |
@@ -299,6 +300,7 @@ Beispiel-Configs: `configs/local/{frameselector,nurbs_lvi,mm3dgs,game_kfs,adapti
 - `configs/local/{mapskip,skip_no_filter,vista,nurbs_lvi,mm3dgs,game_kfs}/` — Sweep-Configs pro Algorithmus
 - `scripts/gen_configs.py --list` — verfügbare Sweep-Profile (mehr in `scripts/config_profiles.py` registrieren)
 - `scripts/analyze_profiling.py` — Auswertung der PhaseTimer-Logs
+- `stream.enabled: true` — Live-WebSocket-Stream von Gaussians+Objekten ans Frontend (siehe `docs/STREAMING.md`); Beispiel `configs/local/stream/`, Test-Viewer `scripts/server/static/test_viewer.html`
 
 ## NTU-VIRAL-Datensatz vorbereiten
 

@@ -229,6 +229,28 @@ class Runner:
             self.object_detector = make_object_detector(cfg, mapper_device)
             self.object_tracker = ObjectTracker(cfg, cfg['output']['save_dir'])
 
+        # Live-Streaming der Gaussians (.splat) + Object-Marker zu einem Web-
+        # Frontend ueber WebSocket. Gated ueber cfg['stream']['enabled'] (Default
+        # aus). Der Server laeuft in einem daemon-Thread mit drop-oldest-Queue,
+        # damit der Run-Loop NIE auf Netzwerk-I/O blockiert. Delta-Strategie:
+        # frozen (StorageManager, append-only via _globalkf_id) + active (Mapper-
+        # GPU, jedes Mal full-replace). Siehe scripts/server/stream_server.py.
+        self.stream_server = None
+        self.stream_cfg = (cfg.get('stream') or {})
+        self._streamed_kf_ids: set = set()
+        self._stream_epoch = 0
+        if self.stream_cfg.get('enabled', False):
+            try:
+                from server.stream_server import SplatStreamServer
+                self.stream_server = SplatStreamServer(
+                    host=self.stream_cfg.get('host', '0.0.0.0'),
+                    port=int(self.stream_cfg.get('port', 8765)),
+                    max_queue=int(self.stream_cfg.get('max_queue', 16)))
+                self.stream_server.start()
+            except Exception as _e:
+                print(f"[stream] disabled (init failed): {_e}")
+                self.stream_server = None
+
         # Gate A: optionaler Pre-Tracker-Filter (altitude + visual quality).
         # Trennt sich konzeptionell vom frame_selector (Gate B): Gate A
         # verwirft Frames VOR dem Tracker (spart ~450 ms/Frame), Gate B
@@ -496,6 +518,47 @@ class Runner:
             os.replace(tmp_path, out_path)
         except Exception as e:
             print(f"profiling.json write failed: {e}")
+
+    def _stream_push_gaussians(self, idx):
+        """Push the current Gaussian state to the WebSocket frontend (best-effort).
+
+        Delta strategy keyed on `_globalkf_id` (stable per Gaussian, survives
+        prune): newly-frozen KF groups on the StorageManager CPU side are sent
+        once as `append_frozen`; the small, still-optimised Mapper GPU set is
+        always re-sent in full as `replace_active`. Without a StorageManager
+        everything is "active" -> a single `replace_all` snapshot.
+        """
+        if self.stream_server is None:
+            return
+        try:
+            import torch
+            from server.splat_encode import (encode_splat_from_mapper,
+                                              encode_splat_from_storage)
+            eps = float(self.stream_cfg.get('flat_scale_eps', 1e-3))
+            max_active = int(self.stream_cfg.get('max_active_splats', 200000))
+            sm = self.storage_manager if self.use_storage_manager else None
+
+            if sm is not None and sm._xyz.shape[0] > 0:
+                kf_ids = sm._globalkf_id
+                present = set(int(k) for k in torch.unique(kf_ids).tolist())
+                for kid in sorted(present - self._streamed_kf_ids):
+                    blob = encode_splat_from_storage(sm, kf_ids == kid, eps)
+                    if blob:
+                        self.stream_server.push({
+                            'type': 'append_frozen', 'epoch': self._stream_epoch,
+                            'kf_id': kid, 'data': blob})
+                    self._streamed_kf_ids.add(kid)
+                active = encode_splat_from_mapper(self.mapper, max_active, eps)
+                self.stream_server.push({
+                    'type': 'replace_active', 'epoch': self._stream_epoch,
+                    'data': active})
+            else:
+                allblob = encode_splat_from_mapper(self.mapper, max_active, eps)
+                self.stream_server.push({
+                    'type': 'replace_all', 'epoch': self._stream_epoch,
+                    'data': allblob})
+        except Exception as _e:
+            print(f"[stream] gaussian push skipped: {_e}")
 
     def run(self):
         # Load imu data.
@@ -768,6 +831,10 @@ class Runner:
                                     dets, depth_np, pose_c2w, viz_out['intrinsic'],
                                     f_idx, rgb_u8=det_rgb, det_hw=det_rgb.shape[:2],
                                     t_sec=kf_t_sec)
+                                if self.stream_server is not None:
+                                    self.stream_server.push({
+                                        'type': 'objects', 'epoch': self._stream_epoch,
+                                        'objects': self.object_tracker.snapshot()})
                         except Exception as _e:
                             print(f"[detect] keyframe skipped: {_e}")
                     with self.timer.time('map.total'):
@@ -784,11 +851,29 @@ class Runner:
                     if viz_out["global_kf_id"][-1] > 10 and viz_out["global_kf_id"][-1] % 3 == 0:
                         with self.timer.time('loop'):
                             self.looper.run(self.mapper, self.tracker, viz_out, idx)
+                        # Loop-Closure transformiert frozen Gaussians global ->
+                        # alle bereits gestreamten frozen-Daten sind veraltet.
+                        # Epoch++ + resync: Frontend leert die Szene, naechster
+                        # Push re-streamt das gesamte frozen-Set neu.
+                        if self.stream_server is not None:
+                            self._stream_epoch += 1
+                            self._streamed_kf_ids.clear()
+                            self.stream_server.push({'type': 'resync',
+                                                     'epoch': self._stream_epoch})
 
                 if self.use_storage_manager and (idx+1) % 10 == 0:
                     with self.timer.time('storage'):
                         self.storage_manager.run(self.tracker, self.mapper, viz_out)
                     torch.cuda.empty_cache()
+
+                # Live-Stream der Gaussians zum Frontend. Nach dem Storage-Run,
+                # damit das frozen-Set (CPU) aktuell ist. Alle stream.every_kf
+                # gemappten KFs; non-blocking (drop-oldest-Queue im Server).
+                if self.stream_server is not None and do_map and n_mapped > 0:
+                    stream_every = int(self.stream_cfg.get('every_kf', 1))
+                    if stream_every <= 1 or n_mapped % stream_every == 0:
+                        with self.timer.time('stream'):
+                            self._stream_push_gaussians(idx)
 
                 # Periodischer PLY-Checkpoint (Crash-Schutz). Wenn der Run vom
                 # vram-watchdog/OOMd SIGKILLed wird, hat man wenigstens einen
@@ -861,6 +946,13 @@ class Runner:
                 self.object_tracker.finalize(self.cfg['output']['save_dir'])
             except Exception as _e:
                 print(f"[object_tracker] finalize failed: {_e}")
+
+        # WebSocket-Stream-Server stoppen (daemon-Thread; harmlos wenn aus).
+        if self.stream_server is not None:
+            try:
+                self.stream_server.stop()
+            except Exception as _e:
+                print(f"[stream] stop failed: {_e}")
 
         # Faire, selektionsunabhaengige Eval (Sim(3)-ATE + Held-out-Novel-View-
         # PSNR an FIXEN Frame-Positionen aus der finalen Map). Gated ueber

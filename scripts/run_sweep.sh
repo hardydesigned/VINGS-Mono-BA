@@ -11,6 +11,15 @@
 #   --s1000       400-frame amtown03 slice starting at frame 1000 (same layout)
 #   --full        full amtown03 sequence (frames 0..6198), same selector layout
 #                 as --s1000 for direct comparability (CSV full_6199f_results.csv)
+#   --agz200      AGZ pure-motion 200f slice (agz_0_10000 frames 7950..8149),
+#                 1:1 mirror of --s3100 (CSV agz_s7950_200f_results.csv)
+#   --agz400      AGZ hover->motion 400f slice (agz_0_10000 frames 2675..3074),
+#                 1:1 mirror of --s1000 (CSV agz_s2675_400f_results.csv)
+#   --slice DS:START:FRAMES
+#                 generic single-slice mode for any extra amtown03/agz window
+#                 (configs from scripts/gen_slice_configs.py). Derives slug
+#                 s<START>_<FRAMES>f, CSV <ds>_<slug>_results.csv, save dir
+#                 exp_<ds>_<slug>. E.g. --slice amtown03:5000:200, --slice agz:5600:200
 #
 # For each run we:
 #   • snapshot output dir contents BEFORE
@@ -54,6 +63,9 @@ SMOKE=0
 S3100=0
 S1000=0
 FULL=0
+AGZ200=0
+AGZ400=0
+SLICE=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --force)        FORCE=1; shift ;;
@@ -64,14 +76,18 @@ while [[ $# -gt 0 ]]; do
     --s3100)        S3100=1; shift ;;
     --s1000)        S1000=1; shift ;;
     --full)         FULL=1; shift ;;
+    --agz200)       AGZ200=1; shift ;;
+    --agz400)       AGZ400=1; shift ;;
+    --slice)        SLICE="$2"; shift 2 ;;
     -h|--help)
-      sed -n '2,30p' "$0"; exit 0 ;;
+      sed -n '2,36p' "$0"; exit 0 ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
 
-if (( SMOKE + S3100 + S1000 + FULL > 1 )); then
-  echo "[sweep] --smoke / --s3100 / --s1000 / --full are mutually exclusive" >&2
+SLICE_SET=0; [[ -n "$SLICE" ]] && SLICE_SET=1
+if (( SMOKE + S3100 + S1000 + FULL + AGZ200 + AGZ400 + SLICE_SET > 1 )); then
+  echo "[sweep] --smoke / --s3100 / --s1000 / --full / --agz200 / --agz400 / --slice are mutually exclusive" >&2
   exit 2
 fi
 
@@ -128,6 +144,49 @@ elif (( FULL )); then
   SKIP_VALUES=(20 10 5 3 2 1)
   SELECTOR_DIRS=(adaptive_kf aim coko game mm3dgs nurbs orbslam two_gate two_gate_v2 vista)
   DATASETS=("amtown03|$SAVE_AMTOWN03|$NAME_AMTOWN03")
+elif (( AGZ200 )); then
+  # AGZ pure-motion 200f slice (agz_0_10000, frames 7950..8149). 1:1 mirror of
+  # the --s3100 layout but on the AGZ dataset. Configs: configs/local/agz/s7950_200f/.
+  CSV="${CSV/sweep_results.csv/agz_s7950_200f_results.csv}"
+  EXP_SUBDIR="s7950_200f"
+  NAME_AGZ="agz_s7950_200f"
+  SAVE_AGZ="exp_agz_s7950_200f"
+  TIMEOUT_PER_RUN="${TIMEOUT_PER_RUN:-3600}"          # 60min hard cap per 200f run
+  SLEEP_BETWEEN="${SLEEP_BETWEEN:-10}"
+  SKIP_VALUES=(20 10 5 3 2 1)
+  SELECTOR_DIRS=(adaptive_kf aim coko game mm3dgs nurbs orbslam two_gate two_gate_v2 vista)
+  DATASETS=("agz|$SAVE_AGZ|$NAME_AGZ")
+elif (( AGZ400 )); then
+  # AGZ hover->motion 400f slice (agz_0_10000, frames 2675..3074: 200f hover +
+  # 200f motion). 1:1 mirror of the --s1000 layout. Configs: configs/local/agz/s2675_400f/.
+  CSV="${CSV/sweep_results.csv/agz_s2675_400f_results.csv}"
+  EXP_SUBDIR="s2675_400f"
+  NAME_AGZ="agz_s2675_400f"
+  SAVE_AGZ="exp_agz_s2675_400f"
+  TIMEOUT_PER_RUN="${TIMEOUT_PER_RUN:-3600}"          # 60min hard cap per 400f run
+  SLEEP_BETWEEN="${SLEEP_BETWEEN:-10}"
+  SKIP_VALUES=(20 10 5 3 2 1)
+  SELECTOR_DIRS=(adaptive_kf aim coko game mm3dgs nurbs orbslam two_gate two_gate_v2 vista)
+  DATASETS=("agz|$SAVE_AGZ|$NAME_AGZ")
+elif (( SLICE_SET )); then
+  # Generic single-slice mode. SLICE = "DS:START:FRAMES" (e.g. amtown03:5000:200).
+  # Same selector folder layout / variant set as --s3100/--s1000, just over the
+  # given window. Configs: configs/local/<DS>/s<START>_<FRAMES>f/ (from
+  # scripts/gen_slice_configs.py). CSV: <DS>_s<START>_<FRAMES>f_results.csv.
+  IFS=':' read -r SL_DS SL_START SL_FRAMES <<< "$SLICE"
+  if [[ -z "$SL_DS" || -z "$SL_START" || -z "$SL_FRAMES" ]]; then
+    echo "[sweep] --slice expects DS:START:FRAMES, got '$SLICE'" >&2; exit 2
+  fi
+  SL_SLUG="s${SL_START}_${SL_FRAMES}f"
+  EXP_SUBDIR="$SL_SLUG"
+  SL_NAME="${SL_DS}_${SL_SLUG}"
+  SL_SAVE="exp_${SL_DS}_${SL_SLUG}"
+  CSV="${CSV/sweep_results.csv/${SL_NAME}_results.csv}"
+  TIMEOUT_PER_RUN="${TIMEOUT_PER_RUN:-3600}"          # 60min hard cap per 200/400f run
+  SLEEP_BETWEEN="${SLEEP_BETWEEN:-10}"
+  SKIP_VALUES=(20 10 5 3 2 1)
+  SELECTOR_DIRS=(adaptive_kf aim coko game mm3dgs nurbs orbslam two_gate two_gate_v2 vista)
+  DATASETS=("$SL_DS|$SL_SAVE|$SL_NAME")
 else
   EXP_SUBDIR="exp"
   NAME_AMTOWN03="amtown03_full"

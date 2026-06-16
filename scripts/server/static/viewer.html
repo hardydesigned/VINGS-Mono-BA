@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VINGS · live map</title>
+<style>
+  :root { --panel: rgba(18,20,26,.82); --line: #2b2f3a; --fg: #d7dbe3; --acc: #5db1ff; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden;
+    font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--fg); }
+  /* CSS gradient = "sky"; the WebGL canvas clears transparent on top of it */
+  #app { position: fixed; inset: 0; background: linear-gradient(#10131b 0%, #161a24 45%, #1d2330 100%); }
+  canvas { display: block; }
+  .panel { position: absolute; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px; backdrop-filter: blur(6px); }
+  #hud { top: 10px; left: 10px; white-space: pre; pointer-events: none; min-width: 168px; }
+  #hud b { color: var(--acc); font-weight: 600; }
+  #ctrl { top: 10px; right: 10px; width: 218px; display: flex; flex-direction: column; gap: 9px; }
+  #ctrl h1 { font-size: 12px; margin: 0 0 2px; color: var(--acc); letter-spacing: .04em; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .row label { opacity: .85; }
+  input[type=range] { width: 108px; accent-color: var(--acc); }
+  button { background: #222735; color: var(--fg); border: 1px solid var(--line);
+    border-radius: 6px; padding: 5px 8px; cursor: pointer; font: inherit; }
+  button:hover { border-color: var(--acc); }
+  button.on { background: var(--acc); color: #0c0f16; border-color: var(--acc); }
+  .seg { display: flex; gap: 0; }
+  .seg button { flex: 1; border-radius: 0; }
+  .seg button:first-child { border-radius: 6px 0 0 6px; }
+  .seg button:last-child { border-radius: 0 6px 6px 0; border-left: none; }
+  #conn { display: flex; gap: 6px; }
+  #conn input { flex: 1; min-width: 0; background: #0e1119; color: var(--fg);
+    border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; font: inherit; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e0564b; }
+  .dot.ok { background: #4bd07a; }
+  .hint { opacity: .5; font-size: 11px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="hud" class="panel">connecting…</div>
+<div id="ctrl" class="panel">
+  <h1>VINGS · live map</h1>
+  <div id="conn">
+    <input id="url" value="ws://localhost:8765" spellcheck="false" />
+    <button id="reconnect" title="reconnect">⟳</button>
+  </div>
+  <div class="seg" id="mode">
+    <button data-mode="disks" class="on">Disks</button>
+    <button data-mode="splats">Splats</button>
+  </div>
+  <div class="row"><label>splat size</label><input id="size" type="range" min="0.4" max="8" step="0.1" value="3" /></div>
+  <div class="row"><label>opacity</label><input id="opacity" type="range" min="0.05" max="1" step="0.05" value="0.85" /></div>
+  <div class="row">
+    <button id="labels" class="on">labels</button>
+    <button id="grid" class="on">grid</button>
+    <button id="up">Z-up</button>
+  </div>
+  <button id="refit">⤢ frame scene</button>
+  <div class="hint">drag = orbit · scroll = zoom · right-drag = pan<br/>URL override: <code>viewer.html#ws://host:port</code></div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+THREE.ColorManagement.enabled = false;   // pass photometric colours through untouched
+
+// ===========================================================================
+// scene scaffold ("the 3D map")
+// ===========================================================================
+const app = document.getElementById('app');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(0x000000, 0);     // transparent -> CSS gradient shows as sky
+app.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, 1, 0.01, 5000);
+camera.up.set(0, 0, 1);                   // DROID world is Z-up by default
+camera.position.set(4, -6, 4);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+
+const grid = new THREE.GridHelper(40, 40, 0x3a4250, 0x232833);
+grid.rotation.x = Math.PI / 2;            // GridHelper is XZ; rotate into XY for Z-up
+scene.add(grid);
+const axes = new THREE.AxesHelper(1.5);
+scene.add(axes);
+
+const frozenGroup = new THREE.Group();    // accumulating reconstruction
+const activeGroup = new THREE.Group();    // the currently-optimised set
+const objectGroup = new THREE.Group();    // detected-object markers
+scene.add(frozenGroup, activeGroup, objectGroup);
+
+// ===========================================================================
+// shared materials / geometry
+// ===========================================================================
+function discAlphaTexture() {
+  const s = 64, cv = document.createElement('canvas'); cv.width = cv.height = s;
+  const g = cv.getContext('2d').createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+  g.addColorStop(0.0, '#fff'); g.addColorStop(0.6, '#fff');
+  g.addColorStop(1.0, '#000');
+  const ctx = cv.getContext('2d'); ctx.fillStyle = g; ctx.fillRect(0, 0, s, s);
+  const t = new THREE.CanvasTexture(cv); t.needsUpdate = true; return t;
+}
+const discTex = discAlphaTexture();
+const planeGeo = new THREE.PlaneGeometry(1, 1);
+const diskMaterial = new THREE.MeshBasicMaterial({
+  alphaMap: discTex, alphaTest: 0.35, side: THREE.DoubleSide,
+  transparent: false, depthWrite: true, toneMapped: false });
+
+// --- EWA gaussian-splat shader (additive, order-independent: no depth sort) ---
+const splatUniforms = {
+  uViewport: { value: new THREE.Vector2(1, 1) },
+  uFocal:    { value: new THREE.Vector2(1, 1) },
+  uOpacity:  { value: 0.85 },
+  uSize:     { value: 1.0 },
+};
+const splatVert = `
+  precision highp float;
+  attribute vec2 corner;          // base quad in [-2,2]
+  attribute vec3 iCenter;
+  attribute vec3 iScale;          // world-space stddev (3 axes; 3rd is thin)
+  attribute vec4 iQuat;           // (x,y,z,w)
+  attribute vec4 iColor;          // rgba in [0,1]
+  uniform vec2 uViewport;
+  uniform vec2 uFocal;
+  uniform float uSize;
+  varying vec4 vColor;
+  varying vec2 vCorner;
+  mat3 quatToMat(vec4 q){
+    float x=q.x,y=q.y,z=q.z,w=q.w;
+    return mat3(
+      1.0-2.0*(y*y+z*z), 2.0*(x*y+w*z),     2.0*(x*z-w*y),
+      2.0*(x*y-w*z),     1.0-2.0*(x*x+z*z), 2.0*(y*z+w*x),
+      2.0*(x*z+w*y),     2.0*(y*z-w*x),     1.0-2.0*(x*x+y*y));
+  }
+  void main(){
+    vec4 cam = modelViewMatrix * vec4(iCenter, 1.0);
+    vec4 clip = projectionMatrix * cam;
+    if (cam.z > -0.01) { gl_Position = vec4(2.0,2.0,2.0,1.0); return; } // behind cam
+    mat3 R = quatToMat(iQuat);
+    mat3 S = mat3(iScale.x,0.0,0.0, 0.0,iScale.y,0.0, 0.0,0.0,iScale.z);
+    mat3 M = R * S;
+    mat3 Sigma = M * transpose(M);                 // 3D covariance (world)
+    mat3 W = mat3(modelViewMatrix);                // world -> view rotation
+    mat3 J = mat3(
+      uFocal.x/cam.z, 0.0, 0.0,
+      0.0, uFocal.y/cam.z, 0.0,
+      -uFocal.x*cam.x/(cam.z*cam.z), -uFocal.y*cam.y/(cam.z*cam.z), 0.0);
+    mat3 T = J * W;
+    mat3 cov = T * Sigma * transpose(T);
+    float a = cov[0][0] + 0.3;
+    float b = cov[0][1];
+    float c = cov[1][1] + 0.3;
+    float mid = 0.5*(a+c);
+    float disc = sqrt(max(mid*mid - (a*c - b*b), 0.0));
+    float l1 = mid + disc;
+    float l2 = mid - disc;
+    vec2 d1;
+    if (abs(b) < 1e-9) d1 = (a >= c) ? vec2(1.0,0.0) : vec2(0.0,1.0);
+    else d1 = normalize(vec2(b, l1 - a));
+    vec2 d2 = vec2(-d1.y, d1.x);
+    vec2 majorAxis = uSize * min(sqrt(2.0*max(l1,0.0)), 1024.0) * d1;
+    vec2 minorAxis = uSize * min(sqrt(2.0*max(l2,0.0)), 1024.0) * d2;
+    vec2 px = corner.x*majorAxis + corner.y*minorAxis;   // screen offset (pixels)
+    vec2 ndc = px / uViewport * 2.0;
+    clip.xy += ndc * clip.w;
+    vColor = iColor;
+    vCorner = corner;
+    gl_Position = clip;
+  }`;
+const splatFrag = `
+  precision highp float;
+  uniform float uOpacity;
+  varying vec4 vColor;
+  varying vec2 vCorner;
+  void main(){
+    float A = dot(vCorner, vCorner);
+    if (A > 4.0) discard;
+    float alpha = exp(-A) * vColor.a * uOpacity;
+    if (alpha < 0.003) discard;
+    gl_FragColor = vec4(vColor.rgb * alpha, alpha);   // premultiplied
+  }`;
+function makeSplatMaterial() {
+  return new THREE.ShaderMaterial({
+    uniforms: splatUniforms, vertexShader: splatVert, fragmentShader: splatFrag,
+    transparent: true, depthTest: true, depthWrite: false,
+    blending: THREE.CustomBlending, blendEquation: THREE.AddEquation,
+    blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor });
+}
+const splatMaterial = makeSplatMaterial();
+const CORNERS = new Float32Array([-2,-2, 2,-2, 2,2, -2,2]);
+const QUAD_IDX = new Uint16Array([0,1,2, 0,2,3]);
+
+// ===========================================================================
+// data model: raw decoded blocks (mode-agnostic) + their GPU object
+// ===========================================================================
+let renderMode = 'disks';
+const frozenBlocks = [];   // [{raw, obj}]
+let activeBlock = null;    // {raw, obj} | null
+const bbox = new THREE.Box3();
+let haveData = false, didAutoFit = false;
+
+const _m = new THREE.Matrix4(), _p = new THREE.Vector3(),
+      _q = new THREE.Quaternion(), _s = new THREE.Vector3(), _c = new THREE.Color();
+
+function decodeSplat(buf, n) {
+  // 32 bytes/splat: pos(0,3xf32) scale(12,3xf32) rgba(24,4xu8) quat(28,4xu8 -> w,x,y,z)
+  const dv = new DataView(buf);
+  const centers = new Float32Array(n*3), scales = new Float32Array(n*3),
+        quats = new Float32Array(n*4), colors = new Float32Array(n*4);
+  for (let i = 0; i < n; i++) {
+    const o = i*32;
+    centers[i*3]   = dv.getFloat32(o,    true);
+    centers[i*3+1] = dv.getFloat32(o+4,  true);
+    centers[i*3+2] = dv.getFloat32(o+8,  true);
+    scales[i*3]    = dv.getFloat32(o+12, true);
+    scales[i*3+1]  = dv.getFloat32(o+16, true);
+    scales[i*3+2]  = dv.getFloat32(o+20, true);
+    colors[i*4]    = dv.getUint8(o+24)/255;
+    colors[i*4+1]  = dv.getUint8(o+25)/255;
+    colors[i*4+2]  = dv.getUint8(o+26)/255;
+    colors[i*4+3]  = dv.getUint8(o+27)/255;
+    const qw = (dv.getUint8(o+28)-128)/128, qx = (dv.getUint8(o+29)-128)/128,
+          qy = (dv.getUint8(o+30)-128)/128, qz = (dv.getUint8(o+31)-128)/128;
+    quats[i*4]   = qx; quats[i*4+1] = qy; quats[i*4+2] = qz; quats[i*4+3] = qw; // (x,y,z,w)
+  }
+  return { n, centers, scales, quats, colors };
+}
+
+function buildDisk(raw) {
+  const kSize = sizeFactor();
+  const mesh = new THREE.InstancedMesh(planeGeo, diskMaterial, raw.n);
+  mesh.frustumCulled = false;
+  for (let i = 0; i < raw.n; i++) {
+    _p.set(raw.centers[i*3], raw.centers[i*3+1], raw.centers[i*3+2]);
+    _q.set(raw.quats[i*4], raw.quats[i*4+1], raw.quats[i*4+2], raw.quats[i*4+3]);
+    _s.set(raw.scales[i*3]*kSize, raw.scales[i*3+1]*kSize, 1.0);   // disc in local xy
+    _m.compose(_p, _q, _s); mesh.setMatrixAt(i, _m);
+    _c.setRGB(raw.colors[i*4], raw.colors[i*4+1], raw.colors[i*4+2]);
+    mesh.setColorAt(i, _c);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  return mesh;
+}
+
+function buildSplat(raw) {
+  const g = new THREE.InstancedBufferGeometry();
+  g.setAttribute('corner', new THREE.BufferAttribute(CORNERS, 2));
+  g.setIndex(new THREE.BufferAttribute(QUAD_IDX, 1));
+  g.setAttribute('iCenter', new THREE.InstancedBufferAttribute(raw.centers, 3));
+  g.setAttribute('iScale',  new THREE.InstancedBufferAttribute(raw.scales, 3));
+  g.setAttribute('iQuat',   new THREE.InstancedBufferAttribute(raw.quats, 4));
+  g.setAttribute('iColor',  new THREE.InstancedBufferAttribute(raw.colors, 4));
+  g.instanceCount = raw.n;
+  const mesh = new THREE.Mesh(g, splatMaterial);
+  mesh.frustumCulled = false;
+  return mesh;
+}
+
+function buildObj(raw) { return renderMode === 'disks' ? buildDisk(raw) : buildSplat(raw); }
+
+function disposeObj(obj) {
+  if (!obj) return;
+  if (obj.geometry && obj.geometry !== planeGeo) obj.geometry.dispose();
+  if (obj.dispose) obj.dispose();   // InstancedMesh
+}
+
+function growBBox(raw) {
+  for (let i = 0; i < raw.n; i += Math.max(1, (raw.n/2000)|0)) {   // sample for speed
+    _p.set(raw.centers[i*3], raw.centers[i*3+1], raw.centers[i*3+2]);
+    bbox.expandByPoint(_p);
+  }
+  haveData = true;
+}
+
+// ---- stream message handlers ----------------------------------------------
+function addFrozen(raw) {
+  const obj = buildObj(raw); frozenGroup.add(obj);
+  frozenBlocks.push({ raw, obj }); growBBox(raw);
+  if (!didAutoFit) { didAutoFit = true; refit(); }
+}
+function replaceActive(raw) {
+  if (activeBlock) { activeGroup.remove(activeBlock.obj); disposeObj(activeBlock.obj); }
+  const obj = buildObj(raw); activeGroup.add(obj); activeBlock = { raw, obj }; growBBox(raw);
+}
+function clearAll() {
+  for (const b of frozenBlocks) { frozenGroup.remove(b.obj); disposeObj(b.obj); }
+  frozenBlocks.length = 0;
+  if (activeBlock) { activeGroup.remove(activeBlock.obj); disposeObj(activeBlock.obj); activeBlock = null; }
+}
+function rebuildAll() {  // on mode toggle: rebuild GPU objects from kept raw data
+  for (const b of frozenBlocks) { frozenGroup.remove(b.obj); disposeObj(b.obj); b.obj = buildObj(b.raw); frozenGroup.add(b.obj); }
+  if (activeBlock) { activeGroup.remove(activeBlock.obj); disposeObj(activeBlock.obj); activeBlock.obj = buildObj(activeBlock.raw); activeGroup.add(activeBlock.obj); }
+}
+
+// ===========================================================================
+// object markers
+// ===========================================================================
+const markerGeo = new THREE.SphereGeometry(1, 12, 10);
+function classColor(id) { const h = (id*47) % 360; _c.setHSL(h/360, 0.7, 0.6); return _c.clone(); }
+function labelSprite(text, color) {
+  const cv = document.createElement('canvas'); cv.width = 256; cv.height = 64;
+  const ctx = cv.getContext('2d');
+  ctx.font = 'bold 30px monospace'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(0, 0, ctx.measureText(text).width+16, 44);
+  ctx.fillStyle = '#'+color.getHexString(); ctx.fillText(text, 8, 24);
+  const tex = new THREE.CanvasTexture(cv); tex.needsUpdate = true;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, toneMapped: false }));
+  sp.scale.set(0.9, 0.225, 1); sp.center.set(0, 0); return sp;
+}
+let showLabels = true;
+function setObjects(objs) {
+  objectGroup.clear();
+  const r = markerSize();
+  for (const o of objs) {
+    const col = classColor(o.cls_id ?? 0);
+    const m = new THREE.Mesh(markerGeo, new THREE.MeshBasicMaterial({ color: col, wireframe: true, toneMapped: false }));
+    m.position.set(o.xyz[0], o.xyz[1], o.xyz[2]); m.scale.setScalar(r);
+    objectGroup.add(m);
+    if (showLabels) {
+      const lab = labelSprite(`${o.class} ${(o.conf ?? 0).toFixed(2)}`, col);
+      lab.position.set(o.xyz[0]+r, o.xyz[1], o.xyz[2]+r); objectGroup.add(lab);
+    }
+  }
+  nObjects = objs.length;
+}
+function markerSize() {
+  if (!haveData) return 0.15;
+  const d = new THREE.Vector3(); bbox.getSize(d);
+  return Math.max(0.05, d.length() * 0.012);
+}
+
+// ===========================================================================
+// WebSocket
+// ===========================================================================
+let ws = null, currentEpoch = 0, reconnectT = null, backoff = 500;
+let nFrozen = 0, nActive = 0, nObjects = 0, connected = false;
+
+// Default: connect to the SAME origin the page was served from (the stream
+// server serves this HTML on its own port). Scheme follows page: https->wss.
+// Falls back to localhost when opened as a local file:// .
+function defaultWsUrl() {
+  if (location.protocol === 'http:' || location.protocol === 'https:') {
+    return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host;
+  }
+  return 'ws://localhost:8765';
+}
+function wsUrl() {
+  if (location.hash) return location.hash.slice(1);
+  const v = document.getElementById('url').value.trim();
+  return v || defaultWsUrl();
+}
+
+function connect() {
+  if (ws) { try { ws.close(); } catch (e) {} ws = null; }
+  clearTimeout(reconnectT);
+  const url = wsUrl();
+  try { ws = new WebSocket(url); } catch (e) { scheduleReconnect(); return; }
+  ws.binaryType = 'arraybuffer';
+  ws.onopen = () => { connected = true; backoff = 500; updateHud(); };
+  ws.onclose = () => { connected = false; updateHud(); scheduleReconnect(); };
+  ws.onerror = () => { try { ws.close(); } catch (e) {} };
+  ws.onmessage = (ev) => { (typeof ev.data === 'string') ? onText(ev.data) : onBinary(ev.data); };
+}
+function scheduleReconnect() {
+  clearTimeout(reconnectT);
+  reconnectT = setTimeout(connect, backoff);
+  backoff = Math.min(backoff * 1.7, 8000);
+}
+
+function onBinary(buf) {
+  const dv = new DataView(buf);
+  const hlen = dv.getUint32(0, true);
+  const header = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, hlen)));
+  if (header.epoch < currentEpoch) return;            // stale (pre-resync)
+  const raw = decodeSplat(buf.slice(4 + hlen), header.n);
+  if (header.type === 'append_frozen') { addFrozen(raw); nFrozen += header.n; }
+  else if (header.type === 'replace_active') { replaceActive(raw); nActive = header.n; }
+  else if (header.type === 'replace_all') {
+    clearAll(); nFrozen = 0; replaceActive(raw); nActive = header.n;
+  }
+  updateHud();
+}
+function onText(str) {
+  const msg = JSON.parse(str);
+  if (msg.type === 'resync') { currentEpoch = msg.epoch; clearAll(); nFrozen = nActive = 0; bbox.makeEmpty(); didAutoFit = false; updateHud('— resync —'); }
+  else if (msg.type === 'objects') { if (msg.epoch < currentEpoch) return; setObjects(msg.objects || []); updateHud(); }
+}
+
+// ===========================================================================
+// HUD + controls
+// ===========================================================================
+const hud = document.getElementById('hud');
+let fps = 0, _ft = performance.now(), _fc = 0;
+function updateHud(extra = '') {
+  const dot = connected ? '<span class="dot ok"></span>' : '<span class="dot"></span>';
+  hud.innerHTML =
+    `${dot} ${connected ? 'live' : 'offline'}   <b>${renderMode}</b>\n` +
+    `epoch    <b>${currentEpoch}</b>\n` +
+    `frozen   <b>${nFrozen.toLocaleString()}</b> splats\n` +
+    `active   <b>${nActive.toLocaleString()}</b> splats\n` +
+    `objects  <b>${nObjects}</b>\n` +
+    `fps      <b>${fps}</b>` + (extra ? `\n${extra}` : '');
+}
+
+function sizeFactor() { return parseFloat(document.getElementById('size').value); }
+function setMode(mode) {
+  if (mode === renderMode) return;
+  renderMode = mode;
+  document.querySelectorAll('#mode button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+  rebuildAll(); updateHud();
+}
+document.querySelectorAll('#mode button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+document.getElementById('size').oninput = (e) => {
+  splatUniforms.uSize.value = parseFloat(e.target.value) / 3.0;   // splat shader scale
+  if (renderMode === 'disks') rebuildAll();                       // disks need rebuild
+};
+document.getElementById('opacity').oninput = (e) => { splatUniforms.uOpacity.value = parseFloat(e.target.value); };
+document.getElementById('labels').onclick = (e) => { showLabels = !showLabels; e.target.classList.toggle('on', showLabels); };
+document.getElementById('grid').onclick = (e) => { grid.visible = !grid.visible; axes.visible = grid.visible; e.target.classList.toggle('on', grid.visible); };
+document.getElementById('up').onclick = (e) => {
+  const z = camera.up.z > 0.5;
+  if (z) { camera.up.set(0,1,0); grid.rotation.x = 0; e.target.textContent = 'Y-up'; }
+  else   { camera.up.set(0,0,1); grid.rotation.x = Math.PI/2; e.target.textContent = 'Z-up'; }
+  refit();
+};
+document.getElementById('refit').onclick = refit;
+document.getElementById('reconnect').onclick = connect;
+document.getElementById('url').onkeydown = (e) => { if (e.key === 'Enter') connect(); };
+
+function refit() {
+  if (!haveData || bbox.isEmpty()) return;
+  const c = new THREE.Vector3(), sz = new THREE.Vector3();
+  bbox.getCenter(c); bbox.getSize(sz);
+  const r = Math.max(sz.length() * 0.6, 1.0);
+  controls.target.copy(c);
+  const dir = new THREE.Vector3(0.6, -1, 0.5).normalize();
+  camera.position.copy(c).addScaledVector(dir, r * 2.0);
+  camera.near = r / 100; camera.far = r * 100; camera.updateProjectionMatrix();
+  controls.update();
+}
+
+// ===========================================================================
+// render loop
+// ===========================================================================
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+  splatUniforms.uViewport.value.set(w * renderer.getPixelRatio(), h * renderer.getPixelRatio());
+  // pixel focal from vertical fov (square pixels): fy = (H/2)/tan(fov/2)
+  const f = (h * renderer.getPixelRatio() * 0.5) / Math.tan(THREE.MathUtils.degToRad(camera.fov) * 0.5);
+  splatUniforms.uFocal.value.set(f, f);
+}
+addEventListener('resize', resize);
+resize();
+
+function loop() {
+  requestAnimationFrame(loop);
+  controls.update();
+  renderer.render(scene, camera);
+  _fc++; const now = performance.now();
+  if (now - _ft >= 500) { fps = Math.round(_fc * 1000 / (now - _ft)); _fc = 0; _ft = now; updateHud(); }
+}
+loop();
+document.getElementById('url').value = location.hash ? location.hash.slice(1) : defaultWsUrl();
+connect();
+</script>
+</body>
+</html>

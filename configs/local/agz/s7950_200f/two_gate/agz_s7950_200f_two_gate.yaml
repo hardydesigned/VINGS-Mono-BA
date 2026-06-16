@@ -1,0 +1,148 @@
+# AGZ port of configs/local/amtown03/s3100_200f/two_gate/amtown03_s3100_200f_two_gate.yaml
+# Only dataset/intrinsic/image_size/save_dir swapped to AGZ (agz_0_10000, start=7950 frames=200); selector/mapper params identical to amtown source.
+adc_args:
+  accum_thresh: 0.98
+dataset:
+  camstamp_file: /home/philipp/Dokumente/datasets/agz/agz_0_10000/agz_camstamp.txt
+  gps_alt_col: 3
+  gps_csv: /home/philipp/Dokumente/datasets/agz/agz_0_10000/agz_gps.csv
+  gps_lat_col: 1
+  gps_lon_col: 2
+  gps_t_col: 0
+  image_dir: rectified/images
+  image_ext: '*.jpg'
+  max_frames: 200
+  module: datasets.generic_vo
+  rgb_strip: 1
+  root: /home/philipp/Dokumente/datasets/agz/agz_0_10000/
+  start_frame: 7950
+debug_mode: false
+device:
+  mapper: cuda:0
+  tracker: cuda:0
+frame_selector:
+  kind: two_gate
+  gps_d_min_m: 0.8
+  gps_noise_floor_m: 0.4
+  pose_d_min_m: 0.2
+  visual_change_max_ssim: 0.985
+  ssim_resize: 80
+  covis_thresh: 0.85
+  n_samples_covis: 2048
+  min_depth: 0.2
+  max_depth: 35.0
+  enable_b3: true
+  alpha: 0.3
+  dino_model: dinov2_vits14
+  dino_image_size: 224
+  dino_device: cuda
+  dino_max_kfs: 10
+  theta0: 0.15
+  theta_init: 0.2
+  window_size: 30
+  sensitivity: 0.5
+  decay: 0.85
+  min_spacing: 3
+  max_per_window: 2
+  rate_window: 30
+  force_after: 100
+mapper_kf_skip: 1
+ply_checkpoint_every_kf: 50
+frontend:
+  active_window: 12
+  beta: 0.3
+  buffer: 80
+  c2i: None
+  far_threshold: 0.02
+  filter_thresh: -1.0
+  frontend_nms: 1
+  frontend_radius: 2
+  frontend_thresh: 16.0
+  frontend_window: 5
+  image_size:
+  - 240
+  - 432
+  inac_range: 3
+  keyframe_thresh: 0.0
+  mask_threshold: -1.0
+  max_factors: 48
+  save_buffer_size: 1300
+  upsample: false
+  show_plot: false
+  skip_edge:
+  - -4
+  - -5
+  - -6
+  translation_threshold: 0.5
+  warm_up: 8
+  weight: /home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+intrinsic:
+  H: 1080
+  W: 1920
+  bg: 0
+  cu: 555.133501
+  cv: 951.131004
+  fu: 898.326486
+  fv: 893.390108
+  resolution_scale: 1.0
+middleware:
+  cov_times: 1000
+  max_cov: 3000.0
+  max_depth: 1000
+mode: vo
+output:
+  save_dir: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_agz_s7950_200f/
+storage_manager:
+  cpu_prune_opacity_threshold: 0.1
+  distance_threshold: 3.0
+training_args:
+  iters: 50
+  loss_weights:
+    rgb_loss: 1.0
+    depth_loss: 0.5
+    normal_loss: 0.1
+    alpha_loss: 0.1
+    dist_loss: 0.0
+  lr:
+    _opacity_lr: 0.05
+    _rgb_lr: 0.0005
+    _rotation_lr: 0.001
+    _scaling_lr: 0.001
+    _xyz_lr: 0.0001
+  num_keyframe: 8
+use_dynamic: false
+use_loop: false
+use_metric: false
+use_pose_refine: false
+seed_video_with_ext_pose: false
+use_sky: false
+use_storage_manager: true
+use_vis: false
+use_wandb: false
+vis:
+  bev_intrinsic_dict:
+    H: 758
+    W: 1372
+    cu: 378.5
+    cv: 685.5
+    fu: 656.4
+    fv: 656.4
+  bev_w2c:
+  - - 1
+    - 0
+    - 0
+    - 0
+  - - 0
+    - 1
+    - 0
+    - 0
+  - - 0
+    - 0
+    - 1
+    - 0
+  - - 0
+    - 0
+    - 0
+    - 1
+  pose_scale: 1.0
+fair_eval: {enabled: true, eval_stride: 10}

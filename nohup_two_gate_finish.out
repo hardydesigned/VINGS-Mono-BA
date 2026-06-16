@@ -1,0 +1,63 @@
+[gen] output/survey_selectors/two_gate_v2/cfg_s2700.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2700 frames=500 selector=two_gate_v2
+=========== SEGMENT start=2700 (numkf=4) ===========
+[log_sweep_row] s2700: status=OK psnr=18.5723 kf=243 ply=1 dur=1.8min
+[unwarp] N=243  global-Sim3 RMSE=7.46m  ->  lokal(window=80, R=global) RMSE=3.38m
+[unwarp] WARN: keep=0 -- alle Gaussians ausgecroppt, keine ply geschrieben (output/survey_selectors/two_gate_v2/s2700_gps.ply)
+[gen] output/survey_selectors/two_gate_v2/cfg_s4200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4200 frames=500 selector=two_gate_v2
+=========== SEGMENT start=4200 (numkf=4) ===========
+[log_sweep_row] s4200: status=OK psnr=17.5597 kf=243 ply=1 dur=1.67min
+[unwarp] N=243  global-Sim3 RMSE=17.61m  ->  lokal(window=80, R=global) RMSE=3.72m
+[unwarp] 429870 -> 428514 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s4200_gps.ply
+  -> output/survey_selectors/two_gate_v2/s4200_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s4500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4500 frames=500 selector=two_gate_v2
+=========== SEGMENT start=4500 (numkf=4) ===========
+[log_sweep_row] s4500: status=OK psnr=16.91 kf=243 ply=1 dur=1.67min
+[unwarp] N=243  global-Sim3 RMSE=9.18m  ->  lokal(window=80, R=global) RMSE=4.51m
+[unwarp] 412173 -> 407961 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s4500_gps.ply
+  -> output/survey_selectors/two_gate_v2/s4500_gps.ply
+Merge 15 Segmente: s0_gps.ply s300_gps.ply s600_gps.ply s900_gps.ply s1200_gps.ply s1500_gps.ply s1800_gps.ply s2100_gps.ply s2400_gps.ply s3000_gps.ply s3300_gps.ply s3600_gps.ply s3900_gps.ply s4200_gps.ply s4500_gps.ply
+[gps-level] Referenz-Bodenhöhe ref=15.4 m (reliab.-gewichteter Median)
+seg               ground   MAD tilt mm/m   shift mode
+s0_gps.ply          15.4   5.8     180.6     0.0  shift-only  (86k)
+s300_gps.ply         5.2   9.4     305.9    10.1  shift-only  (113k)
+s600_gps.ply        50.0  10.9     256.6   -34.6  shift-only  (37k)
+s900_gps.ply        -3.5   5.5      42.1    18.9  shift-only  (239k)
+s1200_gps.ply       66.9   3.8     258.6   -51.5  shift-only  (60k)
+s1500_gps.ply        6.7   9.2      33.0     8.6  shift-only  (380k)
+s1800_gps.ply        4.8   3.7      52.0    10.6  shift-only  (362k)
+s2100_gps.ply       41.7  27.5    1374.1   -26.3  shift-only  (243k)
+s2400_gps.ply        7.0  10.1      90.9     8.3  shift-only  (218k)
+s3000_gps.ply       16.7   8.8      24.1    -1.3  shift-only  (395k)
+s3300_gps.ply       17.7   7.5     127.0    -2.3  shift-only  (395k)
+s3600_gps.ply       13.5   8.6      65.7     1.9  shift-only  (353k)
+s3900_gps.ply       13.2   8.3     114.1     2.2  shift-only  (245k)
+s4200_gps.ply       28.6   5.6      86.0   -13.2  shift-only  (428k)
+s4500_gps.ply       23.8  13.6     449.2    -8.4  shift-only  (408k)
+[gps-level] 3961118 Gaussians -> output/survey_selectors/two_gate_v2/survey_raw.ply
+[clean] nach finite-Koordinaten: 3961118/3961118
+[clean] nach scale_max<=1.5m: 3953757/3961118
+[clean] nach opacity>0.4: 3828721/3961118
+[clean] nach spatial-crop <= 160.0: 3828721/3961118
+[clean] nach z-spread <= 60.0 (med 15.9): 3828719/3961118
+[clean] 3828719/3961118 Gaussians behalten (96.7%) -> output/survey_selectors/two_gate_v2/survey_complete.ply
+/dev/sdc2       219G    188G   21G   91% /
+=========== FERTIG -> output/survey_selectors/two_gate_v2/survey_complete.ply ===========
+=========== MESSUNG (sauber, inkl. Aggregat-Zeile ALL) -> output/survey_selectors/two_gate_v2/segments.csv ===========
+  s0: status=OK psnr=21.3836 kf=85 vram=1525 ate=0.9071470833754243 ply=21.12MB
+  s300: status=OK psnr=19.5807 kf=99 vram=1571 ate=5.867218833866034 ply=27.76MB
+  s600: status=OK psnr=17.4012 kf=82 vram=1535 ate=1.0501923653871112 ply=9.03MB
+  s900: status=OK psnr=17.6116 kf=229 vram=1695 ate=8.964551362727162 ply=58.33MB
+  s1200: status=OK psnr=17.899 kf=243 vram=1697 ate=5.996624513590106 ply=14.53MB
+  s1500: status=OK psnr=17.2298 kf=243 vram=1695 ate=5.749983484912883 ply=92.69MB
+  s1800: status=OK psnr=17.2939 kf=243 vram=1652 ate=10.904322884322431 ply=88.35MB
+  s2100: status=OK psnr=16.6338 kf=243 vram=1790 ate=5.017610260995316 ply=59.52MB
+  s2400: status=OK psnr=18.3075 kf=243 vram=1660 ate=57.172236221988854 ply=53.13MB
+  s2700: status=OK psnr=17.7928 kf=243 vram=1642 ate=7.315596785188457 ply=MB
+  s3000: status=OK psnr=16.7575 kf=243 vram=1542 ate=6.464900963202775 ply=96.37MB
+  s3300: status=OK psnr=17.4611 kf=243 vram=1706 ate=9.513300352774309 ply=96.53MB
+  s3600: status=OK psnr=16.2682 kf=243 vram=1678 ate=11.137226955269647 ply=86.18MB
+  s3900: status=OK psnr=15.8966 kf=243 vram=1684 ate=39.107093902924994 ply=59.81MB
+  s4200: status=OK psnr=17.5597 kf=243 vram=1722 ate=12.536475542088215 ply=104.56MB
+  s4500: status=OK psnr=16.91 kf=243 vram=1781 ate=7.959141440495774 ply=99.54MB
+[measure_survey] 16/16 Segmente + 1 Aggregat -> output/survey_selectors/two_gate_v2/segments.csv
+[measure_survey] Survey-Zeile 'two_gate_v2' -> docs/results/survey_selectors_summary.csv  (dur=22.75min ply=934.21MB gauss=3828719 psnr min/max/mean=15.8966/21.3836/17.6242)

@@ -1,0 +1,1469 @@
+############################################################
+# SURVEY x SELEKTOREN: none vista mm3dgs adaptive_kf nurbs game orbslam coko aim two_gate_v2
+# Summary-CSV: docs/results/survey_selectors_summary.csv
+# Root: output/survey_selectors
+############################################################
+
+============================================================
+= SELEKTOR: none   cfg=<none>   -> output/survey_selectors/none
+============================================================
+[gen] output/survey_selectors/none/cfg_s0.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=0 frames=500 selector=none
+=========== SEGMENT start=0 (numkf=4) ===========
+[log_sweep_row] s0: status=FAIL psnr=21.3473 kf=60 ply=1 dur=3.72min
+[unwarp] N=69  global-Sim3 RMSE=0.04m  ->  lokal(window=80, R=global) RMSE=0.04m
+[unwarp] 1267389 -> 542704 Gaussians (crop+nadir) -> output/survey_selectors/none/s0_gps.ply
+  -> output/survey_selectors/none/s0_gps.ply
+[gen] output/survey_selectors/none/cfg_s300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=300 frames=500 selector=none
+=========== SEGMENT start=300 (numkf=4) ===========
+[log_sweep_row] s300: status=FAIL psnr=24.8953 kf=190 ply=1 dur=14.45min
+[unwarp] N=196  global-Sim3 RMSE=2.41m  ->  lokal(window=80, R=global) RMSE=0.72m
+[unwarp] 1257625 -> 1254655 Gaussians (crop+nadir) -> output/survey_selectors/none/s300_gps.ply
+  -> output/survey_selectors/none/s300_gps.ply
+[gen] output/survey_selectors/none/cfg_s600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=600 frames=500 selector=none
+=========== SEGMENT start=600 (numkf=4) ===========
+[log_sweep_row] s600: status=FAIL psnr=18.1492 kf=40 ply=1 dur=1.35min
+[unwarp] N=47  global-Sim3 RMSE=0.05m  ->  lokal(window=80, R=global) RMSE=0.05m
+[unwarp] 1248855 -> 852332 Gaussians (crop+nadir) -> output/survey_selectors/none/s600_gps.ply
+  -> output/survey_selectors/none/s600_gps.ply
+[gen] output/survey_selectors/none/cfg_s900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=900 frames=500 selector=none
+=========== SEGMENT start=900 (numkf=4) ===========
+[log_sweep_row] s900: status=FAIL psnr=17.6736 kf=40 ply=1 dur=3.07min
+[unwarp] N=46  global-Sim3 RMSE=1.29m  ->  lokal(window=80, R=global) RMSE=1.31m
+[unwarp] 1032493 -> 327379 Gaussians (crop+nadir) -> output/survey_selectors/none/s900_gps.ply
+  -> output/survey_selectors/none/s900_gps.ply
+[gen] output/survey_selectors/none/cfg_s1200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1200 frames=500 selector=none
+=========== SEGMENT start=1200 (numkf=4) ===========
+[log_sweep_row] s1200: status=OK psnr=24.9541 kf=492 ply=1 dur=24.22min
+[unwarp] N=492  global-Sim3 RMSE=7.64m  ->  lokal(window=80, R=global) RMSE=1.48m
+[unwarp] 2323238 -> 809909 Gaussians (crop+nadir) -> output/survey_selectors/none/s1200_gps.ply
+  -> output/survey_selectors/none/s1200_gps.ply
+[gen] output/survey_selectors/none/cfg_s1500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1500 frames=500 selector=none
+=========== SEGMENT start=1500 (numkf=4) ===========
+[log_sweep_row] s1500: status=FAIL psnr=25.3672 kf=220 ply=1 dur=9.83min
+[unwarp] N=223  global-Sim3 RMSE=2.07m  ->  lokal(window=80, R=global) RMSE=1.39m
+[unwarp] 1391984 -> 498073 Gaussians (crop+nadir) -> output/survey_selectors/none/s1500_gps.ply
+  -> output/survey_selectors/none/s1500_gps.ply
+[gen] output/survey_selectors/none/cfg_s1800.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1800 frames=500 selector=none
+=========== SEGMENT start=1800 (numkf=4) ===========
+[log_sweep_row] s1800: status=OK psnr=23.391 kf=492 ply=1 dur=25.47min
+[unwarp] N=492  global-Sim3 RMSE=14.01m  ->  lokal(window=80, R=global) RMSE=2.08m
+[unwarp] 2848136 -> 2455359 Gaussians (crop+nadir) -> output/survey_selectors/none/s1800_gps.ply
+  -> output/survey_selectors/none/s1800_gps.ply
+[gen] output/survey_selectors/none/cfg_s2100.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2100 frames=500 selector=none
+=========== SEGMENT start=2100 (numkf=4) ===========
+[log_sweep_row] s2100: status=OK psnr=22.8022 kf=492 ply=1 dur=24.8min
+[unwarp] N=492  global-Sim3 RMSE=9.88m  ->  lokal(window=80, R=global) RMSE=1.73m
+[unwarp] 3323961 -> 1810701 Gaussians (crop+nadir) -> output/survey_selectors/none/s2100_gps.ply
+  -> output/survey_selectors/none/s2100_gps.ply
+[gen] output/survey_selectors/none/cfg_s2400.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2400 frames=500 selector=none
+=========== SEGMENT start=2400 (numkf=4) ===========
+[log_sweep_row] s2400: status=FAIL psnr=21.9158 kf=220 ply=1 dur=12.07min
+[unwarp] N=227  global-Sim3 RMSE=6.37m  ->  lokal(window=80, R=global) RMSE=3.44m
+[unwarp] 2008323 -> 634019 Gaussians (crop+nadir) -> output/survey_selectors/none/s2400_gps.ply
+  -> output/survey_selectors/none/s2400_gps.ply
+[gen] output/survey_selectors/none/cfg_s2700.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2700 frames=500 selector=none
+=========== SEGMENT start=2700 (numkf=4) ===========
+[log_sweep_row] s2700: status=OK psnr=23.5755 kf=492 ply=1 dur=23.58min
+[unwarp] N=492  global-Sim3 RMSE=7.69m  ->  lokal(window=80, R=global) RMSE=1.55m
+[unwarp] 3309964 -> 940081 Gaussians (crop+nadir) -> output/survey_selectors/none/s2700_gps.ply
+  -> output/survey_selectors/none/s2700_gps.ply
+[gen] output/survey_selectors/none/cfg_s3000.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3000 frames=500 selector=none
+=========== SEGMENT start=3000 (numkf=4) ===========
+[log_sweep_row] s3000: status=OK psnr=22.8979 kf=492 ply=1 dur=23.55min
+[unwarp] N=492  global-Sim3 RMSE=10.51m  ->  lokal(window=80, R=global) RMSE=1.80m
+[unwarp] 3388667 -> 3161230 Gaussians (crop+nadir) -> output/survey_selectors/none/s3000_gps.ply
+  -> output/survey_selectors/none/s3000_gps.ply
+[gen] output/survey_selectors/none/cfg_s3300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3300 frames=500 selector=none
+=========== SEGMENT start=3300 (numkf=4) ===========
+[log_sweep_row] s3300: status=FAIL psnr=21.8283 kf=450 ply=1 dur=26.37min
+[unwarp] N=460  global-Sim3 RMSE=9.42m  ->  lokal(window=80, R=global) RMSE=1.92m
+[unwarp] 3031243 -> 2921461 Gaussians (crop+nadir) -> output/survey_selectors/none/s3300_gps.ply
+  -> output/survey_selectors/none/s3300_gps.ply
+[gen] output/survey_selectors/none/cfg_s3600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3600 frames=500 selector=none
+=========== SEGMENT start=3600 (numkf=4) ===========
+[log_sweep_row] s3600: status=FAIL psnr=22.2634 kf=450 ply=1 dur=22.6min
+[unwarp] N=459  global-Sim3 RMSE=7.42m  ->  lokal(window=80, R=global) RMSE=2.42m
+[unwarp] 3213103 -> 2711487 Gaussians (crop+nadir) -> output/survey_selectors/none/s3600_gps.ply
+  -> output/survey_selectors/none/s3600_gps.ply
+[gen] output/survey_selectors/none/cfg_s3900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3900 frames=500 selector=none
+=========== SEGMENT start=3900 (numkf=4) ===========
+[log_sweep_row] s3900: status=FAIL psnr=20.8942 kf=190 ply=1 dur=10.85min
+[unwarp] N=200  global-Sim3 RMSE=15.30m  ->  lokal(window=80, R=global) RMSE=4.14m
+[unwarp] 1781539 -> 1268406 Gaussians (crop+nadir) -> output/survey_selectors/none/s3900_gps.ply
+  -> output/survey_selectors/none/s3900_gps.ply
+[gen] output/survey_selectors/none/cfg_s4200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4200 frames=500 selector=none
+=========== SEGMENT start=4200 (numkf=4) ===========
+[log_sweep_row] s4200: status=OK psnr=23.7744 kf=492 ply=1 dur=23.42min
+[unwarp] N=492  global-Sim3 RMSE=24.15m  ->  lokal(window=80, R=global) RMSE=1.76m
+[unwarp] 3133407 -> 3018229 Gaussians (crop+nadir) -> output/survey_selectors/none/s4200_gps.ply
+  -> output/survey_selectors/none/s4200_gps.ply
+[gen] output/survey_selectors/none/cfg_s4500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4500 frames=500 selector=none
+=========== SEGMENT start=4500 (numkf=4) ===========
+[log_sweep_row] s4500: status=FAIL psnr=22.896 kf=20 ply=1 dur=0.92min
+[unwarp] N=26  global-Sim3 RMSE=1.28m  ->  lokal(window=80, R=global) RMSE=1.28m
+[unwarp] 407306 -> 406843 Gaussians (crop+nadir) -> output/survey_selectors/none/s4500_gps.ply
+  -> output/survey_selectors/none/s4500_gps.ply
+Merge 16 Segmente: s0_gps.ply s300_gps.ply s600_gps.ply s900_gps.ply s1200_gps.ply s1500_gps.ply s1800_gps.ply s2100_gps.ply s2400_gps.ply s2700_gps.ply s3000_gps.ply s3300_gps.ply s3600_gps.ply s3900_gps.ply s4200_gps.ply s4500_gps.ply
+[gps-level] Referenz-Bodenhöhe ref=28.6 m (reliab.-gewichteter Median)
+seg               ground   MAD tilt mm/m   shift mode
+s0_gps.ply          12.0   6.5     223.5    16.6  shift-only  (539k)
+s300_gps.ply        16.1   9.6     275.7    12.5  shift-only  (1249k)
+s600_gps.ply        69.0   4.6     128.6   -40.4  shift-only  (847k)
+s900_gps.ply        61.6  10.5     191.8   -33.0  shift-only  (324k)
+s1200_gps.ply       47.4  24.5    1309.1   -18.8  shift-only  (794k)
+s1500_gps.ply       45.5   2.7     601.9   -16.9  shift-only  (495k)
+s1800_gps.ply        3.7   4.1      50.2    24.9  shift-only  (2425k)
+s2100_gps.ply       38.0  28.1    1000.9    -9.3  shift-only  (1766k)
+s2400_gps.ply        8.3  16.2     430.1    20.3  shift-only  (618k)
+s2700_gps.ply       63.2   2.4     219.3   -34.6  shift-only  (933k)
+s3000_gps.ply       14.1   7.9      29.6    14.5  shift-only  (3133k)
+s3300_gps.ply       19.4   6.6      88.5     9.2  shift-only  (2906k)
+s3600_gps.ply       17.5   9.7     132.0    11.1  shift-only  (2681k)
+s3900_gps.ply       12.7   9.0      12.7    15.9  shift-only  (1260k)
+s4200_gps.ply       28.6   7.2      74.2     0.0  shift-only  (3011k)
+s4500_gps.ply       50.9   7.0     236.0   -22.3  shift-only  (407k)
+[gps-level] 23385270 Gaussians -> output/survey_selectors/none/survey_raw.ply
+[clean] nach finite-Koordinaten: 23385270/23385270
+[clean] nach scale_max<=1.5m: 22989482/23385270
+[clean] nach opacity>0.4: 19080367/23385270
+[clean] nach spatial-crop <= 160.0: 19080367/23385270
+[clean] nach z-spread <= 60.0 (med 28.4): 19079983/23385270
+[clean] 19079983/23385270 Gaussians behalten (81.6%) -> output/survey_selectors/none/survey_complete.ply
+/dev/sdc2       219G    177G   32G   85% /
+=========== FERTIG -> output/survey_selectors/none/survey_complete.ply ===========
+=========== MESSUNG (sauber, inkl. Aggregat-Zeile ALL) -> output/survey_selectors/none/segments.csv ===========
+  s0: status=FAIL psnr=21.3473 kf=60 vram=9867 ate= ply=132.42MB
+  s300: status=FAIL psnr=24.8953 kf=190 vram=9812 ate= ply=306.14MB
+  s600: status=FAIL psnr=18.1492 kf=40 vram=8392 ate= ply=207.97MB
+  s900: status=FAIL psnr=17.6736 kf=40 vram=9444 ate= ply=79.88MB
+  s1200: status=OK psnr=24.9541 kf=492 vram=5356 ate=7.2814756640330485 ply=197.62MB
+  s1500: status=FAIL psnr=25.3672 kf=220 vram=6756 ate= ply=121.53MB
+  s1800: status=OK psnr=23.391 kf=492 vram=7432 ate=13.848618383936474 ply=599.11MB
+  s2100: status=OK psnr=22.8022 kf=492 vram=6551 ate=10.128893810125165 ply=441.81MB
+  s2400: status=FAIL psnr=21.9158 kf=220 vram=8734 ate= ply=154.7MB
+  s2700: status=OK psnr=23.5755 kf=492 vram=5172 ate=8.066853768680053 ply=229.38MB
+  s3000: status=OK psnr=22.8979 kf=492 vram=5792 ate=9.055621774246484 ply=771.34MB
+  s3300: status=FAIL psnr=21.8283 kf=450 vram=9804 ate= ply=712.84MB
+  s3600: status=FAIL psnr=22.2634 kf=450 vram=9773 ate= ply=661.6MB
+  s3900: status=FAIL psnr=20.8942 kf=190 vram=7855 ate= ply=309.49MB
+  s4200: status=OK psnr=23.7744 kf=492 vram=8298 ate=22.24916777720042 ply=736.45MB
+  s4500: status=FAIL psnr=22.896 kf=20 vram=9833 ate= ply=99.27MB
+[measure_survey] 16/16 Segmente + 1 Aggregat -> output/survey_selectors/none/segments.csv
+[measure_survey] Survey-Zeile 'none' -> docs/results/survey_selectors_summary.csv  (dur=247.4min ply=4655.52MB gauss=19079983 psnr min/max/mean=17.6736/25.3672/22.4141)
+# [none] aufgeraeumt -> nur output/survey_selectors/none/survey_complete.ply (4,4G)
+/dev/sdc2       219G    172G   37G   83% /
+
+============================================================
+= SELEKTOR: vista   cfg=configs/local/amtown03/s1000_400f/vista/amtown03_s1000_400f_vista_g020.yaml   -> output/survey_selectors/vista
+============================================================
+[gen] output/survey_selectors/vista/cfg_s0.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=0 frames=500 selector=vista
+=========== SEGMENT start=0 (numkf=4) ===========
+[log_sweep_row] s0: status=OK psnr=19.6435 kf=492 ply=1 dur=2.33min
+[unwarp] N=492  global-Sim3 RMSE=1.69m  ->  lokal(window=80, R=global) RMSE=0.47m
+[unwarp] 50939 -> 10653 Gaussians (crop+nadir) -> output/survey_selectors/vista/s0_gps.ply
+  -> output/survey_selectors/vista/s0_gps.ply
+[gen] output/survey_selectors/vista/cfg_s300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=300 frames=500 selector=vista
+=========== SEGMENT start=300 (numkf=4) ===========
+[log_sweep_row] s300: status=OK psnr=19.5834 kf=492 ply=1 dur=2.73min
+[unwarp] N=492  global-Sim3 RMSE=2.97m  ->  lokal(window=80, R=global) RMSE=0.69m
+[unwarp] 455904 -> 313072 Gaussians (crop+nadir) -> output/survey_selectors/vista/s300_gps.ply
+  -> output/survey_selectors/vista/s300_gps.ply
+[gen] output/survey_selectors/vista/cfg_s600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=600 frames=500 selector=vista
+=========== SEGMENT start=600 (numkf=4) ===========
+[log_sweep_row] s600: status=OK psnr=18.3602 kf=492 ply=1 dur=2.28min
+[unwarp] N=492  global-Sim3 RMSE=2.41m  ->  lokal(window=80, R=global) RMSE=1.11m
+[unwarp] 132979 -> 8117 Gaussians (crop+nadir) -> output/survey_selectors/vista/s600_gps.ply
+  -> output/survey_selectors/vista/s600_gps.ply
+[gen] output/survey_selectors/vista/cfg_s900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=900 frames=500 selector=vista
+=========== SEGMENT start=900 (numkf=4) ===========
+[log_sweep_row] s900: status=OK psnr=16.7965 kf=492 ply=1 dur=3.65min
+/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py:131: RuntimeWarning: invalid value encountered in log
+  out[sc] = (out[sc].astype(np.float64) + np.log(s_g[keep])).astype(out[sc].dtype)
+[unwarp] N=492  global-Sim3 RMSE=64.50m  ->  lokal(window=80, R=global) RMSE=5.62m
+[unwarp] 1052253 -> 221653 Gaussians (crop+nadir) -> output/survey_selectors/vista/s900_gps.ply
+  -> output/survey_selectors/vista/s900_gps.ply
+[gen] output/survey_selectors/vista/cfg_s1200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1200 frames=500 selector=vista
+=========== SEGMENT start=1200 (numkf=4) ===========
+[log_sweep_row] s1200: status=OK psnr=19.9044 kf=492 ply=1 dur=2.82min
+[unwarp] N=492  global-Sim3 RMSE=7.63m  ->  lokal(window=80, R=global) RMSE=1.48m
+[unwarp] 668178 -> 318146 Gaussians (crop+nadir) -> output/survey_selectors/vista/s1200_gps.ply
+  -> output/survey_selectors/vista/s1200_gps.ply
+[gen] output/survey_selectors/vista/cfg_s1500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1500 frames=500 selector=vista
+=========== SEGMENT start=1500 (numkf=4) ===========
+[log_sweep_row] s1500: status=OK psnr=19.5422 kf=492 ply=1 dur=3.23min
+[unwarp] N=492  global-Sim3 RMSE=5.90m  ->  lokal(window=80, R=global) RMSE=1.82m
+[unwarp] 877353 -> 794541 Gaussians (crop+nadir) -> output/survey_selectors/vista/s1500_gps.ply
+  -> output/survey_selectors/vista/s1500_gps.ply
+[gen] output/survey_selectors/vista/cfg_s1800.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1800 frames=500 selector=vista
+=========== SEGMENT start=1800 (numkf=4) ===========
+[log_sweep_row] s1800: status=OK psnr=19.4872 kf=492 ply=1 dur=3.08min
+[unwarp] N=492  global-Sim3 RMSE=14.01m  ->  lokal(window=80, R=global) RMSE=2.08m
+[unwarp] 811784 -> 753124 Gaussians (crop+nadir) -> output/survey_selectors/vista/s1800_gps.ply
+  -> output/survey_selectors/vista/s1800_gps.ply
+[gen] output/survey_selectors/vista/cfg_s2100.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2100 frames=500 selector=vista
+=========== SEGMENT start=2100 (numkf=4) ===========
+[log_sweep_row] s2100: status=OK psnr=18.5327 kf=492 ply=1 dur=3.05min
+[unwarp] N=492  global-Sim3 RMSE=9.88m  ->  lokal(window=80, R=global) RMSE=1.73m
+[unwarp] 889040 -> 659021 Gaussians (crop+nadir) -> output/survey_selectors/vista/s2100_gps.ply
+  -> output/survey_selectors/vista/s2100_gps.ply
+[gen] output/survey_selectors/vista/cfg_s2400.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2400 frames=500 selector=vista
+=========== SEGMENT start=2400 (numkf=4) ===========
+[log_sweep_row] s2400: status=OK psnr=18.975 kf=492 ply=1 dur=3.17min
+[unwarp] N=492  global-Sim3 RMSE=47.73m  ->  lokal(window=80, R=global) RMSE=3.46m
+[unwarp] 715028 -> 399423 Gaussians (crop+nadir) -> output/survey_selectors/vista/s2400_gps.ply
+  -> output/survey_selectors/vista/s2400_gps.ply
+[gen] output/survey_selectors/vista/cfg_s2700.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2700 frames=500 selector=vista
+=========== SEGMENT start=2700 (numkf=4) ===========
+[log_sweep_row] s2700: status=OK psnr=19.3146 kf=492 ply=1 dur=3.15min
+[unwarp] N=492  global-Sim3 RMSE=7.70m  ->  lokal(window=80, R=global) RMSE=1.55m
+[unwarp] 934733 -> 169164 Gaussians (crop+nadir) -> output/survey_selectors/vista/s2700_gps.ply
+  -> output/survey_selectors/vista/s2700_gps.ply
+[gen] output/survey_selectors/vista/cfg_s3000.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3000 frames=500 selector=vista
+=========== SEGMENT start=3000 (numkf=4) ===========
+[log_sweep_row] s3000: status=OK psnr=18.6732 kf=492 ply=1 dur=3.37min
+[unwarp] N=492  global-Sim3 RMSE=10.51m  ->  lokal(window=80, R=global) RMSE=1.80m
+[unwarp] 1000024 -> 941666 Gaussians (crop+nadir) -> output/survey_selectors/vista/s3000_gps.ply
+  -> output/survey_selectors/vista/s3000_gps.ply
+[gen] output/survey_selectors/vista/cfg_s3300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3300 frames=500 selector=vista
+=========== SEGMENT start=3300 (numkf=4) ===========
+[log_sweep_row] s3300: status=OK psnr=18.5898 kf=492 ply=1 dur=2.98min
+[unwarp] N=492  global-Sim3 RMSE=9.76m  ->  lokal(window=80, R=global) RMSE=1.92m
+[unwarp] 731208 -> 697800 Gaussians (crop+nadir) -> output/survey_selectors/vista/s3300_gps.ply
+  -> output/survey_selectors/vista/s3300_gps.ply
+[gen] output/survey_selectors/vista/cfg_s3600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3600 frames=500 selector=vista
+=========== SEGMENT start=3600 (numkf=4) ===========
+[log_sweep_row] s3600: status=OK psnr=18.7237 kf=492 ply=1 dur=3.32min
+[unwarp] N=492  global-Sim3 RMSE=10.94m  ->  lokal(window=80, R=global) RMSE=2.68m
+[unwarp] 973573 -> 859185 Gaussians (crop+nadir) -> output/survey_selectors/vista/s3600_gps.ply
+  -> output/survey_selectors/vista/s3600_gps.ply
+[gen] output/survey_selectors/vista/cfg_s3900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3900 frames=500 selector=vista
+=========== SEGMENT start=3900 (numkf=4) ===========
+[log_sweep_row] s3900: status=OK psnr=16.9448 kf=492 ply=1 dur=2.75min
+[unwarp] N=492  global-Sim3 RMSE=75.15m  ->  lokal(window=80, R=global) RMSE=3.28m
+[unwarp] 579496 -> 458125 Gaussians (crop+nadir) -> output/survey_selectors/vista/s3900_gps.ply
+  -> output/survey_selectors/vista/s3900_gps.ply
+[gen] output/survey_selectors/vista/cfg_s4200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4200 frames=500 selector=vista
+=========== SEGMENT start=4200 (numkf=4) ===========
+[log_sweep_row] s4200: status=OK psnr=19.5394 kf=492 ply=1 dur=3.22min
+[unwarp] N=492  global-Sim3 RMSE=24.14m  ->  lokal(window=80, R=global) RMSE=1.76m
+[unwarp] 961171 -> 944442 Gaussians (crop+nadir) -> output/survey_selectors/vista/s4200_gps.ply
+  -> output/survey_selectors/vista/s4200_gps.ply
+[gen] output/survey_selectors/vista/cfg_s4500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4500 frames=500 selector=vista
+=========== SEGMENT start=4500 (numkf=4) ===========
+[log_sweep_row] s4500: status=OK psnr=18.9308 kf=492 ply=1 dur=3.38min
+[unwarp] N=492  global-Sim3 RMSE=7.72m  ->  lokal(window=80, R=global) RMSE=2.09m
+[unwarp] 1116781 -> 1081372 Gaussians (crop+nadir) -> output/survey_selectors/vista/s4500_gps.ply
+  -> output/survey_selectors/vista/s4500_gps.ply
+Merge 16 Segmente: s0_gps.ply s300_gps.ply s600_gps.ply s900_gps.ply s1200_gps.ply s1500_gps.ply s1800_gps.ply s2100_gps.ply s2400_gps.ply s2700_gps.ply s3000_gps.ply s3300_gps.ply s3600_gps.ply s3900_gps.ply s4200_gps.ply s4500_gps.ply
+[gps-level] Referenz-Bodenhöhe ref=17.5 m (reliab.-gewichteter Median)
+seg               ground   MAD tilt mm/m   shift mode
+s0_gps.ply          13.6   2.9     539.8     3.9  shift-only  (11k)
+s300_gps.ply        -3.1  14.0     201.6    20.7  shift-only  (304k)
+s600_gps.ply        71.9   1.9      47.0   -54.4  shift-only  (8k)
+s900_gps.ply        47.2  13.7     227.8   -29.6  shift-only  (12k)
+s1200_gps.ply       45.8  24.5    1342.5   -28.3  shift-only  (318k)
+s1500_gps.ply        5.9   9.1      46.4    11.7  shift-only  (794k)
+s1800_gps.ply        4.9   4.0      49.3    12.6  shift-only  (752k)
+s2100_gps.ply       35.2  26.8    1014.3   -17.7  shift-only  (657k)
+s2400_gps.ply        9.3  13.7     108.5     8.2  shift-only  (398k)
+s2700_gps.ply       65.9   5.3     216.1   -48.4  shift-only  (169k)
+s3000_gps.ply       13.8   7.7      30.2     3.8  shift-only  (940k)
+s3300_gps.ply       19.6   6.8     103.5    -2.1  shift-only  (697k)
+s3600_gps.ply       16.5   8.7      19.7     1.1  shift-only  (857k)
+s3900_gps.ply       17.5   9.0      70.6     0.0  shift-only  (457k)
+s4200_gps.ply       27.8   6.9      67.7   -10.2  shift-only  (944k)
+s4500_gps.ply       25.9  20.3     530.8    -8.4  shift-only  (1080k)
+[gps-level] 8398222 Gaussians -> output/survey_selectors/vista/survey_raw.ply
+[clean] nach finite-Koordinaten: 8398222/8398222
+[clean] nach scale_max<=1.5m: 8360322/8398222
+[clean] nach opacity>0.4: 8018712/8398222
+[clean] nach spatial-crop <= 160.0: 8018712/8398222
+[clean] nach z-spread <= 60.0 (med 17.6): 8017246/8398222
+[clean] 8017246/8398222 Gaussians behalten (95.5%) -> output/survey_selectors/vista/survey_complete.ply
+/dev/sdc2       219G    176G   33G   85% /
+=========== FERTIG -> output/survey_selectors/vista/survey_complete.ply ===========
+=========== MESSUNG (sauber, inkl. Aggregat-Zeile ALL) -> output/survey_selectors/vista/segments.csv ===========
+  s0: status=OK psnr=19.6435 kf=492 vram=1557 ate=2.01947313678653 ply=2.6MB
+  s300: status=OK psnr=19.5834 kf=492 vram=6109 ate=3.025624358543553 ply=76.39MB
+  s600: status=OK psnr=18.3602 kf=492 vram=1569 ate=2.8489311839380256 ply=1.98MB
+  s900: status=OK psnr=16.7965 kf=492 vram=4191 ate=65.3161198663522 ply=54.08MB
+  s1200: status=OK psnr=19.9044 kf=492 vram=1721 ate=7.2707831886042635 ply=77.63MB
+  s1500: status=OK psnr=19.5422 kf=492 vram=1758 ate=5.082482937447386 ply=193.87MB
+  s1800: status=OK psnr=19.4872 kf=492 vram=1860 ate=13.845989691650674 ply=183.76MB
+  s2100: status=OK psnr=18.5327 kf=492 vram=1814 ate=10.128569899408758 ply=160.8MB
+  s2400: status=OK psnr=18.975 kf=492 vram=3926 ate=45.45019471498614 ply=97.46MB
+  s2700: status=OK psnr=19.3146 kf=492 vram=4472 ate=8.075726406758516 ply=41.28MB
+  s3000: status=OK psnr=18.6732 kf=492 vram=2021 ate=9.054595832703509 ply=229.77MB
+  s3300: status=OK psnr=18.5898 kf=492 vram=1849 ate=9.986608653531869 ply=170.26MB
+  s3600: status=OK psnr=18.7237 kf=492 vram=4607 ate=10.961744693825382 ply=209.64MB
+  s3900: status=OK psnr=16.9448 kf=492 vram=1909 ate=73.02869791408109 ply=111.78MB
+  s4200: status=OK psnr=19.5394 kf=492 vram=1791 ate=22.22937938168426 ply=230.45MB
+  s4500: status=OK psnr=18.9308 kf=492 vram=1910 ate=7.3127183462656085 ply=263.86MB
+[measure_survey] 16/16 Segmente + 1 Aggregat -> output/survey_selectors/vista/segments.csv
+[measure_survey] Survey-Zeile 'vista' -> docs/results/survey_selectors_summary.csv  (dur=47.45min ply=1956.21MB gauss=8017246 psnr min/max/mean=16.7965/19.9044/18.8463)
+# [vista] aufgeraeumt -> nur output/survey_selectors/vista/survey_complete.ply (1,9G)
+/dev/sdc2       219G    173G   35G   84% /
+
+============================================================
+= SELEKTOR: mm3dgs   cfg=configs/local/amtown03/s1000_400f/mm3dgs/amtown03_s1000_400f_mm3dgs_gap10.yaml   -> output/survey_selectors/mm3dgs
+============================================================
+[gen] output/survey_selectors/mm3dgs/cfg_s0.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=0 frames=500 selector=mm3dgs
+=========== SEGMENT start=0 (numkf=4) ===========
+[log_sweep_row] s0: status=OK psnr=21.5326 kf=492 ply=1 dur=2.4min
+[unwarp] N=492  global-Sim3 RMSE=1.72m  ->  lokal(window=80, R=global) RMSE=0.47m
+[unwarp] 116052 -> 46183 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s0_gps.ply
+  -> output/survey_selectors/mm3dgs/s0_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=300 frames=500 selector=mm3dgs
+=========== SEGMENT start=300 (numkf=4) ===========
+[log_sweep_row] s300: status=OK psnr=21.1699 kf=492 ply=1 dur=2.18min
+[unwarp] N=492  global-Sim3 RMSE=2.96m  ->  lokal(window=80, R=global) RMSE=0.69m
+[unwarp] 117942 -> 90002 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s300_gps.ply
+  -> output/survey_selectors/mm3dgs/s300_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=600 frames=500 selector=mm3dgs
+=========== SEGMENT start=600 (numkf=4) ===========
+[log_sweep_row] s600: status=OK psnr=17.1176 kf=492 ply=1 dur=2.37min
+[unwarp] N=492  global-Sim3 RMSE=2.30m  ->  lokal(window=80, R=global) RMSE=1.10m
+[unwarp] 306733 -> 24432 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s600_gps.ply
+  -> output/survey_selectors/mm3dgs/s600_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=900 frames=500 selector=mm3dgs
+=========== SEGMENT start=900 (numkf=4) ===========
+[log_sweep_row] s900: status=OK psnr=17.5582 kf=492 ply=1 dur=2.72min
+/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py:131: RuntimeWarning: invalid value encountered in log
+  out[sc] = (out[sc].astype(np.float64) + np.log(s_g[keep])).astype(out[sc].dtype)
+[unwarp] N=492  global-Sim3 RMSE=57.35m  ->  lokal(window=80, R=global) RMSE=5.69m
+[unwarp] 525180 -> 80592 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s900_gps.ply
+  -> output/survey_selectors/mm3dgs/s900_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s1200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1200 frames=500 selector=mm3dgs
+=========== SEGMENT start=1200 (numkf=4) ===========
+[log_sweep_row] s1200: status=OK psnr=20.4719 kf=492 ply=1 dur=2.97min
+[unwarp] N=492  global-Sim3 RMSE=7.63m  ->  lokal(window=80, R=global) RMSE=1.48m
+[unwarp] 705012 -> 325732 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s1200_gps.ply
+  -> output/survey_selectors/mm3dgs/s1200_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s1500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1500 frames=500 selector=mm3dgs
+=========== SEGMENT start=1500 (numkf=4) ===========
+[log_sweep_row] s1500: status=OK psnr=19.2399 kf=492 ply=1 dur=2.98min
+[unwarp] N=492  global-Sim3 RMSE=5.90m  ->  lokal(window=80, R=global) RMSE=1.82m
+[unwarp] 814372 -> 745029 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s1500_gps.ply
+  -> output/survey_selectors/mm3dgs/s1500_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s1800.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1800 frames=500 selector=mm3dgs
+=========== SEGMENT start=1800 (numkf=4) ===========
+[log_sweep_row] s1800: status=OK psnr=20.014 kf=492 ply=1 dur=2.97min
+[unwarp] N=492  global-Sim3 RMSE=14.03m  ->  lokal(window=80, R=global) RMSE=2.08m
+[unwarp] 757867 -> 707567 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s1800_gps.ply
+  -> output/survey_selectors/mm3dgs/s1800_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s2100.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2100 frames=500 selector=mm3dgs
+=========== SEGMENT start=2100 (numkf=4) ===========
+[log_sweep_row] s2100: status=OK psnr=17.978 kf=492 ply=1 dur=2.95min
+[unwarp] N=492  global-Sim3 RMSE=9.87m  ->  lokal(window=80, R=global) RMSE=1.73m
+[unwarp] 810289 -> 619260 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s2100_gps.ply
+  -> output/survey_selectors/mm3dgs/s2100_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s2400.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2400 frames=500 selector=mm3dgs
+=========== SEGMENT start=2400 (numkf=4) ===========
+[log_sweep_row] s2400: status=OK psnr=19.6562 kf=492 ply=1 dur=2.95min
+[unwarp] N=492  global-Sim3 RMSE=47.71m  ->  lokal(window=80, R=global) RMSE=3.46m
+[unwarp] 704589 -> 464395 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s2400_gps.ply
+  -> output/survey_selectors/mm3dgs/s2400_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s2700.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2700 frames=500 selector=mm3dgs
+=========== SEGMENT start=2700 (numkf=4) ===========
+[log_sweep_row] s2700: status=OK psnr=18.8192 kf=492 ply=1 dur=2.97min
+[unwarp] N=492  global-Sim3 RMSE=7.69m  ->  lokal(window=80, R=global) RMSE=1.55m
+[unwarp] 811460 -> 140452 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s2700_gps.ply
+  -> output/survey_selectors/mm3dgs/s2700_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s3000.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3000 frames=500 selector=mm3dgs
+=========== SEGMENT start=3000 (numkf=4) ===========
+[log_sweep_row] s3000: status=OK psnr=18.2636 kf=492 ply=1 dur=2.95min
+[unwarp] N=492  global-Sim3 RMSE=10.53m  ->  lokal(window=80, R=global) RMSE=1.80m
+[unwarp] 782413 -> 742373 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s3000_gps.ply
+  -> output/survey_selectors/mm3dgs/s3000_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s3300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3300 frames=500 selector=mm3dgs
+=========== SEGMENT start=3300 (numkf=4) ===========
+[log_sweep_row] s3300: status=OK psnr=19.1014 kf=492 ply=1 dur=2.97min
+[unwarp] N=492  global-Sim3 RMSE=9.76m  ->  lokal(window=80, R=global) RMSE=1.92m
+[unwarp] 707543 -> 688680 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s3300_gps.ply
+  -> output/survey_selectors/mm3dgs/s3300_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s3600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3600 frames=500 selector=mm3dgs
+=========== SEGMENT start=3600 (numkf=4) ===========
+[log_sweep_row] s3600: status=OK psnr=17.8953 kf=492 ply=1 dur=2.92min
+[unwarp] N=492  global-Sim3 RMSE=10.94m  ->  lokal(window=80, R=global) RMSE=2.68m
+[unwarp] 841622 -> 765856 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s3600_gps.ply
+  -> output/survey_selectors/mm3dgs/s3600_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s3900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3900 frames=500 selector=mm3dgs
+=========== SEGMENT start=3900 (numkf=4) ===========
+[log_sweep_row] s3900: status=OK psnr=16.5321 kf=492 ply=1 dur=2.57min
+[unwarp] N=492  global-Sim3 RMSE=75.17m  ->  lokal(window=80, R=global) RMSE=3.28m
+[unwarp] 497270 -> 408791 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s3900_gps.ply
+  -> output/survey_selectors/mm3dgs/s3900_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s4200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4200 frames=500 selector=mm3dgs
+=========== SEGMENT start=4200 (numkf=4) ===========
+[log_sweep_row] s4200: status=OK psnr=19.4758 kf=492 ply=1 dur=2.82min
+[unwarp] N=492  global-Sim3 RMSE=24.18m  ->  lokal(window=80, R=global) RMSE=1.76m
+[unwarp] 715052 -> 704573 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s4200_gps.ply
+  -> output/survey_selectors/mm3dgs/s4200_gps.ply
+[gen] output/survey_selectors/mm3dgs/cfg_s4500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4500 frames=500 selector=mm3dgs
+=========== SEGMENT start=4500 (numkf=4) ===========
+[log_sweep_row] s4500: status=OK psnr=18.032 kf=492 ply=1 dur=2.92min
+[unwarp] N=492  global-Sim3 RMSE=7.72m  ->  lokal(window=80, R=global) RMSE=2.09m
+[unwarp] 806696 -> 789135 Gaussians (crop+nadir) -> output/survey_selectors/mm3dgs/s4500_gps.ply
+  -> output/survey_selectors/mm3dgs/s4500_gps.ply
+Merge 16 Segmente: s0_gps.ply s300_gps.ply s600_gps.ply s900_gps.ply s1200_gps.ply s1500_gps.ply s1800_gps.ply s2100_gps.ply s2400_gps.ply s2700_gps.ply s3000_gps.ply s3300_gps.ply s3600_gps.ply s3900_gps.ply s4200_gps.ply s4500_gps.ply
+[gps-level] Referenz-Bodenhöhe ref=20.7 m (reliab.-gewichteter Median)
+seg               ground   MAD tilt mm/m   shift mode
+s0_gps.ply          12.6   6.4    1026.7     8.1  shift-only  (46k)
+s300_gps.ply         6.4   9.9     275.2    14.4  shift-only  (88k)
+s600_gps.ply        72.4   1.9       7.3   -51.7  shift-only  (24k)
+s900_gps.ply        58.7  14.6     291.9   -37.9  shift-only  (4k)
+s1200_gps.ply       44.6  24.5    1312.0   -23.8  shift-only  (325k)
+s1500_gps.ply        5.6   8.7      51.9    15.1  shift-only  (744k)
+s1800_gps.ply        4.8   3.8      51.3    15.9  shift-only  (706k)
+s2100_gps.ply       30.0  27.1    1011.5    -9.3  shift-only  (617k)
+s2400_gps.ply        6.9  14.6     132.3    13.8  shift-only  (463k)
+s2700_gps.ply       66.1   4.3     224.6   -45.4  shift-only  (140k)
+s3000_gps.ply       13.0   7.9      27.2     7.7  shift-only  (741k)
+s3300_gps.ply       20.7   7.3     106.6     0.0  shift-only  (688k)
+s3600_gps.ply       15.7   7.5      37.9     5.0  shift-only  (765k)
+s3900_gps.ply       14.6   5.8      59.5     6.1  shift-only  (408k)
+s4200_gps.ply       27.1   5.6      76.7    -6.4  shift-only  (704k)
+s4500_gps.ply       27.0  18.4     538.0    -6.3  shift-only  (789k)
+[gps-level] 7252849 Gaussians -> output/survey_selectors/mm3dgs/survey_raw.ply
+[clean] nach finite-Koordinaten: 7252849/7252849
+[clean] nach scale_max<=1.5m: 7227293/7252849
+[clean] nach opacity>0.4: 6941273/7252849
+[clean] nach spatial-crop <= 160.0: 6941273/7252849
+[clean] nach z-spread <= 60.0 (med 20.9): 6940068/7252849
+[clean] 6940068/7252849 Gaussians behalten (95.7%) -> output/survey_selectors/mm3dgs/survey_complete.ply
+/dev/sdc2       219G    177G   32G   85% /
+=========== FERTIG -> output/survey_selectors/mm3dgs/survey_complete.ply ===========
+=========== MESSUNG (sauber, inkl. Aggregat-Zeile ALL) -> output/survey_selectors/mm3dgs/segments.csv ===========
+  s0: status=OK psnr=21.5326 kf=492 vram=4692 ate=2.050421330746635 ply=11.27MB
+  s300: status=OK psnr=21.1699 kf=492 vram=1942 ate=3.0298955347503105 ply=21.96MB
+  s600: status=OK psnr=17.1176 kf=492 vram=1594 ate=2.650963237900562 ply=5.96MB
+  s900: status=OK psnr=17.5582 kf=492 vram=1728 ate=58.33001887988899 ply=19.67MB
+  s1200: status=OK psnr=20.4719 kf=492 vram=1846 ate=7.272625331982786 ply=79.48MB
+  s1500: status=OK psnr=19.2399 kf=492 vram=1898 ate=5.07992882291996 ply=181.79MB
+  s1800: status=OK psnr=20.014 kf=492 vram=1758 ate=13.862375514314158 ply=172.65MB
+  s2100: status=OK psnr=17.978 kf=492 vram=1712 ate=10.117178341708632 ply=151.1MB
+  s2400: status=OK psnr=19.6562 kf=492 vram=1885 ate=45.4304312959081 ply=113.31MB
+  s2700: status=OK psnr=18.8192 kf=492 vram=1779 ate=8.066534590964102 ply=34.27MB
+  s3000: status=OK psnr=18.2636 kf=492 vram=1787 ate=9.071531750169557 ply=181.14MB
+  s3300: status=OK psnr=19.1014 kf=492 vram=1826 ate=9.983935856815839 ply=168.04MB
+  s3600: status=OK psnr=17.8953 kf=492 vram=1798 ate=10.96613519871296 ply=186.87MB
+  s3900: status=OK psnr=16.5321 kf=492 vram=1912 ate=73.04983967893094 ply=99.75MB
+  s4200: status=OK psnr=19.4758 kf=492 vram=1884 ate=22.277599945374124 ply=171.92MB
+  s4500: status=OK psnr=18.032 kf=492 vram=1844 ate=7.313501652217691 ply=192.55MB
+[measure_survey] 16/16 Segmente + 1 Aggregat -> output/survey_selectors/mm3dgs/segments.csv
+[measure_survey] Survey-Zeile 'mm3dgs' -> docs/results/survey_selectors_summary.csv  (dur=43.6min ply=1693.38MB gauss=6940068 psnr min/max/mean=16.5321/21.5326/18.9286)
+# [mm3dgs] aufgeraeumt -> nur output/survey_selectors/mm3dgs/survey_complete.ply (1,6G)
+/dev/sdc2       219G    175G   34G   84% /
+
+============================================================
+= SELEKTOR: adaptive_kf   cfg=configs/local/amtown03/s1000_400f/adaptive_kf/amtown03_s1000_400f_adaptive_kf_sens3.yaml   -> output/survey_selectors/adaptive_kf
+============================================================
+[gen] output/survey_selectors/adaptive_kf/cfg_s0.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=0 frames=500 selector=adaptive_kf
+=========== SEGMENT start=0 (numkf=4) ===========
+[log_sweep_row] s0: status=OK psnr=11.9414 kf=492 ply=1 dur=2.78min
+[unwarp] N=492  global-Sim3 RMSE=1.87m  ->  lokal(window=80, R=global) RMSE=0.47m
+[unwarp] 4462 -> 3357 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s0_gps.ply
+  -> output/survey_selectors/adaptive_kf/s0_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=300 frames=500 selector=adaptive_kf
+=========== SEGMENT start=300 (numkf=4) ===========
+[log_sweep_row] s300: status=OK psnr=26.2067 kf=492 ply=1 dur=2.35min
+[unwarp] N=492  global-Sim3 RMSE=5.15m  ->  lokal(window=80, R=global) RMSE=0.72m
+[unwarp] 43368 -> 43248 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s300_gps.ply
+  -> output/survey_selectors/adaptive_kf/s300_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=600 frames=500 selector=adaptive_kf
+=========== SEGMENT start=600 (numkf=4) ===========
+[log_sweep_row] s600: status=OK psnr=15.5548 kf=492 ply=1 dur=2.35min
+[unwarp] N=492  global-Sim3 RMSE=11.17m  ->  lokal(window=80, R=global) RMSE=5.04m
+[unwarp] 76418 -> 4772 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s600_gps.ply
+  -> output/survey_selectors/adaptive_kf/s600_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=900 frames=500 selector=adaptive_kf
+=========== SEGMENT start=900 (numkf=4) ===========
+[log_sweep_row] s900: status=OK psnr=17.4707 kf=492 ply=1 dur=2.4min
+/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py:131: RuntimeWarning: invalid value encountered in log
+  out[sc] = (out[sc].astype(np.float64) + np.log(s_g[keep])).astype(out[sc].dtype)
+[unwarp] N=492  global-Sim3 RMSE=58.49m  ->  lokal(window=80, R=global) RMSE=5.67m
+[unwarp] 98734 -> 15991 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s900_gps.ply
+  -> output/survey_selectors/adaptive_kf/s900_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s1200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1200 frames=500 selector=adaptive_kf
+=========== SEGMENT start=1200 (numkf=4) ===========
+[log_sweep_row] s1200: status=OK psnr=21.0661 kf=492 ply=1 dur=2.5min
+[unwarp] N=492  global-Sim3 RMSE=7.62m  ->  lokal(window=80, R=global) RMSE=1.48m
+[unwarp] 167570 -> 73651 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s1200_gps.ply
+  -> output/survey_selectors/adaptive_kf/s1200_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s1500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1500 frames=500 selector=adaptive_kf
+=========== SEGMENT start=1500 (numkf=4) ===========
+[log_sweep_row] s1500: status=OK psnr=20.4943 kf=492 ply=1 dur=2.43min
+[unwarp] N=492  global-Sim3 RMSE=5.90m  ->  lokal(window=80, R=global) RMSE=1.82m
+[unwarp] 136446 -> 115697 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s1500_gps.ply
+  -> output/survey_selectors/adaptive_kf/s1500_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s1800.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1800 frames=500 selector=adaptive_kf
+=========== SEGMENT start=1800 (numkf=4) ===========
+[log_sweep_row] s1800: status=OK psnr=21.4209 kf=492 ply=1 dur=2.5min
+[unwarp] N=492  global-Sim3 RMSE=13.99m  ->  lokal(window=80, R=global) RMSE=2.08m
+[unwarp] 155066 -> 137237 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s1800_gps.ply
+  -> output/survey_selectors/adaptive_kf/s1800_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s2100.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2100 frames=500 selector=adaptive_kf
+=========== SEGMENT start=2100 (numkf=4) ===========
+[log_sweep_row] s2100: status=OK psnr=19.7308 kf=492 ply=1 dur=2.45min
+[unwarp] N=492  global-Sim3 RMSE=9.89m  ->  lokal(window=80, R=global) RMSE=1.73m
+[unwarp] 161756 -> 117352 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s2100_gps.ply
+  -> output/survey_selectors/adaptive_kf/s2100_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s2400.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2400 frames=500 selector=adaptive_kf
+=========== SEGMENT start=2400 (numkf=4) ===========
+[log_sweep_row] s2400: status=OK psnr=19.8239 kf=492 ply=1 dur=2.45min
+[unwarp] N=492  global-Sim3 RMSE=47.66m  ->  lokal(window=80, R=global) RMSE=3.46m
+[unwarp] 158760 -> 103945 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s2400_gps.ply
+  -> output/survey_selectors/adaptive_kf/s2400_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s2700.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2700 frames=500 selector=adaptive_kf
+=========== SEGMENT start=2700 (numkf=4) ===========
+[log_sweep_row] s2700: status=OK psnr=19.5164 kf=492 ply=1 dur=2.47min
+[unwarp] N=492  global-Sim3 RMSE=7.70m  ->  lokal(window=80, R=global) RMSE=1.55m
+[unwarp] 154440 -> 19548 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s2700_gps.ply
+  -> output/survey_selectors/adaptive_kf/s2700_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s3000.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3000 frames=500 selector=adaptive_kf
+=========== SEGMENT start=3000 (numkf=4) ===========
+[log_sweep_row] s3000: status=OK psnr=21.1373 kf=492 ply=1 dur=2.45min
+[unwarp] N=492  global-Sim3 RMSE=10.52m  ->  lokal(window=80, R=global) RMSE=1.80m
+[unwarp] 114895 -> 103405 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s3000_gps.ply
+  -> output/survey_selectors/adaptive_kf/s3000_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s3300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3300 frames=500 selector=adaptive_kf
+=========== SEGMENT start=3300 (numkf=4) ===========
+[log_sweep_row] s3300: status=OK psnr=18.3024 kf=492 ply=1 dur=2.48min
+[unwarp] N=492  global-Sim3 RMSE=9.75m  ->  lokal(window=80, R=global) RMSE=1.92m
+[unwarp] 202784 -> 197779 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s3300_gps.ply
+  -> output/survey_selectors/adaptive_kf/s3300_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s3600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3600 frames=500 selector=adaptive_kf
+=========== SEGMENT start=3600 (numkf=4) ===========
+[log_sweep_row] s3600: status=OK psnr=18.4915 kf=492 ply=1 dur=2.6min
+[unwarp] N=492  global-Sim3 RMSE=10.94m  ->  lokal(window=80, R=global) RMSE=2.68m
+[unwarp] 144035 -> 123196 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s3600_gps.ply
+  -> output/survey_selectors/adaptive_kf/s3600_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s3900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3900 frames=500 selector=adaptive_kf
+=========== SEGMENT start=3900 (numkf=4) ===========
+[log_sweep_row] s3900: status=OK psnr=21.1098 kf=492 ply=1 dur=2.37min
+[unwarp] N=492  global-Sim3 RMSE=75.17m  ->  lokal(window=80, R=global) RMSE=3.28m
+[unwarp] 65091 -> 39874 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s3900_gps.ply
+  -> output/survey_selectors/adaptive_kf/s3900_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s4200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4200 frames=500 selector=adaptive_kf
+=========== SEGMENT start=4200 (numkf=4) ===========
+[log_sweep_row] s4200: status=OK psnr=18.9843 kf=492 ply=1 dur=2.48min
+[unwarp] N=492  global-Sim3 RMSE=24.15m  ->  lokal(window=80, R=global) RMSE=1.76m
+[unwarp] 221038 -> 217252 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s4200_gps.ply
+  -> output/survey_selectors/adaptive_kf/s4200_gps.ply
+[gen] output/survey_selectors/adaptive_kf/cfg_s4500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4500 frames=500 selector=adaptive_kf
+=========== SEGMENT start=4500 (numkf=4) ===========
+[log_sweep_row] s4500: status=OK psnr=19.6106 kf=492 ply=1 dur=2.48min
+[unwarp] N=492  global-Sim3 RMSE=7.72m  ->  lokal(window=80, R=global) RMSE=2.09m
+[unwarp] 178852 -> 177560 Gaussians (crop+nadir) -> output/survey_selectors/adaptive_kf/s4500_gps.ply
+  -> output/survey_selectors/adaptive_kf/s4500_gps.ply
+Merge 16 Segmente: s0_gps.ply s300_gps.ply s600_gps.ply s900_gps.ply s1200_gps.ply s1500_gps.ply s1800_gps.ply s2100_gps.ply s2400_gps.ply s2700_gps.ply s3000_gps.ply s3300_gps.ply s3600_gps.ply s3900_gps.ply s4200_gps.ply s4500_gps.ply
+[gps-level] Referenz-Bodenhöhe ref=11.9 m (reliab.-gewichteter Median)
+seg               ground   MAD tilt mm/m   shift mode
+s0_gps.ply          -6.0  18.1    1569.0    17.9  shift-only  (3k)
+s300_gps.ply        -0.8   8.8     345.9    12.7  shift-only  (43k)
+s600_gps.ply        63.2   4.8     150.1   -51.2  shift-only  (4k)
+s900_gps.ply        46.0  11.7     567.4   -34.1  shift-only  (10k)
+s1200_gps.ply       44.7  21.1    1200.4   -32.8  shift-only  (74k)
+s1500_gps.ply        3.6   7.4      31.8     8.3  shift-only  (116k)
+s1800_gps.ply        3.7   3.3      32.7     8.2  shift-only  (137k)
+s2100_gps.ply       33.7  24.5    1034.7   -21.7  shift-only  (117k)
+s2400_gps.ply        9.0  13.9     101.8     2.9  shift-only  (104k)
+s2700_gps.ply       65.1   5.2     278.2   -53.2  shift-only  (19k)
+s3000_gps.ply        6.4   4.4      68.6     5.5  shift-only  (103k)
+s3300_gps.ply       17.4   7.1     124.8    -5.5  shift-only  (197k)
+s3600_gps.ply       11.9   9.5      77.1     0.0  shift-only  (123k)
+s3900_gps.ply        7.8   9.9     188.5     4.1  shift-only  (40k)
+s4200_gps.ply       26.1   5.7      60.3   -14.2  shift-only  (217k)
+s4500_gps.ply       23.7  16.9     590.8   -11.8  shift-only  (177k)
+[gps-level] 1485128 Gaussians -> output/survey_selectors/adaptive_kf/survey_raw.ply
+[clean] nach finite-Koordinaten: 1485128/1485128
+[clean] nach scale_max<=1.5m: 1479482/1485128
+[clean] nach opacity>0.4: 1427195/1485128
+[clean] nach spatial-crop <= 160.0: 1427195/1485128
+[clean] nach z-spread <= 60.0 (med 14.2): 1427191/1485128
+[clean] 1427191/1485128 Gaussians behalten (96.1%) -> output/survey_selectors/adaptive_kf/survey_complete.ply
+/dev/sdc2       219G    176G   33G   85% /
+=========== FERTIG -> output/survey_selectors/adaptive_kf/survey_complete.ply ===========
+=========== MESSUNG (sauber, inkl. Aggregat-Zeile ALL) -> output/survey_selectors/adaptive_kf/segments.csv ===========
+  s0: status=OK psnr=11.9414 kf=492 vram=1530 ate=2.2065737536415067 ply=0.82MB
+  s300: status=OK psnr=26.2067 kf=492 vram=1554 ate=5.148653807371737 ply=10.55MB
+  s600: status=OK psnr=15.5548 kf=492 vram=1539 ate=11.26140110472139 ply=1.17MB
+  s900: status=OK psnr=17.4707 kf=492 vram=4377 ate=59.47922027991238 ply=3.9MB
+  s1200: status=OK psnr=21.0661 kf=492 vram=2021 ate=7.263059890385511 ply=17.97MB
+  s1500: status=OK psnr=20.4943 kf=492 vram=1435 ate=5.082132977762829 ply=28.23MB
+  s1800: status=OK psnr=21.4209 kf=492 vram=1565 ate=13.821932896851454 ply=33.49MB
+  s2100: status=OK psnr=19.7308 kf=492 vram=1569 ate=10.143774148022512 ply=28.64MB
+  s2400: status=OK psnr=19.8239 kf=492 vram=1721 ate=45.38548939368963 ply=25.36MB
+  s2700: status=OK psnr=19.5164 kf=492 vram=1554 ate=8.07621958914896 ply=4.77MB
+  s3000: status=OK psnr=21.1373 kf=492 vram=1574 ate=9.068341187763965 ply=25.23MB
+  s3300: status=OK psnr=18.3024 kf=492 vram=1608 ate=9.980935800686815 ply=48.26MB
+  s3600: status=OK psnr=18.4915 kf=492 vram=1600 ate=10.967313866912628 ply=30.06MB
+  s3900: status=OK psnr=21.1098 kf=492 vram=1530 ate=73.04913765995799 ply=9.73MB
+  s4200: status=OK psnr=18.9843 kf=492 vram=1622 ate=22.240341124248186 ply=53.01MB
+  s4500: status=OK psnr=19.6106 kf=492 vram=1592 ate=7.315635567274682 ply=43.33MB
+[measure_survey] 16/16 Segmente + 1 Aggregat -> output/survey_selectors/adaptive_kf/segments.csv
+[measure_survey] Survey-Zeile 'adaptive_kf' -> docs/results/survey_selectors_summary.csv  (dur=38.8min ply=348.24MB gauss=1427191 psnr min/max/mean=11.9414/26.2067/19.4289)
+# [adaptive_kf] aufgeraeumt -> nur output/survey_selectors/adaptive_kf/survey_complete.ply (333M)
+/dev/sdc2       219G    175G   33G   85% /
+
+============================================================
+= SELEKTOR: nurbs   cfg=configs/local/amtown03/s1000_400f/nurbs/amtown03_s1000_400f_nurbs_orb400.yaml   -> output/survey_selectors/nurbs
+============================================================
+[gen] output/survey_selectors/nurbs/cfg_s0.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=0 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=0 (numkf=4) ===========
+  WARN: kein ply (Versuch 1/2) -- starb vor erstem Checkpoint (KF<20)
+[log_sweep_row] s0: status=FAIL psnr=21.5745 kf=40 ply=0 dur=5.95min
+[unwarp] N=274  global-Sim3 RMSE=0.08m  ->  lokal(window=80, R=global) RMSE=0.05m
+[unwarp] 1210046 -> 466187 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s0_gps.ply
+  -> output/survey_selectors/nurbs/s0_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=300 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=300 (numkf=4) ===========
+[log_sweep_row] s300: status=FAIL psnr=23.5216 kf=260 ply=1 dur=7.02min
+[unwarp] N=261  global-Sim3 RMSE=3.53m  ->  lokal(window=80, R=global) RMSE=0.68m
+[unwarp] 910110 -> 780948 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s300_gps.ply
+  -> output/survey_selectors/nurbs/s300_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=600 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=600 (numkf=4) ===========
+[log_sweep_row] s600: status=OK psnr=16.2164 kf=492 ply=1 dur=6.48min
+[unwarp] N=492  global-Sim3 RMSE=2.41m  ->  lokal(window=80, R=global) RMSE=1.11m
+[unwarp] 1818118 -> 72590 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s600_gps.ply
+  -> output/survey_selectors/nurbs/s600_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=900 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=900 (numkf=4) ===========
+[log_sweep_row] s900: status=FAIL psnr=16.7862 kf=180 ply=1 dur=4.27min
+[unwarp] N=185  global-Sim3 RMSE=14.63m  ->  lokal(window=80, R=global) RMSE=7.86m
+[unwarp] 1278507 -> 66607 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s900_gps.ply
+  -> output/survey_selectors/nurbs/s900_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s1200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1200 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=1200 (numkf=4) ===========
+[log_sweep_row] s1200: status=FAIL psnr=24.1775 kf=70 ply=1 dur=1.48min
+[unwarp] N=77  global-Sim3 RMSE=1.64m  ->  lokal(window=80, R=global) RMSE=1.47m
+[unwarp] 257587 -> 67981 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s1200_gps.ply
+  -> output/survey_selectors/nurbs/s1200_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s1500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1500 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=1500 (numkf=4) ===========
+[log_sweep_row] s1500: status=FAIL psnr=24.8865 kf=220 ply=1 dur=4.38min
+[unwarp] N=229  global-Sim3 RMSE=2.10m  ->  lokal(window=80, R=global) RMSE=1.39m
+[unwarp] 911694 -> 362683 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s1500_gps.ply
+  -> output/survey_selectors/nurbs/s1500_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s1800.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1800 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=1800 (numkf=4) ===========
+[log_sweep_row] s1800: status=FAIL psnr=23.5851 kf=50 ply=1 dur=1.2min
+[unwarp] N=57  global-Sim3 RMSE=1.32m  ->  lokal(window=80, R=global) RMSE=1.29m
+[unwarp] 247084 -> 212119 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s1800_gps.ply
+  -> output/survey_selectors/nurbs/s1800_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s2100.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2100 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=2100 (numkf=4) ===========
+[log_sweep_row] s2100: status=FAIL psnr=23.113 kf=160 ply=1 dur=3.08min
+[unwarp] N=164  global-Sim3 RMSE=1.66m  ->  lokal(window=80, R=global) RMSE=1.38m
+[unwarp] 686956 -> 196805 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s2100_gps.ply
+  -> output/survey_selectors/nurbs/s2100_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s2400.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2400 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=2400 (numkf=4) ===========
+[log_sweep_row] s2400: status=FAIL psnr=22.3232 kf=60 ply=1 dur=1.35min
+[unwarp] N=69  global-Sim3 RMSE=1.62m  ->  lokal(window=80, R=global) RMSE=1.46m
+[unwarp] 260909 -> 48348 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s2400_gps.ply
+  -> output/survey_selectors/nurbs/s2400_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s2700.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2700 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=2700 (numkf=4) ===========
+[log_sweep_row] s2700: status=FAIL psnr=22.9889 kf=340 ply=1 dur=6.25min
+[unwarp] N=349  global-Sim3 RMSE=3.38m  ->  lokal(window=80, R=global) RMSE=1.48m
+[unwarp] 1332396 -> 629403 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s2700_gps.ply
+  -> output/survey_selectors/nurbs/s2700_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s3000.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3000 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=3000 (numkf=4) ===========
+  WARN: kein ply (Versuch 1/2) -- starb vor erstem Checkpoint (KF<20)
+[log_sweep_row] s3000: status=FAIL psnr=24.2019 kf=20 ply=0 dur=5.4min
+[unwarp] N=268  global-Sim3 RMSE=3.84m  ->  lokal(window=80, R=global) RMSE=1.44m
+[unwarp] 1038482 -> 999296 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s3000_gps.ply
+  -> output/survey_selectors/nurbs/s3000_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s3300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3300 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=3300 (numkf=4) ===========
+[log_sweep_row] s3300: status=OK psnr=21.4986 kf=492 ply=1 dur=10.02min
+[unwarp] N=492  global-Sim3 RMSE=9.75m  ->  lokal(window=80, R=global) RMSE=1.92m
+[unwarp] 1879817 -> 1800241 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s3300_gps.ply
+  -> output/survey_selectors/nurbs/s3300_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s3600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3600 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=3600 (numkf=4) ===========
+[log_sweep_row] s3600: status=FAIL psnr=21.727 kf=170 ply=1 dur=3.27min
+[unwarp] N=175  global-Sim3 RMSE=2.08m  ->  lokal(window=80, R=global) RMSE=1.39m
+[unwarp] 699259 -> 538010 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s3600_gps.ply
+  -> output/survey_selectors/nurbs/s3600_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s3900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3900 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=3900 (numkf=4) ===========
+  WARN: kein ply (Versuch 1/2) -- starb vor erstem Checkpoint (KF<20)
+  WARN: kein ply (Versuch 2/2) -- starb vor erstem Checkpoint (KF<20)
+[log_sweep_row] s3900: status=FAIL psnr=22.497 kf=6 ply=0 dur=0.55min
+  WARN: keine ply start=3900 -- übersprungen
+[gen] output/survey_selectors/nurbs/cfg_s4200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4200 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=4200 (numkf=4) ===========
+[log_sweep_row] s4200: status=FAIL psnr=23.4865 kf=170 ply=1 dur=3.12min
+[unwarp] N=170  global-Sim3 RMSE=2.06m  ->  lokal(window=80, R=global) RMSE=1.47m
+[unwarp] 680568 -> 93962 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s4200_gps.ply
+  -> output/survey_selectors/nurbs/s4200_gps.ply
+[gen] output/survey_selectors/nurbs/cfg_s4500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4500 frames=500 selector=nurbs_lvi
+=========== SEGMENT start=4500 (numkf=4) ===========
+[log_sweep_row] s4500: status=FAIL psnr=23.1544 kf=190 ply=1 dur=3.67min
+[unwarp] N=197  global-Sim3 RMSE=4.46m  ->  lokal(window=80, R=global) RMSE=1.92m
+[unwarp] 898549 -> 897878 Gaussians (crop+nadir) -> output/survey_selectors/nurbs/s4500_gps.ply
+  -> output/survey_selectors/nurbs/s4500_gps.ply
+Merge 15 Segmente: s0_gps.ply s300_gps.ply s600_gps.ply s900_gps.ply s1200_gps.ply s1500_gps.ply s1800_gps.ply s2100_gps.ply s2400_gps.ply s2700_gps.ply s3000_gps.ply s3300_gps.ply s3600_gps.ply s4200_gps.ply s4500_gps.ply
+[gps-level] Referenz-Bodenhöhe ref=61.1 m (reliab.-gewichteter Median)
+seg               ground   MAD tilt mm/m   shift mode
+s0_gps.ply          -1.9  16.4     327.1    63.0  shift-only  (463k)
+s300_gps.ply         6.7  15.6      82.0    54.4  shift-only  (771k)
+s600_gps.ply        73.8   0.8      31.9   -12.7  shift-only  (72k)
+s900_gps.ply        61.1   9.1     162.0     0.0  shift-only  (63k)
+s1200_gps.ply       57.1   8.8      96.7     4.1  shift-only  (68k)
+s1500_gps.ply       37.1   3.2     243.8    24.0  shift-only  (361k)
+s1800_gps.ply       12.2   4.4     164.3    48.9  shift-only  (211k)
+s2100_gps.ply       65.3   8.7     451.4    -4.2  shift-only  (194k)
+s2400_gps.ply       63.1   7.2     453.2    -1.9  shift-only  (48k)
+s2700_gps.ply       37.4  12.7     395.2    23.8  shift-only  (624k)
+s3000_gps.ply        9.0   6.0     165.3    52.1  shift-only  (991k)
+s3300_gps.ply       19.2   7.4     104.1    41.9  shift-only  (1791k)
+s3600_gps.ply       37.0  23.4    1430.8    24.1  shift-only  (535k)
+s4200_gps.ply       71.8   2.8     348.9   -10.7  shift-only  (93k)
+s4500_gps.ply       35.9   9.7     223.3    25.2  shift-only  (898k)
+[gps-level] 7184856 Gaussians -> output/survey_selectors/nurbs/survey_raw.ply
+[clean] nach finite-Koordinaten: 7184856/7184856
+[clean] nach scale_max<=1.5m: 7109145/7184856
+[clean] nach opacity>0.4: 5671160/7184856
+[clean] nach spatial-crop <= 160.0: 5671160/7184856
+[clean] nach z-spread <= 60.0 (med 63.0): 5670520/7184856
+[clean] 5670520/7184856 Gaussians behalten (78.9%) -> output/survey_selectors/nurbs/survey_complete.ply
+/dev/sdc2       219G    178G   30G   86% /
+=========== FERTIG -> output/survey_selectors/nurbs/survey_complete.ply ===========
+=========== MESSUNG (sauber, inkl. Aggregat-Zeile ALL) -> output/survey_selectors/nurbs/segments.csv ===========
+  s0: status=FAIL psnr=21.6788 kf=270 vram=9569 ate= ply=113.75MB
+  s300: status=FAIL psnr=23.5216 kf=260 vram=9863 ate= ply=190.55MB
+  s600: status=OK psnr=16.2164 kf=492 vram=6109 ate=2.8543187306452147 ply=17.71MB
+  s900: status=FAIL psnr=16.7862 kf=180 vram=9869 ate= ply=16.25MB
+  s1200: status=FAIL psnr=24.1775 kf=70 vram=9841 ate= ply=16.59MB
+  s1500: status=FAIL psnr=24.8865 kf=220 vram=9747 ate= ply=88.5MB
+  s1800: status=FAIL psnr=23.5851 kf=50 vram=9777 ate= ply=51.76MB
+  s2100: status=FAIL psnr=23.113 kf=160 vram=9825 ate= ply=48.02MB
+  s2400: status=FAIL psnr=22.3232 kf=60 vram=5363 ate= ply=11.8MB
+  s2700: status=FAIL psnr=22.9889 kf=340 vram=9839 ate= ply=153.58MB
+  s3000: status=FAIL psnr= kf=260 vram= ate= ply=243.83MB
+  s3300: status=OK psnr=21.4986 kf=492 vram=6193 ate=9.979173734764919 ply=439.26MB
+  s3600: status=FAIL psnr=21.727 kf=170 vram=7383 ate= ply=131.28MB
+  s3900: kein Run-Ordner -- skip
+  s4200: status=FAIL psnr=23.4865 kf=170 vram=9873 ate= ply=22.93MB
+  s4500: status=FAIL psnr=23.1544 kf=190 vram=8293 ate= ply=219.08MB
+[measure_survey] 15/16 Segmente + 1 Aggregat -> output/survey_selectors/nurbs/segments.csv
+[measure_survey] Survey-Zeile 'nurbs' -> docs/results/survey_selectors_summary.csv  (dur=59.66min ply=1383.61MB gauss=5670520 psnr min/max/mean=16.2164/24.8865/22.0817)
+# [nurbs] aufgeraeumt -> nur output/survey_selectors/nurbs/survey_complete.ply (1,3G)
+/dev/sdc2       219G    177G   32G   85% /
+
+============================================================
+= SELEKTOR: game   cfg=configs/local/amtown03/s1000_400f/game/amtown03_s1000_400f_game_eta05.yaml   -> output/survey_selectors/game
+============================================================
+[gen] output/survey_selectors/game/cfg_s0.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=0 frames=500 selector=game_kfs
+=========== SEGMENT start=0 (numkf=4) ===========
+[log_sweep_row] s0: status=OK psnr=21.6946 kf=492 ply=1 dur=2.45min
+[unwarp] N=492  global-Sim3 RMSE=1.91m  ->  lokal(window=80, R=global) RMSE=0.48m
+[unwarp] 151323 -> 54914 Gaussians (crop+nadir) -> output/survey_selectors/game/s0_gps.ply
+  -> output/survey_selectors/game/s0_gps.ply
+[gen] output/survey_selectors/game/cfg_s300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=300 frames=500 selector=game_kfs
+=========== SEGMENT start=300 (numkf=4) ===========
+[log_sweep_row] s300: status=OK psnr=19.3672 kf=492 ply=1 dur=3.03min
+[unwarp] N=492  global-Sim3 RMSE=2.70m  ->  lokal(window=80, R=global) RMSE=0.68m
+[unwarp] 597209 -> 454631 Gaussians (crop+nadir) -> output/survey_selectors/game/s300_gps.ply
+  -> output/survey_selectors/game/s300_gps.ply
+[gen] output/survey_selectors/game/cfg_s600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=600 frames=500 selector=game_kfs
+=========== SEGMENT start=600 (numkf=4) ===========
+[log_sweep_row] s600: status=OK psnr=16.7584 kf=492 ply=1 dur=3.3min
+[unwarp] N=492  global-Sim3 RMSE=11.58m  ->  lokal(window=80, R=global) RMSE=5.29m
+[unwarp] 904558 -> 58134 Gaussians (crop+nadir) -> output/survey_selectors/game/s600_gps.ply
+  -> output/survey_selectors/game/s600_gps.ply
+[gen] output/survey_selectors/game/cfg_s900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=900 frames=500 selector=game_kfs
+=========== SEGMENT start=900 (numkf=4) ===========
+[log_sweep_row] s900: status=OK psnr=17.5101 kf=492 ply=1 dur=3.62min
+/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py:131: RuntimeWarning: invalid value encountered in log
+  out[sc] = (out[sc].astype(np.float64) + np.log(s_g[keep])).astype(out[sc].dtype)
+[unwarp] N=492  global-Sim3 RMSE=53.63m  ->  lokal(window=80, R=global) RMSE=5.95m
+[unwarp] 912125 -> 198092 Gaussians (crop+nadir) -> output/survey_selectors/game/s900_gps.ply
+  -> output/survey_selectors/game/s900_gps.ply
+[gen] output/survey_selectors/game/cfg_s1200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1200 frames=500 selector=game_kfs
+=========== SEGMENT start=1200 (numkf=4) ===========
+[log_sweep_row] s1200: status=OK psnr=18.6281 kf=492 ply=1 dur=2.93min
+[unwarp] N=492  global-Sim3 RMSE=7.64m  ->  lokal(window=80, R=global) RMSE=1.48m
+[unwarp] 722155 -> 343095 Gaussians (crop+nadir) -> output/survey_selectors/game/s1200_gps.ply
+  -> output/survey_selectors/game/s1200_gps.ply
+[gen] output/survey_selectors/game/cfg_s1500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1500 frames=500 selector=game_kfs
+=========== SEGMENT start=1500 (numkf=4) ===========
+[log_sweep_row] s1500: status=OK psnr=19.5695 kf=492 ply=1 dur=3.33min
+[unwarp] N=492  global-Sim3 RMSE=5.90m  ->  lokal(window=80, R=global) RMSE=1.82m
+[unwarp] 907035 -> 822421 Gaussians (crop+nadir) -> output/survey_selectors/game/s1500_gps.ply
+  -> output/survey_selectors/game/s1500_gps.ply
+[gen] output/survey_selectors/game/cfg_s1800.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1800 frames=500 selector=game_kfs
+=========== SEGMENT start=1800 (numkf=4) ===========
+[log_sweep_row] s1800: status=OK psnr=20.2628 kf=492 ply=1 dur=3.33min
+[unwarp] N=492  global-Sim3 RMSE=14.01m  ->  lokal(window=80, R=global) RMSE=2.08m
+[unwarp] 866570 -> 802199 Gaussians (crop+nadir) -> output/survey_selectors/game/s1800_gps.ply
+  -> output/survey_selectors/game/s1800_gps.ply
+[gen] output/survey_selectors/game/cfg_s2100.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2100 frames=500 selector=game_kfs
+=========== SEGMENT start=2100 (numkf=4) ===========
+[log_sweep_row] s2100: status=OK psnr=18.248 kf=492 ply=1 dur=3.18min
+[unwarp] N=492  global-Sim3 RMSE=9.89m  ->  lokal(window=80, R=global) RMSE=1.73m
+[unwarp] 889293 -> 655452 Gaussians (crop+nadir) -> output/survey_selectors/game/s2100_gps.ply
+  -> output/survey_selectors/game/s2100_gps.ply
+[gen] output/survey_selectors/game/cfg_s2400.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2400 frames=500 selector=game_kfs
+=========== SEGMENT start=2400 (numkf=4) ===========
+[log_sweep_row] s2400: status=OK psnr=18.9828 kf=492 ply=1 dur=3.72min
+[unwarp] N=492  global-Sim3 RMSE=47.52m  ->  lokal(window=80, R=global) RMSE=3.45m
+[unwarp] 882241 -> 491225 Gaussians (crop+nadir) -> output/survey_selectors/game/s2400_gps.ply
+  -> output/survey_selectors/game/s2400_gps.ply
+[gen] output/survey_selectors/game/cfg_s2700.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2700 frames=500 selector=game_kfs
+=========== SEGMENT start=2700 (numkf=4) ===========
+[log_sweep_row] s2700: status=OK psnr=18.374 kf=492 ply=1 dur=3.18min
+[unwarp] N=492  global-Sim3 RMSE=7.70m  ->  lokal(window=80, R=global) RMSE=1.55m
+[unwarp] 884634 -> 159386 Gaussians (crop+nadir) -> output/survey_selectors/game/s2700_gps.ply
+  -> output/survey_selectors/game/s2700_gps.ply
+[gen] output/survey_selectors/game/cfg_s3000.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3000 frames=500 selector=game_kfs
+=========== SEGMENT start=3000 (numkf=4) ===========
+[log_sweep_row] s3000: status=OK psnr=18.5219 kf=492 ply=1 dur=3.5min
+[unwarp] N=492  global-Sim3 RMSE=10.55m  ->  lokal(window=80, R=global) RMSE=1.80m
+[unwarp] 1016522 -> 952251 Gaussians (crop+nadir) -> output/survey_selectors/game/s3000_gps.ply
+  -> output/survey_selectors/game/s3000_gps.ply
+[gen] output/survey_selectors/game/cfg_s3300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3300 frames=500 selector=game_kfs
+=========== SEGMENT start=3300 (numkf=4) ===========
+[log_sweep_row] s3300: status=OK psnr=19.8416 kf=492 ply=1 dur=3.48min
+[unwarp] N=492  global-Sim3 RMSE=9.76m  ->  lokal(window=80, R=global) RMSE=1.92m
+[unwarp] 833492 -> 797668 Gaussians (crop+nadir) -> output/survey_selectors/game/s3300_gps.ply
+  -> output/survey_selectors/game/s3300_gps.ply
+[gen] output/survey_selectors/game/cfg_s3600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3600 frames=500 selector=game_kfs
+=========== SEGMENT start=3600 (numkf=4) ===========
+[log_sweep_row] s3600: status=OK psnr=18.5601 kf=492 ply=1 dur=3.57min
+[unwarp] N=492  global-Sim3 RMSE=10.94m  ->  lokal(window=80, R=global) RMSE=2.68m
+[unwarp] 1043367 -> 905245 Gaussians (crop+nadir) -> output/survey_selectors/game/s3600_gps.ply
+  -> output/survey_selectors/game/s3600_gps.ply
+[gen] output/survey_selectors/game/cfg_s3900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3900 frames=500 selector=game_kfs
+=========== SEGMENT start=3900 (numkf=4) ===========
+[log_sweep_row] s3900: status=FAIL psnr=14.9941 kf=270 ply=1 dur=3.03min
+[unwarp] N=280  global-Sim3 RMSE=31.22m  ->  lokal(window=80, R=global) RMSE=4.69m
+[unwarp] 1616110 -> 1451379 Gaussians (crop+nadir) -> output/survey_selectors/game/s3900_gps.ply
+  -> output/survey_selectors/game/s3900_gps.ply
+[gen] output/survey_selectors/game/cfg_s4200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4200 frames=500 selector=game_kfs
+=========== SEGMENT start=4200 (numkf=4) ===========
+[log_sweep_row] s4200: status=OK psnr=20.4628 kf=492 ply=1 dur=3.72min
+[unwarp] N=492  global-Sim3 RMSE=24.16m  ->  lokal(window=80, R=global) RMSE=1.76m
+[unwarp] 1119623 -> 1098901 Gaussians (crop+nadir) -> output/survey_selectors/game/s4200_gps.ply
+  -> output/survey_selectors/game/s4200_gps.ply
+[gen] output/survey_selectors/game/cfg_s4500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4500 frames=500 selector=game_kfs
+=========== SEGMENT start=4500 (numkf=4) ===========
+[log_sweep_row] s4500: status=OK psnr=19.209 kf=492 ply=1 dur=3.57min
+[unwarp] N=492  global-Sim3 RMSE=7.72m  ->  lokal(window=80, R=global) RMSE=2.09m
+[unwarp] 1107824 -> 1075195 Gaussians (crop+nadir) -> output/survey_selectors/game/s4500_gps.ply
+  -> output/survey_selectors/game/s4500_gps.ply
+Merge 16 Segmente: s0_gps.ply s300_gps.ply s600_gps.ply s900_gps.ply s1200_gps.ply s1500_gps.ply s1800_gps.ply s2100_gps.ply s2400_gps.ply s2700_gps.ply s3000_gps.ply s3300_gps.ply s3600_gps.ply s3900_gps.ply s4200_gps.ply s4500_gps.ply
+[gps-level] Referenz-Bodenhöhe ref=17.9 m (reliab.-gewichteter Median)
+seg               ground   MAD tilt mm/m   shift mode
+s0_gps.ply          17.9   2.0     508.9     0.0  shift-only  (55k)
+s300_gps.ply         1.7  23.7     270.4    16.2  shift-only  (448k)
+s600_gps.ply        68.5   4.9      73.2   -50.6  shift-only  (57k)
+s900_gps.ply        52.5  14.2     158.8   -34.6  shift-only  (10k)
+s1200_gps.ply       47.6  24.8    1215.5   -29.7  shift-only  (343k)
+s1500_gps.ply        6.1   9.2      48.7    11.9  shift-only  (822k)
+s1800_gps.ply        5.5   4.4      51.2    12.4  shift-only  (800k)
+s2100_gps.ply       31.1  26.2     982.9   -13.2  shift-only  (653k)
+s2400_gps.ply        8.4  14.3     124.0     9.6  shift-only  (489k)
+s2700_gps.ply       65.1   4.0     179.4   -47.2  shift-only  (159k)
+s3000_gps.ply       14.8   7.7      34.3     3.1  shift-only  (950k)
+s3300_gps.ply       19.5   6.6     105.3    -1.6  shift-only  (796k)
+s3600_gps.ply       15.9   8.4      33.4     2.0  shift-only  (903k)
+s3900_gps.ply       17.2   6.3      59.6     0.7  shift-only  (1448k)
+s4200_gps.ply       27.8   7.3      71.1    -9.8  shift-only  (1099k)
+s4500_gps.ply       28.1  18.3     520.9   -10.2  shift-only  (1074k)
+[gps-level] 10105992 Gaussians -> output/survey_selectors/game/survey_raw.ply
+[clean] nach finite-Koordinaten: 10105992/10105992
+[clean] nach scale_max<=1.5m: 10060185/10105992
+[clean] nach opacity>0.4: 9567525/10105992
+[clean] nach spatial-crop <= 160.0: 9567525/10105992
+[clean] nach z-spread <= 60.0 (med 18.0): 9565272/10105992
+[clean] 9565272/10105992 Gaussians behalten (94.6%) -> output/survey_selectors/game/survey_complete.ply
+/dev/sdc2       219G    181G   28G   88% /
+=========== FERTIG -> output/survey_selectors/game/survey_complete.ply ===========
+=========== MESSUNG (sauber, inkl. Aggregat-Zeile ALL) -> output/survey_selectors/game/segments.csv ===========
+  s0: status=OK psnr=21.6946 kf=492 vram=1763 ate=2.2442430619579534 ply=13.4MB
+  s300: status=OK psnr=19.3672 kf=492 vram=6673 ate=2.745850986093588 ply=110.93MB
+  s600: status=OK psnr=16.7584 kf=492 vram=6975 ate=11.46602067485788 ply=14.19MB
+  s900: status=OK psnr=17.5101 kf=492 vram=9783 ate=54.70166750661982 ply=48.34MB
+  s1200: status=OK psnr=18.6281 kf=492 vram=1835 ate=7.273849557220586 ply=83.72MB
+  s1500: status=OK psnr=19.5695 kf=492 vram=1963 ate=5.081426998378507 ply=200.67MB
+  s1800: status=OK psnr=20.2628 kf=492 vram=2005 ate=13.840695194733486 ply=195.74MB
+  s2100: status=OK psnr=18.248 kf=492 vram=2445 ate=10.140957343764 ply=159.93MB
+  s2400: status=OK psnr=18.9828 kf=492 vram=4401 ate=45.2428571705324 ply=119.86MB
+  s2700: status=OK psnr=18.374 kf=492 vram=6167 ate=8.075491344941604 ply=38.89MB
+  s3000: status=OK psnr=18.5219 kf=492 vram=7817 ate=9.093574421495868 ply=232.35MB
+  s3300: status=OK psnr=19.8416 kf=492 vram=6403 ate=9.987950380274404 ply=194.63MB
+  s3600: status=OK psnr=18.5601 kf=492 vram=4327 ate=10.966030866466015 ply=220.88MB
+  s3900: status=FAIL psnr=14.9941 kf=270 vram=9853 ate= ply=354.14MB
+  s4200: status=OK psnr=20.4628 kf=492 vram=2247 ate=22.25101645601747 ply=268.13MB
+  s4500: status=OK psnr=19.209 kf=492 vram=3045 ate=7.310960791081923 ply=262.35MB
+[measure_survey] 16/16 Segmente + 1 Aggregat -> output/survey_selectors/game/segments.csv
+[measure_survey] Survey-Zeile 'game' -> docs/results/survey_selectors_summary.csv  (dur=51.7min ply=2333.93MB gauss=9565272 psnr min/max/mean=14.9941/21.6946/18.8116)
+# [game] aufgeraeumt -> nur output/survey_selectors/game/survey_complete.ply (2,2G)
+/dev/sdc2       219G    179G   30G   86% /
+
+============================================================
+= SELEKTOR: orbslam   cfg=configs/local/amtown03/s1000_400f/orbslam/amtown03_s1000_400f_orbslam_max15.yaml   -> output/survey_selectors/orbslam
+============================================================
+[gen] output/survey_selectors/orbslam/cfg_s0.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=0 frames=500 selector=orbslam3
+=========== SEGMENT start=0 (numkf=4) ===========
+[log_sweep_row] s0: status=OK psnr=21.9458 kf=492 ply=1 dur=3.18min
+[unwarp] N=492  global-Sim3 RMSE=1.86m  ->  lokal(window=80, R=global) RMSE=0.48m
+[unwarp] 372897 -> 173983 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s0_gps.ply
+  -> output/survey_selectors/orbslam/s0_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=300 frames=500 selector=orbslam3
+=========== SEGMENT start=300 (numkf=4) ===========
+  WARN: kein ply (Versuch 1/2) -- starb vor erstem Checkpoint (KF<20)
+  WARN: kein ply (Versuch 2/2) -- starb vor erstem Checkpoint (KF<20)
+[log_sweep_row] s300: status=FAIL psnr=25.0783 kf=20 ply=0 dur=0.67min
+  WARN: keine ply start=300 -- übersprungen
+[gen] output/survey_selectors/orbslam/cfg_s600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=600 frames=500 selector=orbslam3
+=========== SEGMENT start=600 (numkf=4) ===========
+[log_sweep_row] s600: status=OK psnr=17.375 kf=492 ply=1 dur=3.43min
+[unwarp] N=492  global-Sim3 RMSE=11.19m  ->  lokal(window=80, R=global) RMSE=5.13m
+[unwarp] 631623 -> 19498 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s600_gps.ply
+  -> output/survey_selectors/orbslam/s600_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=900 frames=500 selector=orbslam3
+=========== SEGMENT start=900 (numkf=4) ===========
+[log_sweep_row] s900: status=OK psnr=18.9357 kf=492 ply=1 dur=4.88min
+/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py:131: RuntimeWarning: invalid value encountered in log
+  out[sc] = (out[sc].astype(np.float64) + np.log(s_g[keep])).astype(out[sc].dtype)
+[unwarp] N=492  global-Sim3 RMSE=60.62m  ->  lokal(window=80, R=global) RMSE=5.71m
+[unwarp] 1388472 -> 224994 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s900_gps.ply
+  -> output/survey_selectors/orbslam/s900_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s1200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1200 frames=500 selector=orbslam3
+=========== SEGMENT start=1200 (numkf=4) ===========
+[log_sweep_row] s1200: status=OK psnr=23.4191 kf=492 ply=1 dur=4.33min
+[unwarp] N=492  global-Sim3 RMSE=7.62m  ->  lokal(window=80, R=global) RMSE=1.48m
+[unwarp] 1054601 -> 462079 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s1200_gps.ply
+  -> output/survey_selectors/orbslam/s1200_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s1500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1500 frames=500 selector=orbslam3
+=========== SEGMENT start=1500 (numkf=4) ===========
+[log_sweep_row] s1500: status=OK psnr=22.3576 kf=492 ply=1 dur=4.7min
+[unwarp] N=492  global-Sim3 RMSE=5.90m  ->  lokal(window=80, R=global) RMSE=1.82m
+[unwarp] 1293098 -> 1156833 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s1500_gps.ply
+  -> output/survey_selectors/orbslam/s1500_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s1800.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1800 frames=500 selector=orbslam3
+=========== SEGMENT start=1800 (numkf=4) ===========
+[log_sweep_row] s1800: status=OK psnr=21.8296 kf=492 ply=1 dur=4.98min
+[unwarp] N=492  global-Sim3 RMSE=14.02m  ->  lokal(window=80, R=global) RMSE=2.08m
+[unwarp] 1230007 -> 1112781 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s1800_gps.ply
+  -> output/survey_selectors/orbslam/s1800_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s2100.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2100 frames=500 selector=orbslam3
+=========== SEGMENT start=2100 (numkf=4) ===========
+[log_sweep_row] s2100: status=FAIL psnr=21.555 kf=230 ply=1 dur=2.2min
+[unwarp] N=231  global-Sim3 RMSE=2.18m  ->  lokal(window=80, R=global) RMSE=1.40m
+[unwarp] 637685 -> 539691 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s2100_gps.ply
+  -> output/survey_selectors/orbslam/s2100_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s2400.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2400 frames=500 selector=orbslam3
+=========== SEGMENT start=2400 (numkf=4) ===========
+[log_sweep_row] s2400: status=OK psnr=20.7523 kf=492 ply=1 dur=5.38min
+[unwarp] N=492  global-Sim3 RMSE=47.45m  ->  lokal(window=80, R=global) RMSE=3.45m
+[unwarp] 1322795 -> 805983 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s2400_gps.ply
+  -> output/survey_selectors/orbslam/s2400_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s2700.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2700 frames=500 selector=orbslam3
+=========== SEGMENT start=2700 (numkf=4) ===========
+[log_sweep_row] s2700: status=OK psnr=21.5677 kf=492 ply=1 dur=4.77min
+[unwarp] N=492  global-Sim3 RMSE=7.69m  ->  lokal(window=80, R=global) RMSE=1.55m
+[unwarp] 1419752 -> 290196 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s2700_gps.ply
+  -> output/survey_selectors/orbslam/s2700_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s3000.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3000 frames=500 selector=orbslam3
+=========== SEGMENT start=3000 (numkf=4) ===========
+[log_sweep_row] s3000: status=FAIL psnr=20.9303 kf=430 ply=1 dur=4.4min
+[unwarp] N=434  global-Sim3 RMSE=6.41m  ->  lokal(window=80, R=global) RMSE=1.82m
+[unwarp] 1195803 -> 1120445 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s3000_gps.ply
+  -> output/survey_selectors/orbslam/s3000_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s3300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3300 frames=500 selector=orbslam3
+=========== SEGMENT start=3300 (numkf=4) ===========
+[log_sweep_row] s3300: status=FAIL psnr=20.9846 kf=300 ply=1 dur=3.23min
+[unwarp] N=301  global-Sim3 RMSE=8.25m  ->  lokal(window=80, R=global) RMSE=2.04m
+[unwarp] 807598 -> 768047 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s3300_gps.ply
+  -> output/survey_selectors/orbslam/s3300_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s3600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3600 frames=500 selector=orbslam3
+=========== SEGMENT start=3600 (numkf=4) ===========
+[log_sweep_row] s3600: status=OK psnr=20.5025 kf=492 ply=1 dur=5.27min
+[unwarp] N=492  global-Sim3 RMSE=10.95m  ->  lokal(window=80, R=global) RMSE=2.68m
+[unwarp] 1592886 -> 1398232 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s3600_gps.ply
+  -> output/survey_selectors/orbslam/s3600_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s3900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3900 frames=500 selector=orbslam3
+=========== SEGMENT start=3900 (numkf=4) ===========
+  WARN: kein ply (Versuch 1/2) -- starb vor erstem Checkpoint (KF<20)
+[log_sweep_row] s3900: status=FAIL psnr=21.2611 kf=20 ply=0 dur=1.62min
+[unwarp] N=110  global-Sim3 RMSE=3.18m  ->  lokal(window=80, R=global) RMSE=2.32m
+[unwarp] 310488 -> 274441 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s3900_gps.ply
+  -> output/survey_selectors/orbslam/s3900_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s4200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4200 frames=500 selector=orbslam3
+=========== SEGMENT start=4200 (numkf=4) ===========
+[log_sweep_row] s4200: status=FAIL psnr=21.9571 kf=270 ply=1 dur=3.03min
+[unwarp] N=279  global-Sim3 RMSE=2.96m  ->  lokal(window=80, R=global) RMSE=1.88m
+[unwarp] 918742 -> 914919 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s4200_gps.ply
+  -> output/survey_selectors/orbslam/s4200_gps.ply
+[gen] output/survey_selectors/orbslam/cfg_s4500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4500 frames=500 selector=orbslam3
+=========== SEGMENT start=4500 (numkf=4) ===========
+[log_sweep_row] s4500: status=OK psnr=21.1373 kf=492 ply=1 dur=5.02min
+[unwarp] N=492  global-Sim3 RMSE=7.72m  ->  lokal(window=80, R=global) RMSE=2.09m
+[unwarp] 1584699 -> 1534210 Gaussians (crop+nadir) -> output/survey_selectors/orbslam/s4500_gps.ply
+  -> output/survey_selectors/orbslam/s4500_gps.ply
+Merge 15 Segmente: s0_gps.ply s600_gps.ply s900_gps.ply s1200_gps.ply s1500_gps.ply s1800_gps.ply s2100_gps.ply s2400_gps.ply s2700_gps.ply s3000_gps.ply s3300_gps.ply s3600_gps.ply s3900_gps.ply s4200_gps.ply s4500_gps.ply
+[gps-level] Referenz-Bodenhöhe ref=22.3 m (reliab.-gewichteter Median)
+seg               ground   MAD tilt mm/m   shift mode
+s0_gps.ply          -6.1  22.4     628.0    28.4  shift-only  (173k)
+s600_gps.ply        68.4   5.7      67.4   -46.1  shift-only  (18k)
+s900_gps.ply        40.9  26.4     161.6   -18.6  shift-only  (30k)
+s1200_gps.ply       46.5  24.3    1329.7   -24.2  shift-only  (460k)
+s1500_gps.ply        6.6   9.1      60.8    15.7  shift-only  (1154k)
+s1800_gps.ply        4.2   3.7      53.1    18.1  shift-only  (1107k)
+s2100_gps.ply       34.7  29.9     937.4   -12.4  shift-only  (537k)
+s2400_gps.ply        8.1  15.2     128.7    14.2  shift-only  (801k)
+s2700_gps.ply       64.0   3.4     193.0   -41.7  shift-only  (289k)
+s3000_gps.ply       10.2   6.3     126.3    12.1  shift-only  (1117k)
+s3300_gps.ply       22.3   4.4      43.0     0.0  shift-only  (766k)
+s3600_gps.ply       15.8   8.4      31.8     6.5  shift-only  (1393k)
+s3900_gps.ply       12.8  17.1     569.3     9.5  shift-only  (273k)
+s4200_gps.ply       25.2   7.5     191.4    -2.9  shift-only  (914k)
+s4500_gps.ply       26.0  20.4     517.3    -3.7  shift-only  (1532k)
+[gps-level] 10562712 Gaussians -> output/survey_selectors/orbslam/survey_raw.ply
+[clean] nach finite-Koordinaten: 10562712/10562712
+[clean] nach scale_max<=1.5m: 10480109/10562712
+[clean] nach opacity>0.4: 9495975/10562712
+[clean] nach spatial-crop <= 160.0: 9495975/10562712
+[clean] nach z-spread <= 60.0 (med 22.1): 9495960/10562712
+[clean] 9495960/10562712 Gaussians behalten (89.9%) -> output/survey_selectors/orbslam/survey_complete.ply
+/dev/sdc2       219G    184G   25G   89% /
+=========== FERTIG -> output/survey_selectors/orbslam/survey_complete.ply ===========
+=========== MESSUNG (sauber, inkl. Aggregat-Zeile ALL) -> output/survey_selectors/orbslam/segments.csv ===========
+  s0: status=OK psnr=21.9458 kf=492 vram=2961 ate=2.192368239059674 ply=42.45MB
+  s300: status=FAIL psnr=25.0783 kf=20 vram=8215 ate= ply=MB
+  s600: status=OK psnr=17.375 kf=492 vram=4517 ate=11.14955586873819 ply=4.76MB
+  s900: status=OK psnr=18.9357 kf=492 vram=4427 ate=61.547686513168095 ply=54.9MB
+  s1200: status=OK psnr=23.4191 kf=492 vram=2429 ate=7.262224379316595 ply=112.75MB
+  s1500: status=OK psnr=22.3576 kf=492 vram=2809 ate=5.0821310965611755 ply=282.27MB
+  s1800: status=OK psnr=21.8296 kf=492 vram=5841 ate=13.852537502430353 ply=271.52MB
+  s2100: status=FAIL psnr=21.555 kf=230 vram=9661 ate= ply=131.69MB
+  s2400: status=OK psnr=20.7523 kf=492 vram=5715 ate=45.16385955216725 ply=196.66MB
+  s2700: status=OK psnr=21.5677 kf=492 vram=2407 ate=8.066927333958823 ply=70.81MB
+  s3000: status=FAIL psnr=20.9303 kf=430 vram=9779 ate= ply=273.39MB
+  s3300: status=FAIL psnr=20.9846 kf=300 vram=8463 ate= ply=187.4MB
+  s3600: status=OK psnr=20.5025 kf=492 vram=6609 ate=10.974881348611083 ply=341.17MB
+  s3900: status=FAIL psnr=20.8458 kf=100 vram=9803 ate= ply=66.97MB
+  s4200: status=FAIL psnr=21.9571 kf=270 vram=9805 ate= ply=223.24MB
+  s4500: status=OK psnr=21.1373 kf=492 vram=3307 ate=7.316248234499188 ply=374.35MB
+[measure_survey] 16/16 Segmente + 1 Aggregat -> output/survey_selectors/orbslam/segments.csv
+[measure_survey] Survey-Zeile 'orbslam' -> docs/results/survey_selectors_summary.csv  (dur=58.96min ply=2317.02MB gauss=9495960 psnr min/max/mean=17.375/25.0783/21.3234)
+# [orbslam] aufgeraeumt -> nur output/survey_selectors/orbslam/survey_complete.ply (2,2G)
+/dev/sdc2       219G    181G   28G   87% /
+
+============================================================
+= SELEKTOR: coko   cfg=configs/local/amtown03/s1000_400f/coko/amtown03_s1000_400f_coko_st010.yaml   -> output/survey_selectors/coko
+============================================================
+[gen] output/survey_selectors/coko/cfg_s0.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=0 frames=500 selector=coko_slam
+=========== SEGMENT start=0 (numkf=4) ===========
+[log_sweep_row] s0: status=FAIL psnr=20.7597 kf=310 ply=1 dur=4.63min
+[unwarp] N=313  global-Sim3 RMSE=0.37m  ->  lokal(window=80, R=global) RMSE=0.24m
+[unwarp] 869668 -> 553268 Gaussians (crop+nadir) -> output/survey_selectors/coko/s0_gps.ply
+  -> output/survey_selectors/coko/s0_gps.ply
+[gen] output/survey_selectors/coko/cfg_s300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=300 frames=500 selector=coko_slam
+=========== SEGMENT start=300 (numkf=4) ===========
+[log_sweep_row] s300: status=FAIL psnr=22.6124 kf=280 ply=1 dur=6.95min
+[unwarp] N=283  global-Sim3 RMSE=4.10m  ->  lokal(window=80, R=global) RMSE=0.83m
+[unwarp] 1187960 -> 904009 Gaussians (crop+nadir) -> output/survey_selectors/coko/s300_gps.ply
+  -> output/survey_selectors/coko/s300_gps.ply
+[gen] output/survey_selectors/coko/cfg_s600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=600 frames=500 selector=coko_slam
+=========== SEGMENT start=600 (numkf=4) ===========
+[log_sweep_row] s600: status=FAIL psnr=17.694 kf=470 ply=1 dur=7.33min
+[unwarp] N=478  global-Sim3 RMSE=9.60m  ->  lokal(window=80, R=global) RMSE=4.87m
+[unwarp] 1509266 -> 52671 Gaussians (crop+nadir) -> output/survey_selectors/coko/s600_gps.ply
+  -> output/survey_selectors/coko/s600_gps.ply
+[gen] output/survey_selectors/coko/cfg_s900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=900 frames=500 selector=coko_slam
+=========== SEGMENT start=900 (numkf=4) ===========
+[log_sweep_row] s900: status=FAIL psnr=16.4081 kf=180 ply=1 dur=5.3min
+[unwarp] N=181  global-Sim3 RMSE=14.45m  ->  lokal(window=80, R=global) RMSE=8.14m
+[unwarp] 1362428 -> 50628 Gaussians (crop+nadir) -> output/survey_selectors/coko/s900_gps.ply
+  -> output/survey_selectors/coko/s900_gps.ply
+[gen] output/survey_selectors/coko/cfg_s1200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1200 frames=500 selector=coko_slam
+=========== SEGMENT start=1200 (numkf=4) ===========
+  WARN: kein ply (Versuch 1/2) -- starb vor erstem Checkpoint (KF<20)
+[log_sweep_row] s1200: status=FAIL psnr= kf=50 ply=0 dur=2.78min
+[unwarp] N=190  global-Sim3 RMSE=2.48m  ->  lokal(window=80, R=global) RMSE=1.45m
+[unwarp] 616700 -> 458448 Gaussians (crop+nadir) -> output/survey_selectors/coko/s1200_gps.ply
+  -> output/survey_selectors/coko/s1200_gps.ply
+[gen] output/survey_selectors/coko/cfg_s1500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1500 frames=500 selector=coko_slam
+=========== SEGMENT start=1500 (numkf=4) ===========
+[log_sweep_row] s1500: status=FAIL psnr=24.1538 kf=60 ply=1 dur=1.1min
+[unwarp] N=69  global-Sim3 RMSE=1.39m  ->  lokal(window=80, R=global) RMSE=1.29m
+[unwarp] 356084 -> 265134 Gaussians (crop+nadir) -> output/survey_selectors/coko/s1500_gps.ply
+  -> output/survey_selectors/coko/s1500_gps.ply
+[gen] output/survey_selectors/coko/cfg_s1800.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1800 frames=500 selector=coko_slam
+=========== SEGMENT start=1800 (numkf=4) ===========
+[log_sweep_row] s1800: status=FAIL psnr=22.1983 kf=210 ply=1 dur=5.0min
+[unwarp] N=219  global-Sim3 RMSE=7.85m  ->  lokal(window=80, R=global) RMSE=2.56m
+[unwarp] 1075083 -> 964386 Gaussians (crop+nadir) -> output/survey_selectors/coko/s1800_gps.ply
+  -> output/survey_selectors/coko/s1800_gps.ply
+[gen] output/survey_selectors/coko/cfg_s2100.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2100 frames=500 selector=coko_slam
+=========== SEGMENT start=2100 (numkf=4) ===========
+[log_sweep_row] s2100: status=FAIL psnr=22.9403 kf=100 ply=1 dur=1.3min
+[unwarp] N=109  global-Sim3 RMSE=1.53m  ->  lokal(window=80, R=global) RMSE=1.38m
+Traceback (most recent call last):
+  File "/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py", line 144, in <module>
+    main()
+  File "/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py", line 137, in main
+    qn = (Rot.from_matrix(Rg_each[keep]) * Rot.from_quat(qx)).as_quat()
+  File "_rotation.pyx", line 1087, in scipy.spatial.transform._rotation.Rotation.from_matrix
+  File "_rotation.pyx", line 20, in scipy.spatial.transform._rotation._empty2
+  File "<stringsource>", line 161, in View.MemoryView.array.__cinit__
+ValueError: Invalid shape in axis 0: 0.
+[gen] output/survey_selectors/coko/cfg_s2400.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2400 frames=500 selector=coko_slam
+=========== SEGMENT start=2400 (numkf=4) ===========
+[log_sweep_row] s2400: status=OK psnr=20.5628 kf=492 ply=1 dur=9.47min
+[unwarp] N=492  global-Sim3 RMSE=47.65m  ->  lokal(window=80, R=global) RMSE=3.45m
+[unwarp] 1931766 -> 961069 Gaussians (crop+nadir) -> output/survey_selectors/coko/s2400_gps.ply
+  -> output/survey_selectors/coko/s2400_gps.ply
+[gen] output/survey_selectors/coko/cfg_s2700.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2700 frames=500 selector=coko_slam
+=========== SEGMENT start=2700 (numkf=4) ===========
+[log_sweep_row] s2700: status=OK psnr=21.9095 kf=492 ply=1 dur=5.97min
+[unwarp] N=492  global-Sim3 RMSE=7.70m  ->  lokal(window=80, R=global) RMSE=1.55m
+[unwarp] 1639797 -> 352082 Gaussians (crop+nadir) -> output/survey_selectors/coko/s2700_gps.ply
+  -> output/survey_selectors/coko/s2700_gps.ply
+[gen] output/survey_selectors/coko/cfg_s3000.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3000 frames=500 selector=coko_slam
+=========== SEGMENT start=3000 (numkf=4) ===========
+[log_sweep_row] s3000: status=FAIL psnr=22.832 kf=80 ply=1 dur=1.33min
+[unwarp] N=87  global-Sim3 RMSE=1.34m  ->  lokal(window=80, R=global) RMSE=1.31m
+Traceback (most recent call last):
+  File "/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py", line 144, in <module>
+    main()
+  File "/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py", line 137, in main
+    qn = (Rot.from_matrix(Rg_each[keep]) * Rot.from_quat(qx)).as_quat()
+  File "_rotation.pyx", line 1087, in scipy.spatial.transform._rotation.Rotation.from_matrix
+  File "_rotation.pyx", line 20, in scipy.spatial.transform._rotation._empty2
+  File "<stringsource>", line 161, in View.MemoryView.array.__cinit__
+ValueError: Invalid shape in axis 0: 0.
+[gen] output/survey_selectors/coko/cfg_s3300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3300 frames=500 selector=coko_slam
+=========== SEGMENT start=3300 (numkf=4) ===========
+[log_sweep_row] s3300: status=OK psnr=21.5442 kf=492 ply=1 dur=13.28min
+[unwarp] N=492  global-Sim3 RMSE=9.75m  ->  lokal(window=80, R=global) RMSE=1.92m
+[unwarp] 2132404 -> 2040156 Gaussians (crop+nadir) -> output/survey_selectors/coko/s3300_gps.ply
+  -> output/survey_selectors/coko/s3300_gps.ply
+[gen] output/survey_selectors/coko/cfg_s3600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3600 frames=500 selector=coko_slam
+=========== SEGMENT start=3600 (numkf=4) ===========
+  WARN: kein ply (Versuch 1/2) -- starb vor erstem Checkpoint (KF<20)
+[log_sweep_row] s3600: status=FAIL psnr=21.9703 kf=310 ply=1 dur=7.18min
+[unwarp] N=323  global-Sim3 RMSE=4.22m  ->  lokal(window=80, R=global) RMSE=1.49m
+[unwarp] 1451541 -> 1125109 Gaussians (crop+nadir) -> output/survey_selectors/coko/s3600_gps.ply
+  -> output/survey_selectors/coko/s3600_gps.ply
+[gen] output/survey_selectors/coko/cfg_s3900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3900 frames=500 selector=coko_slam
+=========== SEGMENT start=3900 (numkf=4) ===========
+[log_sweep_row] s3900: status=FAIL psnr=18.0399 kf=310 ply=1 dur=5.37min
+[unwarp] N=311  global-Sim3 RMSE=39.18m  ->  lokal(window=80, R=global) RMSE=4.67m
+[unwarp] 1532382 -> 1257058 Gaussians (crop+nadir) -> output/survey_selectors/coko/s3900_gps.ply
+  -> output/survey_selectors/coko/s3900_gps.ply
+[gen] output/survey_selectors/coko/cfg_s4200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4200 frames=500 selector=coko_slam
+=========== SEGMENT start=4200 (numkf=4) ===========
+[log_sweep_row] s4200: status=OK psnr=23.2651 kf=492 ply=1 dur=13.5min
+[unwarp] N=492  global-Sim3 RMSE=24.15m  ->  lokal(window=80, R=global) RMSE=1.76m
+[unwarp] 2413161 -> 2339870 Gaussians (crop+nadir) -> output/survey_selectors/coko/s4200_gps.ply
+  -> output/survey_selectors/coko/s4200_gps.ply
+[gen] output/survey_selectors/coko/cfg_s4500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4500 frames=500 selector=coko_slam
+=========== SEGMENT start=4500 (numkf=4) ===========
+[log_sweep_row] s4500: status=FAIL psnr=23.7248 kf=210 ply=1 dur=6.5min
+[unwarp] N=215  global-Sim3 RMSE=4.49m  ->  lokal(window=80, R=global) RMSE=1.92m
+[unwarp] 1281462 -> 1280631 Gaussians (crop+nadir) -> output/survey_selectors/coko/s4500_gps.ply
+  -> output/survey_selectors/coko/s4500_gps.ply
+Merge 14 Segmente: s0_gps.ply s300_gps.ply s600_gps.ply s900_gps.ply s1200_gps.ply s1500_gps.ply s1800_gps.ply s2400_gps.ply s2700_gps.ply s3300_gps.ply s3600_gps.ply s3900_gps.ply s4200_gps.ply s4500_gps.ply
+[gps-level] Referenz-Bodenhöhe ref=28.3 m (reliab.-gewichteter Median)
+seg               ground   MAD tilt mm/m   shift mode
+s0_gps.ply         -26.9  17.5     214.9    55.2  shift-only  (546k)
+s300_gps.ply         3.8  14.3      58.1    24.5  shift-only  (880k)
+s600_gps.ply        66.3   7.2     166.4   -38.1  shift-only  (49k)
+s900_gps.ply        68.4   6.2     305.4   -40.1  shift-only  (48k)
+s1200_gps.ply        4.3  14.2     388.1    24.0  shift-only  (457k)
+s1500_gps.ply       25.9  25.5    1294.4     2.4  shift-only  (264k)
+s1800_gps.ply       15.2   5.3      96.3    13.1  shift-only  (961k)
+s2400_gps.ply        5.7  15.0     132.8    22.6  shift-only  (953k)
+s2700_gps.ply       63.7   3.1     194.4   -35.4  shift-only  (350k)
+s3300_gps.ply       19.2   7.3     102.9     9.1  shift-only  (2030k)
+s3600_gps.ply       43.4  23.0     772.3   -15.2  shift-only  (1119k)
+s3900_gps.ply       17.5   6.6      29.5    10.8  shift-only  (1252k)
+s4200_gps.ply       28.3   7.6      72.6     0.0  shift-only  (2337k)
+s4500_gps.ply       35.4   9.2     236.9    -7.1  shift-only  (1280k)
+[gps-level] 12526031 Gaussians -> output/survey_selectors/coko/survey_raw.ply
+[clean] nach finite-Koordinaten: 12526031/12526031
+[clean] nach scale_max<=1.5m: 12406557/12526031
+[clean] nach opacity>0.4: 10157387/12526031
+[clean] nach spatial-crop <= 160.0: 10157387/12526031
+[clean] nach z-spread <= 60.0 (med 30.1): 10156516/12526031
+[clean] 10156516/12526031 Gaussians behalten (81.1%) -> output/survey_selectors/coko/survey_complete.ply
+/dev/sdc2       219G    186G   23G   90% /
+=========== FERTIG -> output/survey_selectors/coko/survey_complete.ply ===========
+=========== MESSUNG (sauber, inkl. Aggregat-Zeile ALL) -> output/survey_selectors/coko/segments.csv ===========
+  s0: status=FAIL psnr=20.7597 kf=310 vram=9390 ate= ply=135.0MB
+  s300: status=FAIL psnr=22.6124 kf=280 vram=9526 ate= ply=220.58MB
+  s600: status=FAIL psnr=17.694 kf=470 vram=8850 ate= ply=12.85MB
+  s900: status=FAIL psnr=16.4081 kf=180 vram=9702 ate= ply=12.35MB
+  s1200: status=FAIL psnr=23.1662 kf=190 vram=9840 ate= ply=111.86MB
+  s1500: status=FAIL psnr=24.1538 kf=60 vram=6550 ate= ply=64.69MB
+  s1800: status=FAIL psnr=22.1983 kf=210 vram=9796 ate= ply=235.31MB
+  s2100: status=FAIL psnr=22.9403 kf=100 vram=9800 ate= ply=MB
+  s2400: status=OK psnr=20.5628 kf=492 vram=7844 ate=45.372686634879464 ply=234.5MB
+  s2700: status=OK psnr=21.9095 kf=492 vram=8114 ate=8.071871723489592 ply=85.91MB
+  s3000: status=FAIL psnr=22.832 kf=80 vram=7828 ate= ply=MB
+  s3300: status=OK psnr=21.5442 kf=492 vram=5682 ate=9.979768101876235 ply=497.8MB
+  s3600: status=FAIL psnr=21.9703 kf=310 vram=9846 ate= ply=274.53MB
+  s3900: status=FAIL psnr=18.0399 kf=310 vram=9840 ate= ply=306.72MB
+  s4200: status=OK psnr=23.2651 kf=492 vram=7148 ate=22.24829211897328 ply=570.93MB
+  s4500: status=FAIL psnr=23.7248 kf=210 vram=9670 ate= ply=312.48MB
+[measure_survey] 16/16 Segmente + 1 Aggregat -> output/survey_selectors/coko/segments.csv
+[measure_survey] Survey-Zeile 'coko' -> docs/results/survey_selectors_summary.csv  (dur=94.23min ply=2478.19MB gauss=10156516 psnr min/max/mean=16.4081/24.1538/21.4863)
+# [coko] aufgeraeumt -> nur output/survey_selectors/coko/survey_complete.ply (2,4G)
+/dev/sdc2       219G    183G   26G   88% /
+
+============================================================
+= SELEKTOR: aim   cfg=configs/local/amtown03/s1000_400f/aim/amtown03_s1000_400f_aim.yaml   -> output/survey_selectors/aim
+============================================================
+[gen] output/survey_selectors/aim/cfg_s0.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=0 frames=500 selector=aim_slam
+=========== SEGMENT start=0 (numkf=4) ===========
+[log_sweep_row] s0: status=FAIL psnr=21.3102 kf=100 ply=1 dur=5.35min
+[unwarp] N=109  global-Sim3 RMSE=0.07m  ->  lokal(window=80, R=global) RMSE=0.06m
+[unwarp] 1273280 -> 88360 Gaussians (crop+nadir) -> output/survey_selectors/aim/s0_gps.ply
+  -> output/survey_selectors/aim/s0_gps.ply
+[gen] output/survey_selectors/aim/cfg_s300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=300 frames=500 selector=aim_slam
+=========== SEGMENT start=300 (numkf=4) ===========
+  WARN: kein ply (Versuch 1/2) -- starb vor erstem Checkpoint (KF<20)
+  WARN: kein ply (Versuch 2/2) -- starb vor erstem Checkpoint (KF<20)
+[log_sweep_row] s300: status=FAIL psnr=25.0011 kf=50 ply=0 dur=1.43min
+  WARN: keine ply start=300 -- übersprungen
+[gen] output/survey_selectors/aim/cfg_s600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=600 frames=500 selector=aim_slam
+=========== SEGMENT start=600 (numkf=4) ===========
+[log_sweep_row] s600: status=FAIL psnr=22.3915 kf=240 ply=1 dur=4.95min
+/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py:131: RuntimeWarning: invalid value encountered in log
+  out[sc] = (out[sc].astype(np.float64) + np.log(s_g[keep])).astype(out[sc].dtype)
+[unwarp] N=245  global-Sim3 RMSE=0.05m  ->  lokal(window=80, R=global) RMSE=0.03m
+[unwarp] 857784 -> 17 Gaussians (crop+nadir) -> output/survey_selectors/aim/s600_gps.ply
+  -> output/survey_selectors/aim/s600_gps.ply
+[gen] output/survey_selectors/aim/cfg_s900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=900 frames=500 selector=aim_slam
+=========== SEGMENT start=900 (numkf=4) ===========
+[log_sweep_row] s900: status=FAIL psnr=15.8473 kf=90 ply=1 dur=4.1min
+[unwarp] N=92  global-Sim3 RMSE=8.33m  ->  lokal(window=80, R=global) RMSE=5.19m
+[unwarp] 1380425 -> 163954 Gaussians (crop+nadir) -> output/survey_selectors/aim/s900_gps.ply
+  -> output/survey_selectors/aim/s900_gps.ply
+[gen] output/survey_selectors/aim/cfg_s1200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1200 frames=500 selector=aim_slam
+=========== SEGMENT start=1200 (numkf=4) ===========
+[log_sweep_row] s1200: status=OK psnr=21.203 kf=492 ply=1 dur=3.05min
+[unwarp] N=492  global-Sim3 RMSE=7.64m  ->  lokal(window=80, R=global) RMSE=1.48m
+[unwarp] 699453 -> 318128 Gaussians (crop+nadir) -> output/survey_selectors/aim/s1200_gps.ply
+  -> output/survey_selectors/aim/s1200_gps.ply
+[gen] output/survey_selectors/aim/cfg_s1500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1500 frames=500 selector=aim_slam
+=========== SEGMENT start=1500 (numkf=4) ===========
+[log_sweep_row] s1500: status=OK psnr=21.5293 kf=492 ply=1 dur=5.53min
+[unwarp] N=492  global-Sim3 RMSE=5.90m  ->  lokal(window=80, R=global) RMSE=1.82m
+[unwarp] 1346753 -> 1191060 Gaussians (crop+nadir) -> output/survey_selectors/aim/s1500_gps.ply
+  -> output/survey_selectors/aim/s1500_gps.ply
+[gen] output/survey_selectors/aim/cfg_s1800.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1800 frames=500 selector=aim_slam
+=========== SEGMENT start=1800 (numkf=4) ===========
+[log_sweep_row] s1800: status=OK psnr=21.6275 kf=492 ply=1 dur=4.72min
+[unwarp] N=492  global-Sim3 RMSE=14.00m  ->  lokal(window=80, R=global) RMSE=2.08m
+[unwarp] 1019766 -> 921319 Gaussians (crop+nadir) -> output/survey_selectors/aim/s1800_gps.ply
+  -> output/survey_selectors/aim/s1800_gps.ply
+[gen] output/survey_selectors/aim/cfg_s2100.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2100 frames=500 selector=aim_slam
+=========== SEGMENT start=2100 (numkf=4) ===========
+[log_sweep_row] s2100: status=FAIL psnr=20.5947 kf=400 ply=1 dur=3.03min
+[unwarp] N=401  global-Sim3 RMSE=8.04m  ->  lokal(window=80, R=global) RMSE=1.47m
+[unwarp] 736241 -> 615319 Gaussians (crop+nadir) -> output/survey_selectors/aim/s2100_gps.ply
+  -> output/survey_selectors/aim/s2100_gps.ply
+[gen] output/survey_selectors/aim/cfg_s2400.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2400 frames=500 selector=aim_slam
+=========== SEGMENT start=2400 (numkf=4) ===========
+[log_sweep_row] s2400: status=OK psnr=19.8497 kf=492 ply=1 dur=8.27min
+[unwarp] N=492  global-Sim3 RMSE=47.51m  ->  lokal(window=80, R=global) RMSE=3.45m
+[unwarp] 1671006 -> 672294 Gaussians (crop+nadir) -> output/survey_selectors/aim/s2400_gps.ply
+  -> output/survey_selectors/aim/s2400_gps.ply
+[gen] output/survey_selectors/aim/cfg_s2700.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2700 frames=500 selector=aim_slam
+=========== SEGMENT start=2700 (numkf=4) ===========
+[log_sweep_row] s2700: status=OK psnr=20.9356 kf=492 ply=1 dur=4.53min
+[unwarp] N=492  global-Sim3 RMSE=7.69m  ->  lokal(window=80, R=global) RMSE=1.55m
+[unwarp] 1315535 -> 258389 Gaussians (crop+nadir) -> output/survey_selectors/aim/s2700_gps.ply
+  -> output/survey_selectors/aim/s2700_gps.ply
+[gen] output/survey_selectors/aim/cfg_s3000.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3000 frames=500 selector=aim_slam
+=========== SEGMENT start=3000 (numkf=4) ===========
+[log_sweep_row] s3000: status=OK psnr=20.5736 kf=492 ply=1 dur=5.27min
+[unwarp] N=492  global-Sim3 RMSE=10.50m  ->  lokal(window=80, R=global) RMSE=1.80m
+[unwarp] 1423859 -> 1312636 Gaussians (crop+nadir) -> output/survey_selectors/aim/s3000_gps.ply
+  -> output/survey_selectors/aim/s3000_gps.ply
+[gen] output/survey_selectors/aim/cfg_s3300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3300 frames=500 selector=aim_slam
+=========== SEGMENT start=3300 (numkf=4) ===========
+[log_sweep_row] s3300: status=OK psnr=20.0825 kf=492 ply=1 dur=4.18min
+[unwarp] N=492  global-Sim3 RMSE=9.75m  ->  lokal(window=80, R=global) RMSE=1.92m
+[unwarp] 982688 -> 924436 Gaussians (crop+nadir) -> output/survey_selectors/aim/s3300_gps.ply
+  -> output/survey_selectors/aim/s3300_gps.ply
+[gen] output/survey_selectors/aim/cfg_s3600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3600 frames=500 selector=aim_slam
+=========== SEGMENT start=3600 (numkf=4) ===========
+[log_sweep_row] s3600: status=OK psnr=20.274 kf=492 ply=1 dur=6.4min
+[unwarp] N=492  global-Sim3 RMSE=10.95m  ->  lokal(window=80, R=global) RMSE=2.68m
+[unwarp] 1835319 -> 1461125 Gaussians (crop+nadir) -> output/survey_selectors/aim/s3600_gps.ply
+  -> output/survey_selectors/aim/s3600_gps.ply
+[gen] output/survey_selectors/aim/cfg_s3900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3900 frames=500 selector=aim_slam
+=========== SEGMENT start=3900 (numkf=4) ===========
+[log_sweep_row] s3900: status=FAIL psnr=17.3867 kf=280 ply=1 dur=4.15min
+[unwarp] N=281  global-Sim3 RMSE=31.47m  ->  lokal(window=80, R=global) RMSE=4.70m
+[unwarp] 1529808 -> 1312908 Gaussians (crop+nadir) -> output/survey_selectors/aim/s3900_gps.ply
+  -> output/survey_selectors/aim/s3900_gps.ply
+[gen] output/survey_selectors/aim/cfg_s4200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4200 frames=500 selector=aim_slam
+=========== SEGMENT start=4200 (numkf=4) ===========
+[log_sweep_row] s4200: status=OK psnr=20.5986 kf=492 ply=1 dur=3.77min
+[unwarp] N=492  global-Sim3 RMSE=24.18m  ->  lokal(window=80, R=global) RMSE=1.76m
+[unwarp] 1095483 -> 1074772 Gaussians (crop+nadir) -> output/survey_selectors/aim/s4200_gps.ply
+  -> output/survey_selectors/aim/s4200_gps.ply
+[gen] output/survey_selectors/aim/cfg_s4500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4500 frames=500 selector=aim_slam
+=========== SEGMENT start=4500 (numkf=4) ===========
+[log_sweep_row] s4500: status=OK psnr=19.7521 kf=492 ply=1 dur=4.1min
+[unwarp] N=492  global-Sim3 RMSE=7.72m  ->  lokal(window=80, R=global) RMSE=2.09m
+[unwarp] 1343515 -> 1286071 Gaussians (crop+nadir) -> output/survey_selectors/aim/s4500_gps.ply
+  -> output/survey_selectors/aim/s4500_gps.ply
+Merge 15 Segmente: s0_gps.ply s600_gps.ply s900_gps.ply s1200_gps.ply s1500_gps.ply s1800_gps.ply s2100_gps.ply s2400_gps.ply s2700_gps.ply s3000_gps.ply s3300_gps.ply s3600_gps.ply s3900_gps.ply s4200_gps.ply s4500_gps.ply
+[gps-level] Referenz-Bodenhöhe ref=14.4 m (reliab.-gewichteter Median)
+seg               ground   MAD tilt mm/m   shift mode
+s0_gps.ply          10.6   8.1     322.2     3.8  shift-only  (86k)
+s600_gps.ply         nan   inf       0.0     nan  shift-only  (0k)
+s900_gps.ply        64.7   8.6      43.5   -50.3  shift-only  (157k)
+s1200_gps.ply       49.2  24.6    1358.7   -34.7  shift-only  (318k)
+s1500_gps.ply        5.7   9.4      48.3     8.7  shift-only  (1187k)
+s1800_gps.ply        5.0   4.4      51.0     9.4  shift-only  (918k)
+s2100_gps.ply        0.8   4.7      81.0    13.6  shift-only  (613k)
+s2400_gps.ply        7.3  14.8     135.9     7.1  shift-only  (667k)
+s2700_gps.ply       63.7   3.3     229.3   -49.3  shift-only  (257k)
+s3000_gps.ply       14.4   7.9      30.4     0.0  shift-only  (1308k)
+s3300_gps.ply       19.9   7.3     105.7    -5.5  shift-only  (923k)
+s3600_gps.ply       12.4   7.6      62.1     2.0  shift-only  (1453k)
+s3900_gps.ply       17.4   6.4      49.4    -3.0  shift-only  (1309k)
+s4200_gps.ply       28.4   7.2      69.5   -14.0  shift-only  (1074k)
+s4500_gps.ply       24.9  19.6     532.4   -10.5  shift-only  (1284k)
+[gps-level] 11553428 Gaussians -> output/survey_selectors/aim/survey_raw.ply
+[clean] nach finite-Koordinaten: 11553428/11553428
+[clean] nach scale_max<=1.5m: 11460539/11553428
+[clean] nach opacity>0.4: 10718792/11553428
+[clean] nach spatial-crop <= 160.0: 10718792/11553428
+[clean] nach z-spread <= 60.0 (med 14.5): 10717760/11553428
+[clean] 10717760/11553428 Gaussians behalten (92.8%) -> output/survey_selectors/aim/survey_complete.ply
+/dev/sdc2       219G    188G   20G   91% /
+=========== FERTIG -> output/survey_selectors/aim/survey_complete.ply ===========
+=========== MESSUNG (sauber, inkl. Aggregat-Zeile ALL) -> output/survey_selectors/aim/segments.csv ===========
+  s0: status=FAIL psnr=21.3102 kf=100 vram=9345 ate= ply=21.56MB
+  s300: status=FAIL psnr=25.0171 kf=50 vram=9637 ate= ply=MB
+  s600: status=FAIL psnr=22.3915 kf=240 vram=9809 ate= ply=0.01MB
+  s900: status=FAIL psnr=15.8473 kf=90 vram=9803 ate= ply=40.01MB
+  s1200: status=OK psnr=21.203 kf=492 vram=6837 ate=7.2762044021188785 ply=77.62MB
+  s1500: status=OK psnr=21.5293 kf=492 vram=6079 ate=5.076971279744109 ply=290.62MB
+  s1800: status=OK psnr=21.6275 kf=492 vram=7627 ate=13.840347359027287 ply=224.8MB
+  s2100: status=FAIL psnr=20.5947 kf=400 vram=9249 ate= ply=150.14MB
+  s2400: status=OK psnr=19.8497 kf=492 vram=8551 ate=45.233349616154726 ply=164.04MB
+  s2700: status=OK psnr=20.9356 kf=492 vram=5613 ate=8.06069069398381 ply=63.05MB
+  s3000: status=OK psnr=20.5736 kf=492 vram=6623 ate=9.050151278482263 ply=320.28MB
+  s3300: status=OK psnr=20.0825 kf=492 vram=5705 ate=9.972095252954627 ply=225.56MB
+  s3600: status=OK psnr=20.274 kf=492 vram=4629 ate=10.973541206526848 ply=356.52MB
+  s3900: status=FAIL psnr=17.3867 kf=280 vram=9801 ate= ply=320.35MB
+  s4200: status=OK psnr=20.5986 kf=492 vram=3081 ate=22.273313277639947 ply=262.25MB
+  s4500: status=OK psnr=19.7521 kf=492 vram=6856 ate=7.314083605305086 ply=313.8MB
+[measure_survey] 16/16 Segmente + 1 Aggregat -> output/survey_selectors/aim/segments.csv
+[measure_survey] Survey-Zeile 'aim' -> docs/results/survey_selectors_summary.csv  (dur=70.69min ply=2615.13MB gauss=10717760 psnr min/max/mean=15.8473/25.0171/20.5608)
+# [aim] aufgeraeumt -> nur output/survey_selectors/aim/survey_complete.ply (2,5G)
+/dev/sdc2       219G    186G   23G   90% /
+
+============================================================
+= SELEKTOR: two_gate_v2   cfg=configs/local/amtown03/s1000_400f/two_gate_v2/amtown03_s1000_400f_two_gate_v2_a3_loose.yaml   -> output/survey_selectors/two_gate_v2
+============================================================
+[gen] output/survey_selectors/two_gate_v2/cfg_s0.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=0 frames=500 selector=two_gate_v2
+=========== SEGMENT start=0 (numkf=4) ===========
+[log_sweep_row] s0: status=OK psnr=21.3836 kf=85 ply=1 dur=0.9min
+[unwarp] N=85  global-Sim3 RMSE=1.45m  ->  lokal(window=80, R=global) RMSE=1.22m
+[unwarp] 86570 -> 86567 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s0_gps.ply
+  -> output/survey_selectors/two_gate_v2/s0_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=300 frames=500 selector=two_gate_v2
+=========== SEGMENT start=300 (numkf=4) ===========
+[log_sweep_row] s300: status=OK psnr=19.5807 kf=99 ply=1 dur=0.87min
+[unwarp] N=99  global-Sim3 RMSE=5.18m  ->  lokal(window=80, R=global) RMSE=3.11m
+[unwarp] 115275 -> 113772 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s300_gps.ply
+  -> output/survey_selectors/two_gate_v2/s300_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=600 frames=500 selector=two_gate_v2
+=========== SEGMENT start=600 (numkf=4) ===========
+[log_sweep_row] s600: status=OK psnr=17.4012 kf=82 ply=1 dur=0.83min
+[unwarp] N=82  global-Sim3 RMSE=3.86m  ->  lokal(window=80, R=global) RMSE=3.64m
+[unwarp] 94223 -> 37015 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s600_gps.ply
+  -> output/survey_selectors/two_gate_v2/s600_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=900 frames=500 selector=two_gate_v2
+=========== SEGMENT start=900 (numkf=4) ===========
+[log_sweep_row] s900: status=OK psnr=17.6116 kf=229 ply=1 dur=1.5min
+[unwarp] N=229  global-Sim3 RMSE=10.74m  ->  lokal(window=80, R=global) RMSE=3.99m
+[unwarp] 300067 -> 239060 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s900_gps.ply
+  -> output/survey_selectors/two_gate_v2/s900_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s1200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1200 frames=500 selector=two_gate_v2
+=========== SEGMENT start=1200 (numkf=4) ===========
+[log_sweep_row] s1200: status=OK psnr=17.899 kf=243 ply=1 dur=1.62min
+[unwarp] N=243  global-Sim3 RMSE=6.96m  ->  lokal(window=80, R=global) RMSE=3.22m
+[unwarp] 398588 -> 59532 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s1200_gps.ply
+  -> output/survey_selectors/two_gate_v2/s1200_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s1500.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1500 frames=500 selector=two_gate_v2
+=========== SEGMENT start=1500 (numkf=4) ===========
+[log_sweep_row] s1500: status=OK psnr=17.2298 kf=243 ply=1 dur=1.67min
+[unwarp] N=243  global-Sim3 RMSE=7.90m  ->  lokal(window=80, R=global) RMSE=4.09m
+[unwarp] 403345 -> 379864 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s1500_gps.ply
+  -> output/survey_selectors/two_gate_v2/s1500_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s1800.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=1800 frames=500 selector=two_gate_v2
+=========== SEGMENT start=1800 (numkf=4) ===========
+[log_sweep_row] s1800: status=OK psnr=17.2939 kf=243 ply=1 dur=1.67min
+[unwarp] N=243  global-Sim3 RMSE=12.40m  ->  lokal(window=80, R=global) RMSE=3.84m
+[unwarp] 384472 -> 362085 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s1800_gps.ply
+  -> output/survey_selectors/two_gate_v2/s1800_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s2100.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2100 frames=500 selector=two_gate_v2
+=========== SEGMENT start=2100 (numkf=4) ===========
+[log_sweep_row] s2100: status=OK psnr=16.6338 kf=243 ply=1 dur=1.65min
+[unwarp] N=243  global-Sim3 RMSE=5.72m  ->  lokal(window=80, R=global) RMSE=3.16m
+[unwarp] 400370 -> 243934 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s2100_gps.ply
+  -> output/survey_selectors/two_gate_v2/s2100_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s2400.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2400 frames=500 selector=two_gate_v2
+=========== SEGMENT start=2400 (numkf=4) ===========
+[log_sweep_row] s2400: status=OK psnr=18.3075 kf=243 ply=1 dur=1.52min
+[unwarp] N=243  global-Sim3 RMSE=61.65m  ->  lokal(window=80, R=global) RMSE=8.56m
+[unwarp] 287521 -> 217729 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s2400_gps.ply
+  -> output/survey_selectors/two_gate_v2/s2400_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s2700.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=2700 frames=500 selector=two_gate_v2
+=========== SEGMENT start=2700 (numkf=4) ===========
+[log_sweep_row] s2700: status=OK psnr=17.7928 kf=243 ply=1 dur=1.65min
+[unwarp] N=243  global-Sim3 RMSE=7.46m  ->  lokal(window=80, R=global) RMSE=3.38m
+Traceback (most recent call last):
+  File "/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py", line 144, in <module>
+    main()
+  File "/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py", line 137, in main
+    qn = (Rot.from_matrix(Rg_each[keep]) * Rot.from_quat(qx)).as_quat()
+  File "_rotation.pyx", line 1087, in scipy.spatial.transform._rotation.Rotation.from_matrix
+  File "_rotation.pyx", line 20, in scipy.spatial.transform._rotation._empty2
+  File "<stringsource>", line 161, in View.MemoryView.array.__cinit__
+ValueError: Invalid shape in axis 0: 0.
+[gen] output/survey_selectors/two_gate_v2/cfg_s3000.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3000 frames=500 selector=two_gate_v2
+=========== SEGMENT start=3000 (numkf=4) ===========
+[log_sweep_row] s3000: status=OK psnr=16.7575 kf=243 ply=1 dur=1.63min
+[unwarp] N=243  global-Sim3 RMSE=9.94m  ->  lokal(window=80, R=global) RMSE=3.71m
+[unwarp] 402133 -> 394967 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s3000_gps.ply
+  -> output/survey_selectors/two_gate_v2/s3000_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s3300.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3300 frames=500 selector=two_gate_v2
+=========== SEGMENT start=3300 (numkf=4) ===========
+[log_sweep_row] s3300: status=OK psnr=17.4611 kf=243 ply=1 dur=1.62min
+[unwarp] N=243  global-Sim3 RMSE=10.25m  ->  lokal(window=80, R=global) RMSE=3.96m
+[unwarp] 407266 -> 395617 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s3300_gps.ply
+  -> output/survey_selectors/two_gate_v2/s3300_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s3600.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3600 frames=500 selector=two_gate_v2
+=========== SEGMENT start=3600 (numkf=4) ===========
+[log_sweep_row] s3600: status=OK psnr=16.2682 kf=243 ply=1 dur=1.62min
+[unwarp] N=243  global-Sim3 RMSE=11.06m  ->  lokal(window=80, R=global) RMSE=4.98m
+[unwarp] 382554 -> 353189 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s3600_gps.ply
+  -> output/survey_selectors/two_gate_v2/s3600_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s3900.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=3900 frames=500 selector=two_gate_v2
+=========== SEGMENT start=3900 (numkf=4) ===========
+[log_sweep_row] s3900: status=OK psnr=15.8966 kf=243 ply=1 dur=1.55min
+[unwarp] N=243  global-Sim3 RMSE=47.29m  ->  lokal(window=80, R=global) RMSE=5.75m
+[unwarp] 330288 -> 245129 Gaussians (crop+nadir) -> output/survey_selectors/two_gate_v2/s3900_gps.ply
+  -> output/survey_selectors/two_gate_v2/s3900_gps.ply
+[gen] output/survey_selectors/two_gate_v2/cfg_s4200.yaml: hw=[240, 288] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=4200 frames=500 selector=two_gate_v2
+=========== SEGMENT start=4200 (numkf=4) ===========

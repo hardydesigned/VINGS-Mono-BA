@@ -1,0 +1,115 @@
+adc_args: {accum_thresh: 0.98}
+dataset:
+  root: /home/philipp/Dokumente/datasets/interval1_AMtown03
+  image_dir: interval1_CAM
+  image_ext: '*.jpg'
+  camstamp_file: /home/philipp/Dokumente/datasets/interval1_AMtown03/vings/camstamp.txt
+  ext_poses_file: /home/philipp/Dokumente/datasets/interval1_AMtown03/vings/poses_w2c.txt
+  lidar_dir: /home/philipp/Dokumente/datasets/interval1_AMtown03/interval1_LIDAR
+  lidar_sign_u: -1.0
+  lidar_sign_v: -1.0
+  module: datasets.generic_vo
+  start_frame: 300
+  max_frames: 600
+  rgb_strip: 1
+debug_mode: false
+device: {mapper: 'cuda:0', tracker: 'cuda:0'}
+frame_selector: {kind: none}
+mapper_kf_skip: 8
+ply_checkpoint_every_kf: 50
+frontend:
+  active_window: 12
+  beta: 0.3
+  buffer: 80
+  c2i: None
+  far_threshold: 0.02
+  filter_thresh: -1.0
+  frontend_nms: 1
+  frontend_radius: 2
+  frontend_thresh: 16.0
+  frontend_window: 5
+  image_size: [240, 288]
+  inac_range: 3
+  keyframe_thresh: 0.0
+  mask_threshold: -1.0
+  max_factors: 48
+  save_buffer_size: 6500
+  upsample: false
+  show_plot: false
+  skip_edge: [-4, -5, -6]
+  translation_threshold: 0.5
+  warm_up: 8
+  weight: /home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+intrinsic: {H: 2048, W: 2448, bg: 0, cu: 1174.0, cv: 1049.9, fu: 1469.5, fv: 1469.5,
+  resolution_scale: 1.0}
+middleware: {cov_times: 1000, max_cov: 3000.0, max_depth: 1000}
+mode: vo
+output: {save_dir: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_interval1_stream/}
+storage_manager: {cpu_prune_opacity_threshold: 0.5, distance_threshold: 3.0}
+training_args:
+  iters: 50
+  loss_weights: {rgb_loss: 1.0, depth_loss: 0.5, normal_loss: 0.1, alpha_loss: 0.1, dist_loss: 0.0}
+  lr: {_opacity_lr: 0.05, _rgb_lr: 0.0005, _rotation_lr: 0.001, _scaling_lr: 0.001, _xyz_lr: 0.0001}
+  num_keyframe: 8
+use_dynamic: false
+use_loop: false
+use_metric: true
+use_pose_refine: false
+seed_video_with_ext_pose: false
+use_sky: false
+use_storage_manager: true
+use_vis: false
+use_wandb: false
+vis:
+  bev_intrinsic_dict: {H: 758, W: 1372, cu: 378.5, cv: 685.5, fu: 656.4, fv: 656.4}
+  bev_w2c: [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
+  pose_scale: 1.0
+fair_eval: {enabled: false}
+use_metric_for_mapper: true
+
+# --- Live-Streaming zu einem Web-Frontend -----------------------------------
+# WebSocket-Server (daemon-Thread, non-blocking). Streamt waehrend des Runs:
+#   * Gaussians als .splat-Binaerframes (frozen append-only + active full-replace)
+#   * Object-Marker als JSON-Textframes (jeder gemappte KF)
+# Test-Viewer: scripts/server/static/test_viewer.html im Browser oeffnen
+# (oder `wscat -c ws://localhost:8765`). Default-Gate ist aus -> hier an.
+stream:
+  enabled: true
+  host: 0.0.0.0
+  port: 8765
+  every_kf: 1                # alle N gemappten KFs Gaussians pushen
+  max_active_splats: 200000  # Cap nur fuer den active/replace-Snapshot
+  max_queue: 16              # drop-oldest-Tiefe (nur replace_active/objects droppbar)
+  flat_scale_eps: 0.001      # 3. Splat-Achse fuer 2DGS-Disks (>0, sonst NaN im Viewer)
+
+# --- Online object detection + 3D-localisation ------------------------------
+detect_objects: true
+
+object_detector:
+  kind: yolo
+  model: yolov8n
+  ckpt_path: ckpts/yolov8n.pt
+  conf: 0.20
+  iou: 0.7
+  imgsz: 1280
+  device: cpu
+  classes: [2, 5, 7]
+  max_det: 100
+  box_shrink: 0.6
+  depth_percentile: 30.0
+  min_valid_px: 3
+  min_depth: 0.2
+  max_depth: 150.0
+
+object_tracker:
+  assoc_radius: 3.0
+  min_hits: 2
+  class_agnostic: false
+  marker_radius: 1.5
+
+object_output:
+  csv: true
+  markers_ply: true
+  overlay_video: true
+  overlay_fps: 10
+  detections_csv: true

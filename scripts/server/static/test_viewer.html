@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>VINGS live stream — test viewer</title>
+<style>
+  body { margin: 0; overflow: hidden; background: #111; font-family: monospace; color: #ddd; }
+  #hud { position: absolute; top: 8px; left: 8px; font-size: 12px; line-height: 1.5;
+         background: rgba(0,0,0,.5); padding: 6px 10px; border-radius: 4px; white-space: pre; }
+</style>
+</head>
+<body>
+<div id="hud">connecting…</div>
+<script type="importmap">
+{ "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// --- NOTE -------------------------------------------------------------------
+// This is a TEST viewer: it renders Gaussian centres as plain coloured POINTS
+// (not real splat ellipsoids) — enough to verify the stream end-to-end. For a
+// production look, feed the same 32-byte .splat chunks into a real splat
+// renderer (antimatter15/splat or @mkkellogg/gaussian-splats-3d). Byte layout:
+//   pos 3*f32 | scale 3*f32 | rgba 4*u8 | rot 4*u8 (quat w,x,y,z packed)
+// ---------------------------------------------------------------------------
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.01, 1000);
+camera.position.set(0, -3, 3);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+scene.add(new THREE.AxesHelper(1));
+
+const frozenGroup = new THREE.Group(); scene.add(frozenGroup);
+let activePoints = null;
+const objectGroup = new THREE.Group(); scene.add(objectGroup);
+
+let currentEpoch = 0;
+let nFrozenSplats = 0, nActiveSplats = 0, nObjects = 0;
+const hud = document.getElementById('hud');
+function updateHud(extra='') {
+  hud.textContent =
+    `epoch ${currentEpoch}\nfrozen splats: ${nFrozenSplats}\nactive splats: ${nActiveSplats}\nobjects: ${nObjects}\n${extra}`;
+}
+
+function pointsFromSplat(buf, n) {
+  // buf: ArrayBuffer of n*32 bytes
+  const dv = new DataView(buf);
+  const pos = new Float32Array(n * 3);
+  const col = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const o = i * 32;
+    pos[i*3+0] = dv.getFloat32(o + 0, true);
+    pos[i*3+1] = dv.getFloat32(o + 4, true);
+    pos[i*3+2] = dv.getFloat32(o + 8, true);
+    col[i*3+0] = dv.getUint8(o + 24) / 255;
+    col[i*3+1] = dv.getUint8(o + 25) / 255;
+    col[i*3+2] = dv.getUint8(o + 26) / 255;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  return new THREE.Points(g, new THREE.PointsMaterial({ size: 0.02, vertexColors: true }));
+}
+
+function clearScene() {
+  frozenGroup.clear(); nFrozenSplats = 0;
+  if (activePoints) { scene.remove(activePoints); activePoints = null; }
+  nActiveSplats = 0;
+  objectGroup.clear(); nObjects = 0;
+}
+
+function handleBinary(buf) {
+  const dv = new DataView(buf);
+  const hlen = dv.getUint32(0, true);
+  const header = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, hlen)));
+  if (header.epoch < currentEpoch) return;           // stale (pre-resync) frame
+  const body = buf.slice(4 + hlen);
+  const n = header.n;
+  if (header.type === 'append_frozen') {
+    frozenGroup.add(pointsFromSplat(body, n)); nFrozenSplats += n;
+  } else if (header.type === 'replace_active' || header.type === 'replace_all') {
+    if (activePoints) scene.remove(activePoints);
+    if (header.type === 'replace_all') { frozenGroup.clear(); nFrozenSplats = 0; }
+    activePoints = pointsFromSplat(body, n); scene.add(activePoints); nActiveSplats = n;
+  }
+  updateHud();
+}
+
+function handleText(str) {
+  const msg = JSON.parse(str);
+  if (msg.type === 'resync') {
+    currentEpoch = msg.epoch; clearScene(); updateHud('— resync —');
+  } else if (msg.type === 'objects') {
+    if (msg.epoch < currentEpoch) return;
+    objectGroup.clear();
+    for (const o of msg.objects) {
+      const m = new THREE.Mesh(
+        new THREE.SphereGeometry(0.08, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0xff3030, wireframe: true }));
+      m.position.set(o.xyz[0], o.xyz[1], o.xyz[2]);
+      objectGroup.add(m);
+    }
+    nObjects = msg.objects.length; updateHud();
+  }
+}
+
+const wsUrl = (location.hash ? location.hash.slice(1) : 'ws://localhost:8765');
+const ws = new WebSocket(wsUrl);
+ws.binaryType = 'arraybuffer';
+ws.onopen = () => updateHud('connected ' + wsUrl);
+ws.onclose = () => updateHud('disconnected');
+ws.onerror = () => updateHud('error — is the run streaming? ' + wsUrl);
+ws.onmessage = (ev) => {
+  if (typeof ev.data === 'string') handleText(ev.data);
+  else handleBinary(ev.data);
+};
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+(function loop(){ requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
+</script>
+</body>
+</html>

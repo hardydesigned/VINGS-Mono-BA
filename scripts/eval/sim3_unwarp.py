@@ -125,6 +125,13 @@ def main():
     keep = fin & (d2 < a.crop_radius) & (out_xyz[:, 2] < cam_z - a.nadir_clear)
 
     out = v[keep].copy()
+    if keep.sum() == 0:
+        # Crop+Nadir hat ALLE Gaussians verworfen (degeneriertes Segment: lokaler Sim3
+        # schiebt die Geometrie aus dem crop_radius). KEINE ply schreiben statt scipy
+        # Rot.from_matrix auf (0,3,3) crashen lassen -> Loop laeuft weiter, merge_survey
+        # globt nur vorhandene sN_gps.ply (wie beim bewaehrten 13-Segment-Merge ohne s2700).
+        print(f"[unwarp] WARN: keep=0 -- alle Gaussians ausgecroppt, keine ply geschrieben ({a.out})")
+        return
     out["x"], out["y"], out["z"] = out_xyz[keep, 0], out_xyz[keep, 1], out_xyz[keep, 2]
     # scales: log + log(local scale); rot: compose Rg_each
     for sc in [p for p in v.dtype.names if p.startswith("scale_")]:

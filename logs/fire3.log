@@ -1,0 +1,493 @@
+  0%|          | 0/391 [00:00<?, ?it/s]/home/philipp/anaconda3/envs/vings/lib/python3.9/site-packages/torch/functional.py:504: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at ../aten/src/ATen/native/TensorShape.cpp:3483.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+/home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+
+  0%|          | 0/391 [00:00<?, ?it/s][A  0%|          | 1/391 [00:00<02:30,  2.58it/s]/home/philipp/anaconda3/envs/vings/lib/python3.9/site-packages/torch/nn/modules/conv.py:459: UserWarning: Applied workaround for CuDNN issue, install nvrtc.so (Triggered internally at ../aten/src/ATen/native/cudnn/Conv_v8.cpp:80.)
+  return F.conv2d(input, weight, bias, self.stride,
+
+  0%|          | 1/391 [00:00<05:24,  1.20it/s][A  1%|          | 2/391 [00:01<04:09,  1.56it/s]
+  1%|          | 2/391 [00:01<03:01,  2.15it/s][A  1%|          | 3/391 [00:01<02:52,  2.26it/s]
+  2%|▏         | 6/391 [00:01<00:48,  7.91it/s][A  2%|▏         | 8/391 [00:01<00:46,  8.15it/s]
+  3%|▎         | 11/391 [00:01<00:25, 14.88it/s][A  3%|▎         | 13/391 [00:01<00:26, 14.04it/s]
+  4%|▍         | 16/391 [00:01<00:17, 20.94it/s][A  5%|▍         | 18/391 [00:01<00:19, 19.51it/s]
+  5%|▌         | 20/391 [00:01<00:14, 24.96it/s][A  6%|▌         | 22/391 [00:01<00:15, 23.43it/s]
+  6%|▋         | 25/391 [00:01<00:12, 29.14it/s][A  7%|▋         | 27/391 [00:02<00:13, 27.73it/s]
+  8%|▊         | 30/391 [00:01<00:11, 32.31it/s][A  8%|▊         | 32/391 [00:02<00:11, 31.09it/s]
+  9%|▉         | 35/391 [00:01<00:10, 34.62it/s][A  9%|▉         | 37/391 [00:02<00:10, 33.63it/s]
+ 10%|█         | 40/391 [00:01<00:09, 36.33it/s][A 11%|█         | 42/391 [00:02<00:09, 35.59it/s]
+ 12%|█▏        | 45/391 [00:02<00:09, 37.48it/s][A 12%|█▏        | 47/391 [00:02<00:09, 36.95it/s]
+ 13%|█▎        | 50/391 [00:02<00:08, 38.29it/s][A 13%|█▎        | 51/391 [00:02<00:09, 37.68it/s]
+ 14%|█▍        | 55/391 [00:02<00:08, 38.79it/s][A 14%|█▍        | 56/391 [00:02<00:08, 38.42it/s]
+ 15%|█▌        | 59/391 [00:02<00:08, 38.96it/s][A 15%|█▌        | 60/391 [00:02<00:08, 38.69it/s]
+ 16%|█▌        | 63/391 [00:02<00:08, 39.16it/s][A 16%|█▋        | 64/391 [00:02<00:08, 38.96it/s]
+ 17%|█▋        | 68/391 [00:02<00:08, 39.47it/s][A 18%|█▊        | 69/391 [00:03<00:08, 39.32it/s]
+ 18%|█▊        | 72/391 [00:02<00:08, 39.56it/s][A 19%|█▊        | 73/391 [00:03<00:08, 39.44it/s][    0] kf=N metric=0.000 track=0.795(mf=0.795 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.795
+[    1] kf=N metric=0.000 track=0.185(mf=0.185 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.185
+[    2] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[    3] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[    4] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[    5] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[    6] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[    7] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[    8] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[    9] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   10] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   11] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   12] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   13] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   14] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   15] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   16] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   17] kf=N metric=0.000 track=0.006(mf=0.006 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[   18] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   19] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   20] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   21] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   22] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   23] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   24] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   25] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   26] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   27] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   28] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   29] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   30] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   31] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   32] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   33] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   34] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   35] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   36] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   37] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   38] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   39] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   40] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   41] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   42] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   43] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   44] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   45] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   46] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   47] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   48] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   49] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   50] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   51] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   52] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   53] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   54] kf=N metric=0.000 track=0.006(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[   55] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   56] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   57] kf=N metric=0.000 track=0.006(mf=0.006 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[   58] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   59] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   60] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   61] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   62] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   63] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   64] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   65] kf=N metric=0.000 track=0.006(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[   66] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   67] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   68] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   69] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   70] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   71] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+
+ 20%|█▉        | 77/391 [00:02<00:07, 39.82it/s][A 20%|█▉        | 78/391 [00:03<00:07, 39.82it/s]
+ 21%|██        | 82/391 [00:03<00:07, 40.05it/s][A 21%|██        | 83/391 [00:03<00:07, 40.03it/s]
+ 22%|██▏       | 87/391 [00:03<00:07, 39.99it/s][A 23%|██▎       | 88/391 [00:03<00:07, 39.98it/s]
+ 24%|██▎       | 92/391 [00:03<00:07, 40.32it/s][A 24%|██▍       | 93/391 [00:03<00:07, 40.31it/s]
+ 25%|██▍       | 97/391 [00:03<00:07, 40.59it/s][A 25%|██▌       | 98/391 [00:03<00:07, 40.62it/s]
+ 26%|██▌       | 102/391 [00:03<00:06, 41.33it/s][A 26%|██▋       | 103/391 [00:03<00:06, 41.34it/s]
+ 27%|██▋       | 107/391 [00:03<00:06, 41.65it/s][A 28%|██▊       | 108/391 [00:04<00:06, 41.64it/s]
+ 29%|██▊       | 112/391 [00:03<00:06, 41.97it/s][A 29%|██▉       | 113/391 [00:04<00:06, 41.95it/s]
+ 30%|██▉       | 117/391 [00:03<00:06, 42.25it/s][A 30%|███       | 118/391 [00:04<00:06, 42.27it/s]
+ 31%|███       | 122/391 [00:03<00:06, 42.07it/s][A 31%|███▏      | 123/391 [00:04<00:06, 42.06it/s]
+ 32%|███▏      | 127/391 [00:04<00:06, 42.23it/s][A 33%|███▎      | 128/391 [00:04<00:06, 42.18it/s]
+ 34%|███▍      | 132/391 [00:04<00:06, 42.42it/s][A 34%|███▍      | 133/391 [00:04<00:06, 42.36it/s]
+ 35%|███▌      | 137/391 [00:04<00:06, 42.26it/s][A 35%|███▌      | 138/391 [00:04<00:05, 42.27it/s]
+ 36%|███▋      | 142/391 [00:04<00:05, 42.25it/s][A 37%|███▋      | 143/391 [00:04<00:05, 42.20it/s][   72] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   73] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   74] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   75] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   76] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   77] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   78] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   79] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   80] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   81] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   82] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   83] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   84] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   85] kf=N metric=0.000 track=0.006(mf=0.006 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[   86] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   87] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   88] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   89] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   90] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   91] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   92] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[   93] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   94] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   95] kf=N metric=0.000 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.007
+[   96] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   97] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   98] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[   99] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  100] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  101] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  102] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  103] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  104] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  105] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  106] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  107] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  108] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  109] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  110] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  111] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  112] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  113] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  114] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  115] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  116] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  117] kf=N metric=0.000 track=0.006(mf=0.006 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[  118] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  119] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  120] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  121] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  122] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  123] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  124] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  125] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  126] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  127] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  128] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  129] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  130] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  131] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  132] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  133] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  134] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  135] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  136] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  137] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  138] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  139] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  140] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  141] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  142] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  143] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+
+ 38%|███▊      | 147/391 [00:04<00:05, 42.24it/s][A 38%|███▊      | 148/391 [00:04<00:05, 42.20it/s]
+ 39%|███▉      | 152/391 [00:04<00:05, 41.89it/s][A 39%|███▉      | 153/391 [00:05<00:05, 41.89it/s]
+ 40%|████      | 157/391 [00:04<00:05, 42.10it/s][A 40%|████      | 158/391 [00:05<00:05, 42.11it/s]
+ 41%|████▏     | 162/391 [00:04<00:05, 42.07it/s][A 42%|████▏     | 163/391 [00:05<00:05, 42.10it/s]
+ 43%|████▎     | 167/391 [00:05<00:05, 42.02it/s][A 43%|████▎     | 168/391 [00:05<00:05, 42.01it/s]
+ 44%|████▍     | 172/391 [00:05<00:05, 42.18it/s][A 44%|████▍     | 173/391 [00:05<00:05, 42.09it/s]
+ 45%|████▌     | 177/391 [00:05<00:05, 42.05it/s][A 46%|████▌     | 178/391 [00:05<00:05, 42.09it/s]
+ 47%|████▋     | 182/391 [00:05<00:04, 42.07it/s][A 47%|████▋     | 183/391 [00:05<00:04, 42.00it/s]
+ 48%|████▊     | 187/391 [00:05<00:04, 41.92it/s][A 48%|████▊     | 188/391 [00:05<00:04, 41.84it/s]
+ 49%|████▉     | 192/391 [00:05<00:04, 40.53it/s][A 49%|████▉     | 193/391 [00:06<00:04, 40.52it/s]
+ 50%|█████     | 197/391 [00:05<00:04, 40.30it/s][A 51%|█████     | 198/391 [00:06<00:04, 40.34it/s]
+ 52%|█████▏    | 202/391 [00:05<00:04, 40.14it/s][A 52%|█████▏    | 203/391 [00:06<00:04, 40.15it/s]
+ 53%|█████▎    | 207/391 [00:06<00:04, 40.09it/s][A 53%|█████▎    | 208/391 [00:06<00:04, 40.11it/s]
+ 54%|█████▍    | 212/391 [00:06<00:04, 39.97it/s][A 54%|█████▍    | 213/391 [00:06<00:04, 39.93it/s]
+ 55%|█████▌    | 216/391 [00:06<00:04, 39.92it/s][A 55%|█████▌    | 217/391 [00:06<00:04, 39.90it/s][  144] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  145] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  146] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  147] kf=N metric=0.000 track=0.006(mf=0.006 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[  148] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  149] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  150] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  151] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  152] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  153] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  154] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  155] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  156] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  157] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  158] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  159] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  160] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  161] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  162] kf=N metric=0.000 track=0.006(mf=0.006 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[  163] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  164] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  165] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  166] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  167] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  168] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  169] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  170] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  171] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  172] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  173] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  174] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  175] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  176] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  177] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  178] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  179] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  180] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  181] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  182] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  183] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  184] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  185] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  186] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  187] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  188] kf=N metric=0.000 track=0.006(mf=0.006 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.007
+[  189] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  190] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  191] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  192] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  193] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  194] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  195] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  196] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  197] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  198] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  199] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  200] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  201] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  202] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  203] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  204] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  205] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  206] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  207] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  208] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  209] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  210] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  211] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  212] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  213] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  214] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  215] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+
+ 56%|█████▋    | 220/391 [00:06<00:04, 39.51it/s][A 57%|█████▋    | 221/391 [00:06<00:04, 39.52it/s]
+ 57%|█████▋    | 224/391 [00:06<00:04, 39.47it/s][A 58%|█████▊    | 225/391 [00:06<00:04, 39.46it/s]
+ 58%|█████▊    | 228/391 [00:06<00:04, 39.39it/s][A 59%|█████▊    | 229/391 [00:06<00:04, 39.33it/s]
+ 59%|█████▉    | 232/391 [00:06<00:04, 39.23it/s][A 60%|█████▉    | 233/391 [00:07<00:04, 39.23it/s]
+ 60%|██████    | 236/391 [00:06<00:03, 39.18it/s][A 61%|██████    | 237/391 [00:07<00:03, 39.15it/s]
+ 61%|██████▏   | 240/391 [00:06<00:03, 39.19it/s][A 62%|██████▏   | 241/391 [00:07<00:03, 39.22it/s]
+ 62%|██████▏   | 244/391 [00:06<00:03, 39.18it/s][A 63%|██████▎   | 245/391 [00:07<00:03, 39.16it/s]
+ 63%|██████▎   | 248/391 [00:07<00:03, 39.22it/s][A 64%|██████▎   | 249/391 [00:07<00:03, 39.20it/s]
+ 64%|██████▍   | 252/391 [00:07<00:03, 39.24it/s][A 65%|██████▍   | 253/391 [00:07<00:03, 39.26it/s]
+ 65%|██████▌   | 256/391 [00:07<00:03, 39.17it/s][A 66%|██████▌   | 257/391 [00:07<00:03, 39.19it/s]
+ 66%|██████▋   | 260/391 [00:07<00:03, 39.12it/s][A 67%|██████▋   | 261/391 [00:07<00:03, 39.07it/s]
+ 68%|██████▊   | 264/391 [00:07<00:03, 38.89it/s][A 68%|██████▊   | 265/391 [00:07<00:03, 38.95it/s]
+ 69%|██████▊   | 268/391 [00:07<00:03, 38.87it/s][A 69%|██████▉   | 269/391 [00:07<00:03, 38.83it/s]
+ 70%|██████▉   | 272/391 [00:07<00:03, 38.85it/s][A 70%|██████▉   | 273/391 [00:08<00:03, 38.87it/s]
+ 71%|███████   | 276/391 [00:07<00:02, 38.74it/s][A 71%|███████   | 277/391 [00:08<00:02, 38.73it/s]
+ 72%|███████▏  | 280/391 [00:07<00:02, 38.76it/s][A 72%|███████▏  | 281/391 [00:08<00:02, 38.72it/s]
+ 73%|███████▎  | 284/391 [00:08<00:02, 38.69it/s][A 73%|███████▎  | 285/391 [00:08<00:02, 38.65it/s]
+ 74%|███████▎  | 288/391 [00:08<00:02, 38.94it/s][A 74%|███████▍  | 289/391 [00:08<00:02, 38.92it/s][  216] kf=N metric=0.000 track=0.006(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[  217] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  218] kf=N metric=0.000 track=0.006(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[  219] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  220] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  221] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  222] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  223] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  224] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  225] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  226] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  227] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  228] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  229] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  230] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  231] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  232] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  233] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  234] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  235] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  236] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  237] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  238] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  239] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  240] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  241] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  242] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  243] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  244] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  245] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  246] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  247] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  248] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  249] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  250] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  251] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  252] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  253] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  254] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  255] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  256] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  257] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  258] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  259] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  260] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  261] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  262] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  263] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  264] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  265] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  266] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  267] kf=N metric=0.000 track=0.006(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.006
+[  268] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  269] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  270] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  271] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  272] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  273] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  274] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  275] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  276] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  277] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  278] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  279] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  280] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  281] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  282] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  283] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  284] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  285] kf=N metric=0.000 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.007
+[  286] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  287] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+
+ 75%|███████▍  | 293/391 [00:08<00:02, 39.51it/s][A 75%|███████▌  | 294/391 [00:08<00:02, 39.58it/s]
+ 76%|███████▌  | 298/391 [00:08<00:02, 40.17it/s][A 76%|███████▋  | 299/391 [00:08<00:02, 40.20it/s]
+ 77%|███████▋  | 303/391 [00:08<00:02, 40.35it/s][A 78%|███████▊  | 304/391 [00:08<00:02, 40.38it/s]
+ 79%|███████▉  | 308/391 [00:08<00:02, 40.45it/s][A 79%|███████▉  | 309/391 [00:08<00:02, 40.44it/s]
+ 80%|████████  | 313/391 [00:08<00:01, 40.64it/s][A 80%|████████  | 314/391 [00:09<00:01, 40.68it/s]
+ 81%|████████▏ | 318/391 [00:08<00:01, 40.97it/s][A 82%|████████▏ | 319/391 [00:09<00:01, 40.97it/s]
+ 83%|████████▎ | 323/391 [00:08<00:01, 41.27it/s][A 83%|████████▎ | 324/391 [00:09<00:01, 41.28it/s]
+ 84%|████████▍ | 328/391 [00:09<00:01, 41.51it/s][A 84%|████████▍ | 329/391 [00:09<00:01, 41.52it/s]
+ 85%|████████▌ | 333/391 [00:09<00:01, 41.60it/s][A 85%|████████▌ | 334/391 [00:09<00:01, 41.61it/s]
+ 86%|████████▋ | 338/391 [00:09<00:01, 41.44it/s][A 87%|████████▋ | 339/391 [00:09<00:01, 41.35it/s]
+ 88%|████████▊ | 343/391 [00:09<00:01, 41.20it/s][A 88%|████████▊ | 344/391 [00:09<00:01, 41.20it/s]
+ 89%|████████▉ | 348/391 [00:09<00:01, 40.89it/s][A 89%|████████▉ | 349/391 [00:09<00:01, 40.86it/s]
+ 90%|█████████ | 353/391 [00:09<00:00, 40.68it/s][A 91%|█████████ | 354/391 [00:10<00:00, 40.69it/s]
+ 92%|█████████▏| 358/391 [00:09<00:00, 40.64it/s][A 92%|█████████▏| 359/391 [00:10<00:00, 40.61it/s][  288] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  289] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  290] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  291] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  292] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  293] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  294] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  295] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  296] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  297] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  298] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  299] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  300] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  301] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  302] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  303] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  304] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  305] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  306] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  307] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  308] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  309] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  310] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  311] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  312] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  313] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  314] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  315] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  316] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  317] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  318] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  319] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  320] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  321] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  322] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  323] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  324] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  325] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  326] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  327] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  328] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  329] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  330] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  331] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  332] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  333] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  334] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  335] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  336] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  337] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  338] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  339] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  340] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  341] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  342] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  343] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  344] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  345] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  346] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  347] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  348] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  349] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  350] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  351] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  352] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  353] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  354] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  355] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  356] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  357] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  358] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  359] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+
+ 93%|█████████▎| 363/391 [00:09<00:00, 40.56it/s][A 93%|█████████▎| 364/391 [00:10<00:00, 40.57it/s]
+ 94%|█████████▍| 368/391 [00:10<00:00, 40.51it/s][A 94%|█████████▍| 369/391 [00:10<00:00, 40.52it/s]
+ 95%|█████████▌| 373/391 [00:10<00:00, 40.25it/s][A 96%|█████████▌| 374/391 [00:10<00:00, 40.23it/s]
+ 97%|█████████▋| 378/391 [00:10<00:00, 40.36it/s][A 97%|█████████▋| 379/391 [00:10<00:00, 40.36it/s]
+ 98%|█████████▊| 383/391 [00:10<00:00, 40.45it/s][A 98%|█████████▊| 384/391 [00:10<00:00, 40.47it/s]
+ 99%|█████████▉| 388/391 [00:10<00:00, 40.57it/s][A 99%|█████████▉| 389/391 [00:10<00:00, 40.57it/s]100%|██████████| 391/391 [00:10<00:00, 36.76it/s]
+[  360] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  361] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  362] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  363] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  364] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  365] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  366] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  367] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  368] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  369] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  370] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  371] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  372] kf=N metric=0.000 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.007
+[  373] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  374] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  375] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  376] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  377] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  378] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  379] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  380] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  381] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  382] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  383] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  384] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  385] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  386] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  387] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  388] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  389] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+[  390] kf=N metric=0.000 track=0.005(mf=0.005 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.005
+tracker_poses_w2c.txt geschrieben (0 marginalisiert + 5 aktiv).
+
+=== Profiling Summary (0 KFs, 0 mapped / 391 processed / 391 dataset, frame_skip=1, mapper_kf_skip=3, wall=10.6s) ===
+phase                             n   total[s]   mean[ms]    med[ms]    p95[ms]       %
+--------------------------------------------------------------------------------------
+track.total                     391       2.97        7.6        5.1        5.5   27.9%
+track.motion_filter             391       2.94        7.5        5.1        5.4   27.7%
+judge_pkg                       391       0.01        0.0        0.0        0.0    0.1%
+track.frontend_ba               391       0.00        0.0        0.0        0.0    0.0%
+profiling.json -> /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/fire3_224206/06-16-23-19-generic_vo-fire3_224206-/profiling.json
+100%|██████████| 391/391 [00:11<00:00, 34.75it/s]
