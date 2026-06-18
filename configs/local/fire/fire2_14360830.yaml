@@ -94,7 +94,7 @@ training_args:
   num_keyframe: 8
 
 use_dynamic: false
-use_metric: false
+use_metric: true         # Metric3D-Tiefenprior: ankert Skala/Struktur bei langsamer Drohnen-Bewegung
 use_pose_refine: false
 use_sky: false
 use_storage_manager: true

@@ -13,6 +13,8 @@ BASE = "configs/local/interval1/interval1_droid_full.yaml"
 
 ap = argparse.ArgumentParser()
 ap.add_argument("out")
+ap.add_argument("--base", default=BASE,
+                help="Basis-Config (Default interval1_droid_full.yaml; z.B. configs/local/agz/agz_droid_full.yaml)")
 ap.add_argument("--start", type=int, required=True)
 ap.add_argument("--frames", type=int, required=True)
 ap.add_argument("--hw", nargs=2, type=int, default=[384, 456])
@@ -34,7 +36,7 @@ ap.add_argument("--selector-from", default=None,
 ap.add_argument("--savedir", required=True)
 a = ap.parse_args()
 
-c = yaml.full_load(open(BASE))
+c = yaml.full_load(open(a.base))
 c["dataset"]["start_frame"] = a.start
 c["dataset"]["max_frames"] = a.frames
 c["frontend"]["image_size"] = list(a.hw)

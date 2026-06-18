@@ -1,0 +1,29 @@
+############################################################
+# AGZ SURVEY x SELEKTOREN: two_gate_v2
+# Summary-CSV: output/agz_selsmoke/summary.csv
+# Root: output/agz_selsmoke
+############################################################
+
+============================================================
+= SELEKTOR: two_gate_v2   cfg=configs/local/agz/s2675_400f/two_gate_v2/agz_s2675_400f_two_gate_v2_a3_loose.yaml   -> output/agz_selsmoke/two_gate_v2
+============================================================
+[gen] output/agz_selsmoke/two_gate_v2/cfg_s7000.yaml: hw=[240, 432] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=7000 frames=150 selector=two_gate_v2
+=========== SEGMENT start=7000 (numkf=4) ===========
+[log_sweep_row] s7000: status=OK psnr=23.069 kf=1 ply=1 dur=0.25min
+Traceback (most recent call last):
+  File "/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py", line 151, in <module>
+    main()
+  File "/home/philipp/Dokumente/Github/VINGS-Mono-BA/scripts/eval/sim3_unwarp.py", line 57, in main
+    td = r[:, 1]; Cd = r[:, [5, 9, 13]]
+IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+MERGE=0 -> kein Merge
+=========== MESSUNG -> output/agz_selsmoke/two_gate_v2/segments.csv ===========
+  s7000: status=OK psnr=23.069 kf=1 vram=1336 ate=0.47949547226914035 ply=MB
+[measure_survey] 1/1 Segmente + 1 Aggregat -> output/agz_selsmoke/two_gate_v2/segments.csv
+[measure_survey] Survey-Zeile 'two_gate_v2' -> output/agz_selsmoke/summary.csv  (dur=0.19min ply=MB gauss= psnr min/max/mean=23.069/23.069/23.069)
+# [two_gate_v2] WARN: keine survey_complete.ply -- output/agz_selsmoke/two_gate_v2 NICHT aufgeraeumt (Diagnose behalten)
+/dev/sdc2       219G    208G  772M  100% /
+
+=========== ALLE AGZ-SELEKTOREN FERTIG ===========
+Summary (1 Zeile/Selektor): output/agz_selsmoke/summary.csv
+  (keine)

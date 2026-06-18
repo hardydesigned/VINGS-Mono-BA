@@ -1,0 +1,1686 @@
+  0%|          | 0/391 [00:00<?, ?it/s]/home/philipp/anaconda3/envs/vings/lib/python3.9/site-packages/torch/functional.py:504: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at ../aten/src/ATen/native/TensorShape.cpp:3483.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+/home/philipp/anaconda3/envs/vings/lib/python3.9/site-packages/torch/utils/cpp_extension.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import packaging  # type: ignore[attr-defined]
+/home/philipp/anaconda3/envs/vings/lib/python3.9/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+W0616 19:10:44.407101 54909 ViT_DINO.py:253] xFormers not available
+W0616 19:10:44.407418 54909 ViT_DINO.py:329] xFormers not available
+W0616 19:10:44.408212 54909 ViT_DINO_reg.py:380] xFormers not available
+W0616 19:10:44.408460 54909 ViT_DINO_reg.py:491] xFormers not available
+I0616 19:10:44.410701 54909 ViT_DINO_reg.py:848] using MLP layer as FFN
+I0616 19:10:44.695052 54909 running.py:18] Loading weight '/home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/metric_depth_vit_small_800k.pth'
+I0616 19:10:44.798934 54909 running.py:32] Successfully loaded weight: '/home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/metric_depth_vit_small_800k.pth'
+/home/philipp/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/swiglu_ffn.py:51: UserWarning: xFormers is not available (SwiGLU)
+  warnings.warn("xFormers is not available (SwiGLU)")
+/home/philipp/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/attention.py:34: UserWarning: xFormers is not available (Attention)
+  warnings.warn("xFormers is not available (Attention)")
+/home/philipp/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/block.py:41: UserWarning: xFormers is not available (Block)
+  warnings.warn("xFormers is not available (Block)")
+I0616 19:10:44.811623 54909 vision_transformer.py:125] using MLP layer as FFN
+/home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+Loading model v2-S from /home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/metric_depth_vit_small_800k.pth
+NO pretrained imagenet ckpt available! Check your path!
+WARN: gate_a.enable_a3=true but loader has no GPS source -- A3 fail-open (every frame passes)
+
+  0%|          | 0/391 [00:00<?, ?it/s][A  0%|          | 1/391 [00:01<10:07,  1.56s/it]/home/philipp/anaconda3/envs/vings/lib/python3.9/site-packages/torch/nn/modules/conv.py:459: UserWarning: Applied workaround for CuDNN issue, install nvrtc.so (Triggered internally at ../aten/src/ATen/native/cudnn/Conv_v8.cpp:80.)
+  return F.conv2d(input, weight, bias, self.stride,
+
+  0%|          | 1/391 [00:00<05:36,  1.16it/s][A  1%|          | 2/391 [00:02<07:26,  1.15s/it]
+  1%|          | 2/391 [00:01<03:17,  1.97it/s][A  1%|          | 3/391 [00:02<04:47,  1.35it/s]
+  1%|          | 3/391 [00:01<02:13,  2.91it/s][A  1%|          | 4/391 [00:02<03:15,  1.98it/s]
+  1%|          | 4/391 [00:01<01:42,  3.77it/s][A  1%|▏         | 5/391 [00:02<02:24,  2.67it/s]
+  1%|▏         | 5/391 [00:01<01:25,  4.52it/s][A  2%|▏         | 6/391 [00:03<01:53,  3.38it/s]
+  2%|▏         | 6/391 [00:01<01:14,  5.15it/s][A  2%|▏         | 7/391 [00:03<01:34,  4.07it/s]
+  2%|▏         | 7/391 [00:01<01:08,  5.63it/s][A  2%|▏         | 8/391 [00:03<01:21,  4.69it/s]
+  2%|▏         | 8/391 [00:02<02:46,  2.31it/s][A  2%|▏         | 9/391 [00:04<02:54,  2.19it/s]
+  2%|▏         | 9/391 [00:04<04:22,  1.45it/s][A  3%|▎         | 10/391 [00:05<04:25,  1.43it/s]
+  3%|▎         | 10/391 [00:04<03:51,  1.65it/s][A  3%|▎         | 11/391 [00:06<03:53,  1.63it/s]
+  3%|▎         | 11/391 [00:04<03:29,  1.81it/s][A  3%|▎         | 12/391 [00:06<03:31,  1.79it/s]
+  3%|▎         | 12/391 [00:05<03:18,  1.91it/s][A  3%|▎         | 13/391 [00:06<03:19,  1.90it/s][    0] kf=N metric=0.640 track=0.188(mf=0.188 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.829
+[    1] kf=N metric=0.114 track=0.116(mf=0.116 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.230
+[    2] kf=N metric=0.108 track=0.006(mf=0.006 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.114
+[    3] kf=N metric=0.107 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.113
+[    4] kf=N metric=0.107 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.113
+[    5] kf=N metric=0.105 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.112
+[    6] kf=N metric=0.109 track=0.007(mf=0.007 fe=0.000) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.116
+[    7] kf=N metric=0.109 track=0.846(mf=0.007 fe=0.838) pkg=0.000 map=0.000(prep=0.000 train=0.000) total=0.954
+[    8] kf=Y metric=0.111 track=0.238(mf=0.007 fe=0.230) pkg=0.004 map=0.848(prep=0.000 train=0.691) total=1.201 fs(step=first)
+[    9] kf=S metric=0.109 track=0.278(mf=0.007 fe=0.271) pkg=0.003 map=0.000(prep=0.000 train=0.000) total=0.390 fs(step=B1_pose_below_min)
+[   10] kf=S metric=0.109 track=0.288(mf=0.007 fe=0.281) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.401 fs(step=B1_pose_below_min)
+[   11] kf=S metric=0.108 track=0.318(mf=0.007 fe=0.311) pkg=0.003 map=0.000(prep=0.000 train=0.000) total=0.430 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  3%|▎         | 13/391 [00:05<03:05,  2.03it/s][A  4%|▎         | 14/391 [00:07<03:06,  2.02it/s][   12] kf=S metric=0.109 track=0.276(mf=0.007 fe=0.269) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.389 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  4%|▎         | 14/391 [00:06<02:53,  2.17it/s][A  4%|▍         | 15/391 [00:07<02:54,  2.16it/s][   13] kf=S metric=0.109 track=0.242(mf=0.007 fe=0.235) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.355 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  4%|▍         | 15/391 [00:06<02:44,  2.29it/s][A  4%|▍         | 16/391 [00:08<02:44,  2.28it/s][   14] kf=S metric=0.106 track=0.242(mf=0.007 fe=0.235) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.351 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  4%|▍         | 16/391 [00:06<02:38,  2.37it/s][A  4%|▍         | 17/391 [00:08<02:38,  2.37it/s][   15] kf=S metric=0.106 track=0.242(mf=0.007 fe=0.235) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.353 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  4%|▍         | 17/391 [00:07<02:34,  2.43it/s][A  5%|▍         | 18/391 [00:08<02:33,  2.42it/s][   16] kf=S metric=0.106 track=0.242(mf=0.007 fe=0.234) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.354 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  5%|▍         | 18/391 [00:07<02:31,  2.47it/s][A  5%|▍         | 19/391 [00:09<02:30,  2.47it/s][   17] kf=S metric=0.107 track=0.242(mf=0.007 fe=0.235) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.355 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  5%|▍         | 19/391 [00:08<02:28,  2.50it/s][A  5%|▌         | 20/391 [00:09<02:28,  2.50it/s][   18] kf=S metric=0.107 track=0.242(mf=0.007 fe=0.235) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.355 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  5%|▌         | 20/391 [00:08<02:27,  2.52it/s][A  5%|▌         | 21/391 [00:10<02:26,  2.52it/s][   19] kf=S metric=0.108 track=0.242(mf=0.007 fe=0.235) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.356 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  5%|▌         | 21/391 [00:08<02:26,  2.53it/s][A  6%|▌         | 22/391 [00:10<02:25,  2.53it/s][   20] kf=S metric=0.106 track=0.242(mf=0.007 fe=0.235) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.355 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  6%|▌         | 22/391 [00:09<02:25,  2.54it/s][A  6%|▌         | 23/391 [00:10<02:25,  2.54it/s][   21] kf=S metric=0.108 track=0.244(mf=0.007 fe=0.236) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  6%|▌         | 23/391 [00:09<02:24,  2.55it/s][A  6%|▌         | 24/391 [00:11<02:24,  2.54it/s][   22] kf=S metric=0.108 track=0.243(mf=0.007 fe=0.236) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  6%|▌         | 24/391 [00:10<02:24,  2.55it/s][A  6%|▋         | 25/391 [00:11<02:23,  2.55it/s][   23] kf=S metric=0.107 track=0.243(mf=0.007 fe=0.236) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  6%|▋         | 25/391 [00:10<02:23,  2.55it/s][A  7%|▋         | 26/391 [00:12<02:23,  2.55it/s][   24] kf=S metric=0.107 track=0.244(mf=0.008 fe=0.236) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  7%|▋         | 26/391 [00:10<02:23,  2.55it/s][A  7%|▋         | 27/391 [00:12<02:22,  2.55it/s][   25] kf=S metric=0.107 track=0.243(mf=0.007 fe=0.236) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  7%|▋         | 27/391 [00:11<02:22,  2.55it/s][A  7%|▋         | 28/391 [00:12<02:22,  2.55it/s][   26] kf=S metric=0.108 track=0.243(mf=0.007 fe=0.236) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  7%|▋         | 28/391 [00:11<02:22,  2.54it/s][A  7%|▋         | 29/391 [00:13<02:23,  2.53it/s][   27] kf=S metric=0.111 track=0.244(mf=0.007 fe=0.236) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  7%|▋         | 29/391 [00:12<02:23,  2.52it/s][A  8%|▊         | 30/391 [00:13<02:22,  2.53it/s][   28] kf=S metric=0.111 track=0.243(mf=0.006 fe=0.236) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  8%|▊         | 30/391 [00:12<02:22,  2.53it/s][A  8%|▊         | 31/391 [00:13<02:22,  2.53it/s][   29] kf=S metric=0.106 track=0.244(mf=0.006 fe=0.237) pkg=0.010 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  8%|▊         | 31/391 [00:12<02:22,  2.53it/s][A  8%|▊         | 32/391 [00:14<02:21,  2.54it/s][   30] kf=S metric=0.104 track=0.245(mf=0.006 fe=0.238) pkg=0.010 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  8%|▊         | 32/391 [00:13<02:21,  2.54it/s][A  8%|▊         | 33/391 [00:14<02:21,  2.54it/s][   31] kf=S metric=0.108 track=0.244(mf=0.006 fe=0.238) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  8%|▊         | 33/391 [00:13<02:21,  2.53it/s][A  9%|▊         | 34/391 [00:15<02:20,  2.53it/s][   32] kf=S metric=0.106 track=0.245(mf=0.006 fe=0.239) pkg=0.011 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  9%|▊         | 34/391 [00:14<02:20,  2.54it/s][A  9%|▉         | 35/391 [00:15<02:20,  2.54it/s][   33] kf=S metric=0.105 track=0.245(mf=0.006 fe=0.238) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  9%|▉         | 35/391 [00:14<02:20,  2.54it/s][A  9%|▉         | 36/391 [00:15<02:19,  2.54it/s][   34] kf=S metric=0.106 track=0.244(mf=0.006 fe=0.237) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  9%|▉         | 36/391 [00:14<02:19,  2.54it/s][A  9%|▉         | 37/391 [00:16<02:19,  2.54it/s][   35] kf=S metric=0.106 track=0.243(mf=0.006 fe=0.237) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+  9%|▉         | 37/391 [00:15<02:19,  2.55it/s][A 10%|▉         | 38/391 [00:16<02:18,  2.55it/s][   36] kf=S metric=0.106 track=0.244(mf=0.006 fe=0.238) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 10%|▉         | 38/391 [00:15<02:19,  2.54it/s][A 10%|▉         | 39/391 [00:17<02:18,  2.54it/s][   37] kf=S metric=0.108 track=0.246(mf=0.006 fe=0.240) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 10%|▉         | 39/391 [00:15<02:18,  2.53it/s][A 10%|█         | 40/391 [00:17<02:18,  2.53it/s][   38] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 10%|█         | 40/391 [00:16<02:18,  2.53it/s][A 10%|█         | 41/391 [00:17<02:19,  2.51it/s][   39] kf=S metric=0.111 track=0.247(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 10%|█         | 41/391 [00:16<02:19,  2.51it/s][A 11%|█         | 42/391 [00:18<02:18,  2.51it/s][   40] kf=S metric=0.110 track=0.247(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 11%|█         | 42/391 [00:17<02:18,  2.51it/s][A 11%|█         | 43/391 [00:18<02:18,  2.52it/s][   41] kf=S metric=0.109 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 11%|█         | 43/391 [00:17<02:18,  2.51it/s][A 11%|█▏        | 44/391 [00:19<02:17,  2.51it/s][   42] kf=S metric=0.108 track=0.248(mf=0.006 fe=0.242) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 11%|█▏        | 44/391 [00:17<02:17,  2.52it/s][A 12%|█▏        | 45/391 [00:19<02:17,  2.52it/s][   43] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 12%|█▏        | 45/391 [00:18<02:17,  2.52it/s][A 12%|█▏        | 46/391 [00:19<02:16,  2.53it/s][   44] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 12%|█▏        | 46/391 [00:18<02:16,  2.53it/s][A 12%|█▏        | 47/391 [00:20<02:16,  2.53it/s][   45] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 12%|█▏        | 47/391 [00:19<02:15,  2.53it/s][A 12%|█▏        | 48/391 [00:20<02:15,  2.53it/s][   46] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.241) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 12%|█▏        | 48/391 [00:19<02:15,  2.53it/s][A 13%|█▎        | 49/391 [00:21<02:15,  2.53it/s][   47] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 13%|█▎        | 49/391 [00:19<02:14,  2.53it/s][A 13%|█▎        | 50/391 [00:21<02:14,  2.53it/s][   48] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 13%|█▎        | 50/391 [00:20<02:14,  2.53it/s][A 13%|█▎        | 51/391 [00:21<02:14,  2.53it/s][   49] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 13%|█▎        | 51/391 [00:20<02:13,  2.54it/s][A 13%|█▎        | 52/391 [00:22<02:13,  2.54it/s][   50] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 13%|█▎        | 52/391 [00:21<02:13,  2.53it/s][A 14%|█▎        | 53/391 [00:22<02:14,  2.52it/s][   51] kf=S metric=0.109 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 14%|█▎        | 53/391 [00:21<02:14,  2.51it/s][A 14%|█▍        | 54/391 [00:23<02:13,  2.52it/s][   52] kf=S metric=0.109 track=0.250(mf=0.007 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 14%|█▍        | 54/391 [00:21<02:13,  2.52it/s][A 14%|█▍        | 55/391 [00:23<02:13,  2.52it/s][   53] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 14%|█▍        | 55/391 [00:22<02:12,  2.53it/s][A 14%|█▍        | 56/391 [00:23<02:12,  2.53it/s][   54] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 14%|█▍        | 56/391 [00:22<02:12,  2.54it/s][A 15%|█▍        | 57/391 [00:24<02:11,  2.54it/s][   55] kf=S metric=0.104 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 15%|█▍        | 57/391 [00:23<02:11,  2.54it/s][A 15%|█▍        | 58/391 [00:24<02:11,  2.54it/s][   56] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 15%|█▍        | 58/391 [00:23<02:11,  2.54it/s][A 15%|█▌        | 59/391 [00:25<02:10,  2.54it/s][   57] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 15%|█▌        | 59/391 [00:23<02:10,  2.55it/s][A 15%|█▌        | 60/391 [00:25<02:10,  2.55it/s][   58] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.243) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 15%|█▌        | 60/391 [00:24<02:10,  2.54it/s][A 16%|█▌        | 61/391 [00:25<02:09,  2.54it/s][   59] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 16%|█▌        | 61/391 [00:24<02:09,  2.54it/s][A 16%|█▌        | 62/391 [00:26<02:09,  2.54it/s][   60] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 16%|█▌        | 62/391 [00:25<02:09,  2.54it/s][A 16%|█▌        | 63/391 [00:26<02:09,  2.54it/s][   61] kf=S metric=0.106 track=0.250(mf=0.006 fe=0.244) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 16%|█▌        | 63/391 [00:25<02:09,  2.53it/s][A 16%|█▋        | 64/391 [00:27<02:09,  2.53it/s][   62] kf=S metric=0.106 track=0.252(mf=0.006 fe=0.246) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 16%|█▋        | 64/391 [00:25<02:09,  2.53it/s][A 17%|█▋        | 65/391 [00:27<02:08,  2.53it/s][   63] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 17%|█▋        | 65/391 [00:26<02:08,  2.53it/s][A 17%|█▋        | 66/391 [00:27<02:08,  2.53it/s][   64] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 17%|█▋        | 66/391 [00:26<02:09,  2.51it/s][A 17%|█▋        | 67/391 [00:28<02:08,  2.51it/s][   65] kf=S metric=0.106 track=0.256(mf=0.006 fe=0.250) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.370 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 17%|█▋        | 67/391 [00:27<02:08,  2.53it/s][A 17%|█▋        | 68/391 [00:28<02:07,  2.53it/s][   66] kf=S metric=0.106 track=0.245(mf=0.006 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 17%|█▋        | 68/391 [00:27<02:07,  2.53it/s][A 18%|█▊        | 69/391 [00:29<02:07,  2.53it/s][   67] kf=S metric=0.105 track=0.245(mf=0.006 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 18%|█▊        | 69/391 [00:27<02:07,  2.52it/s][A 18%|█▊        | 70/391 [00:29<02:08,  2.51it/s][   68] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.010 map=0.000(prep=0.000 train=0.000) total=0.366 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 18%|█▊        | 70/391 [00:28<02:08,  2.51it/s][A 18%|█▊        | 71/391 [00:29<02:07,  2.51it/s][   69] kf=S metric=0.110 track=0.246(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 18%|█▊        | 71/391 [00:28<02:07,  2.52it/s][A 18%|█▊        | 72/391 [00:30<02:06,  2.52it/s][   70] kf=S metric=0.107 track=0.245(mf=0.006 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 18%|█▊        | 72/391 [00:29<02:06,  2.52it/s][A 19%|█▊        | 73/391 [00:30<02:05,  2.53it/s][   71] kf=S metric=0.107 track=0.246(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 19%|█▊        | 73/391 [00:29<02:05,  2.53it/s][A 19%|█▉        | 74/391 [00:30<02:05,  2.53it/s][   72] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 19%|█▉        | 74/391 [00:29<02:04,  2.54it/s][A 19%|█▉        | 75/391 [00:31<02:04,  2.54it/s][   73] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 19%|█▉        | 75/391 [00:30<02:04,  2.54it/s][A 19%|█▉        | 76/391 [00:31<02:03,  2.54it/s][   74] kf=S metric=0.106 track=0.245(mf=0.006 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 19%|█▉        | 76/391 [00:30<02:03,  2.55it/s][A 20%|█▉        | 77/391 [00:32<02:03,  2.55it/s][   75] kf=S metric=0.105 track=0.245(mf=0.006 fe=0.239) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.356 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 20%|█▉        | 77/391 [00:31<02:03,  2.55it/s][A 20%|█▉        | 78/391 [00:32<02:02,  2.55it/s][   76] kf=S metric=0.107 track=0.246(mf=0.006 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 20%|█▉        | 78/391 [00:31<02:03,  2.54it/s][A 20%|██        | 79/391 [00:32<02:02,  2.54it/s][   77] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 20%|██        | 79/391 [00:31<02:02,  2.55it/s][A 20%|██        | 80/391 [00:33<02:02,  2.55it/s][   78] kf=S metric=0.105 track=0.247(mf=0.007 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 20%|██        | 80/391 [00:32<02:02,  2.54it/s][A 21%|██        | 81/391 [00:33<02:01,  2.54it/s][   79] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 21%|██        | 81/391 [00:32<02:01,  2.54it/s][A 21%|██        | 82/391 [00:34<02:01,  2.54it/s][   80] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 21%|██        | 82/391 [00:32<02:01,  2.54it/s][A 21%|██        | 83/391 [00:34<02:01,  2.54it/s][   81] kf=S metric=0.106 track=0.250(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 21%|██        | 83/391 [00:33<02:01,  2.53it/s][A 21%|██▏       | 84/391 [00:34<02:01,  2.53it/s][   82] kf=S metric=0.107 track=0.251(mf=0.006 fe=0.245) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 21%|██▏       | 84/391 [00:33<02:01,  2.53it/s][A 22%|██▏       | 85/391 [00:35<02:01,  2.53it/s][   83] kf=S metric=0.107 track=0.251(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 22%|██▏       | 85/391 [00:34<02:01,  2.53it/s][A 22%|██▏       | 86/391 [00:35<02:00,  2.53it/s][   84] kf=S metric=0.107 track=0.251(mf=0.006 fe=0.245) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 22%|██▏       | 86/391 [00:34<02:00,  2.53it/s][A 22%|██▏       | 87/391 [00:36<01:59,  2.54it/s][   85] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 22%|██▏       | 87/391 [00:34<01:59,  2.54it/s][A 23%|██▎       | 88/391 [00:36<01:59,  2.54it/s][   86] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 23%|██▎       | 88/391 [00:35<01:59,  2.53it/s][A 23%|██▎       | 89/391 [00:36<02:00,  2.52it/s][   87] kf=S metric=0.110 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 23%|██▎       | 89/391 [00:35<02:00,  2.51it/s][A 23%|██▎       | 90/391 [00:37<01:59,  2.52it/s][   88] kf=S metric=0.108 track=0.251(mf=0.006 fe=0.245) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 23%|██▎       | 90/391 [00:36<01:59,  2.52it/s][A 23%|██▎       | 91/391 [00:37<01:58,  2.52it/s][   89] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 23%|██▎       | 91/391 [00:36<01:58,  2.53it/s][A 24%|██▎       | 92/391 [00:38<01:58,  2.53it/s][   90] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 24%|██▎       | 92/391 [00:36<01:58,  2.53it/s][A 24%|██▍       | 93/391 [00:38<01:57,  2.53it/s][   91] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 24%|██▍       | 93/391 [00:37<01:57,  2.53it/s][A 24%|██▍       | 94/391 [00:38<01:57,  2.53it/s][   92] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 24%|██▍       | 94/391 [00:37<01:57,  2.52it/s][A 24%|██▍       | 95/391 [00:39<01:57,  2.52it/s][   93] kf=S metric=0.108 track=0.250(mf=0.006 fe=0.244) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 24%|██▍       | 95/391 [00:38<01:57,  2.53it/s][A 25%|██▍       | 96/391 [00:39<01:56,  2.53it/s][   94] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 25%|██▍       | 96/391 [00:38<01:57,  2.52it/s][A 25%|██▍       | 97/391 [00:40<01:56,  2.52it/s][   95] kf=S metric=0.105 track=0.254(mf=0.006 fe=0.248) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.369 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 25%|██▍       | 97/391 [00:38<01:56,  2.52it/s][A 25%|██▌       | 98/391 [00:40<01:56,  2.53it/s][   96] kf=S metric=0.106 track=0.245(mf=0.006 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 25%|██▌       | 98/391 [00:39<01:56,  2.52it/s][A 25%|██▌       | 99/391 [00:40<01:55,  2.52it/s][   97] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.242) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 25%|██▌       | 99/391 [00:39<01:55,  2.52it/s][A 26%|██▌       | 100/391 [00:41<01:55,  2.52it/s][   98] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 26%|██▌       | 100/391 [00:40<01:55,  2.52it/s][A 26%|██▌       | 101/391 [00:41<01:55,  2.52it/s]Convey 48022 Gaussians from GPU to CPU.
+Gaussian num on GPU: 51978
+Gaussian num on CPU: 48022
+[   99] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 26%|██▌       | 101/391 [00:40<01:54,  2.52it/s][A 26%|██▌       | 102/391 [00:42<01:54,  2.52it/s][  100] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.244) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 26%|██▌       | 102/391 [00:40<01:54,  2.53it/s][A 26%|██▋       | 103/391 [00:42<01:53,  2.53it/s][  101] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 26%|██▋       | 103/391 [00:41<01:53,  2.54it/s][A 27%|██▋       | 104/391 [00:42<01:53,  2.54it/s][  102] kf=S metric=0.105 track=0.246(mf=0.006 fe=0.240) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 27%|██▋       | 104/391 [00:41<01:52,  2.54it/s][A 27%|██▋       | 105/391 [00:43<01:52,  2.54it/s][  103] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 27%|██▋       | 105/391 [00:42<01:52,  2.54it/s][A 27%|██▋       | 106/391 [00:43<01:52,  2.54it/s][  104] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 27%|██▋       | 106/391 [00:42<01:52,  2.53it/s][A 27%|██▋       | 107/391 [00:44<01:52,  2.53it/s][  105] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 27%|██▋       | 107/391 [00:42<01:51,  2.54it/s][A 28%|██▊       | 108/391 [00:44<01:51,  2.54it/s][  106] kf=S metric=0.107 track=0.246(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 28%|██▊       | 108/391 [00:43<01:51,  2.54it/s][A 28%|██▊       | 109/391 [00:44<01:51,  2.54it/s][  107] kf=S metric=0.108 track=0.245(mf=0.006 fe=0.239) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 28%|██▊       | 109/391 [00:44<02:46,  1.69it/s][A 28%|██▊       | 110/391 [00:45<02:46,  1.69it/s][  108] kf=Y metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.005 map=0.656(prep=0.052 train=0.604) total=1.015 fs(step=force_after)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 28%|██▊       | 110/391 [00:44<02:30,  1.87it/s][A 28%|██▊       | 111/391 [00:46<02:29,  1.87it/s]Convey 25060 Gaussians from GPU to CPU.
+Gaussian num on GPU: 59869
+Gaussian num on CPU: 73082
+[  109] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 28%|██▊       | 111/391 [00:45<02:18,  2.03it/s][A 29%|██▊       | 112/391 [00:46<02:17,  2.03it/s][  110] kf=S metric=0.107 track=0.251(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 29%|██▊       | 112/391 [00:45<02:09,  2.15it/s][A 29%|██▉       | 113/391 [00:47<02:09,  2.15it/s][  111] kf=S metric=0.108 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 29%|██▉       | 113/391 [00:45<02:03,  2.25it/s][A 29%|██▉       | 114/391 [00:47<02:03,  2.25it/s][  112] kf=S metric=0.106 track=0.251(mf=0.006 fe=0.245) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 29%|██▉       | 114/391 [00:46<01:59,  2.33it/s][A 29%|██▉       | 115/391 [00:47<01:58,  2.33it/s][  113] kf=S metric=0.106 track=0.251(mf=0.006 fe=0.245) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 29%|██▉       | 115/391 [00:46<01:55,  2.39it/s][A 30%|██▉       | 116/391 [00:48<01:55,  2.39it/s][  114] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 30%|██▉       | 116/391 [00:47<01:53,  2.43it/s][A 30%|██▉       | 117/391 [00:48<01:52,  2.43it/s][  115] kf=S metric=0.106 track=0.251(mf=0.006 fe=0.245) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 30%|██▉       | 117/391 [00:47<01:51,  2.45it/s][A 30%|███       | 118/391 [00:49<01:51,  2.45it/s][  116] kf=S metric=0.107 track=0.252(mf=0.006 fe=0.245) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 30%|███       | 118/391 [00:47<01:50,  2.47it/s][A 30%|███       | 119/391 [00:49<01:50,  2.47it/s][  117] kf=S metric=0.106 track=0.252(mf=0.006 fe=0.245) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 30%|███       | 119/391 [00:48<01:49,  2.48it/s][A 31%|███       | 120/391 [00:49<01:49,  2.48it/s][  118] kf=S metric=0.107 track=0.252(mf=0.006 fe=0.245) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 31%|███       | 120/391 [00:48<01:49,  2.48it/s][A 31%|███       | 121/391 [00:50<01:49,  2.48it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 59869
+Gaussian num on CPU: 73082
+[CPU-Prune] 39736/73082 Gaussians entfernt (opacity < 0.1). Verbleibend auf CPU: 33346
+[  119] kf=S metric=0.106 track=0.250(mf=0.006 fe=0.244) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 31%|███       | 121/391 [00:49<01:48,  2.49it/s][A 31%|███       | 122/391 [00:50<01:48,  2.49it/s][  120] kf=S metric=0.107 track=0.251(mf=0.006 fe=0.245) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 31%|███       | 122/391 [00:49<01:48,  2.49it/s][A 31%|███▏      | 123/391 [00:51<01:47,  2.49it/s][  121] kf=S metric=0.108 track=0.252(mf=0.006 fe=0.246) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.366 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 31%|███▏      | 123/391 [00:49<01:47,  2.50it/s][A 32%|███▏      | 124/391 [00:51<01:46,  2.50it/s][  122] kf=S metric=0.106 track=0.252(mf=0.006 fe=0.246) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 32%|███▏      | 124/391 [00:50<01:46,  2.50it/s][A 32%|███▏      | 125/391 [00:51<01:46,  2.50it/s][  123] kf=S metric=0.107 track=0.250(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 32%|███▏      | 125/391 [00:50<01:46,  2.50it/s][A 32%|███▏      | 126/391 [00:52<01:45,  2.50it/s][  124] kf=S metric=0.106 track=0.253(mf=0.006 fe=0.247) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 32%|███▏      | 126/391 [00:51<01:46,  2.50it/s][A 32%|███▏      | 127/391 [00:52<01:45,  2.50it/s][  125] kf=S metric=0.106 track=0.255(mf=0.006 fe=0.249) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.369 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 32%|███▏      | 127/391 [00:51<01:45,  2.51it/s][A 33%|███▎      | 128/391 [00:53<01:44,  2.51it/s][  126] kf=S metric=0.106 track=0.246(mf=0.006 fe=0.240) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 33%|███▎      | 128/391 [00:51<01:44,  2.52it/s][A 33%|███▎      | 129/391 [00:53<01:44,  2.52it/s][  127] kf=S metric=0.106 track=0.245(mf=0.006 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 33%|███▎      | 129/391 [00:52<01:43,  2.53it/s][A 33%|███▎      | 130/391 [00:53<01:43,  2.53it/s][  128] kf=S metric=0.107 track=0.244(mf=0.006 fe=0.238) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 33%|███▎      | 130/391 [00:52<01:43,  2.52it/s][A 34%|███▎      | 131/391 [00:54<01:43,  2.52it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 59869
+Gaussian num on CPU: 33346
+[  129] kf=S metric=0.108 track=0.245(mf=0.006 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 34%|███▎      | 131/391 [00:53<01:43,  2.52it/s][A 34%|███▍      | 132/391 [00:54<01:42,  2.52it/s][  130] kf=S metric=0.108 track=0.251(mf=0.006 fe=0.244) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.366 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 34%|███▍      | 132/391 [00:53<01:42,  2.52it/s][A 34%|███▍      | 133/391 [00:55<01:42,  2.52it/s][  131] kf=S metric=0.108 track=0.245(mf=0.006 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 34%|███▍      | 133/391 [00:53<01:41,  2.53it/s][A 34%|███▍      | 134/391 [00:55<01:41,  2.53it/s][  132] kf=S metric=0.107 track=0.246(mf=0.006 fe=0.239) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 34%|███▍      | 134/391 [00:54<01:41,  2.53it/s][A 35%|███▍      | 135/391 [00:55<01:41,  2.53it/s][  133] kf=S metric=0.107 track=0.246(mf=0.006 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 35%|███▍      | 135/391 [00:54<01:40,  2.54it/s][A 35%|███▍      | 136/391 [00:56<01:40,  2.54it/s][  134] kf=S metric=0.106 track=0.246(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 35%|███▍      | 136/391 [00:55<01:40,  2.55it/s][A 35%|███▌      | 137/391 [00:56<01:39,  2.54it/s][  135] kf=S metric=0.106 track=0.245(mf=0.006 fe=0.239) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.356 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 35%|███▌      | 137/391 [00:55<01:40,  2.54it/s][A 35%|███▌      | 138/391 [00:56<01:39,  2.54it/s][  136] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 35%|███▌      | 138/391 [00:55<01:40,  2.53it/s][A 36%|███▌      | 139/391 [00:57<01:39,  2.53it/s][  137] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 36%|███▌      | 139/391 [00:56<01:39,  2.53it/s][A 36%|███▌      | 140/391 [00:57<01:39,  2.53it/s][  138] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 36%|███▌      | 140/391 [00:56<01:40,  2.51it/s][A 36%|███▌      | 141/391 [00:58<01:39,  2.51it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 59869
+Gaussian num on CPU: 33346
+[  139] kf=S metric=0.107 track=0.251(mf=0.006 fe=0.245) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 36%|███▌      | 141/391 [00:57<01:39,  2.51it/s][A 36%|███▋      | 142/391 [00:58<01:39,  2.51it/s][  140] kf=S metric=0.106 track=0.251(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 36%|███▋      | 142/391 [00:57<01:38,  2.52it/s][A 37%|███▋      | 143/391 [00:58<01:38,  2.52it/s][  141] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 37%|███▋      | 143/391 [00:57<01:37,  2.53it/s][A 37%|███▋      | 144/391 [00:59<01:37,  2.53it/s][  142] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 37%|███▋      | 144/391 [00:58<01:37,  2.54it/s][A 37%|███▋      | 145/391 [00:59<01:36,  2.54it/s][  143] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 37%|███▋      | 145/391 [00:58<01:37,  2.53it/s][A 37%|███▋      | 146/391 [01:00<01:36,  2.54it/s][  144] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 37%|███▋      | 146/391 [00:58<01:36,  2.54it/s][A 38%|███▊      | 147/391 [01:00<01:36,  2.54it/s][  145] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 38%|███▊      | 147/391 [00:59<01:36,  2.54it/s][A 38%|███▊      | 148/391 [01:00<01:35,  2.54it/s][  146] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 38%|███▊      | 148/391 [00:59<01:35,  2.53it/s][A 38%|███▊      | 149/391 [01:01<01:35,  2.53it/s][  147] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 38%|███▊      | 149/391 [01:00<01:35,  2.54it/s][A 38%|███▊      | 150/391 [01:01<01:34,  2.54it/s][  148] kf=S metric=0.105 track=0.247(mf=0.006 fe=0.241) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 38%|███▊      | 150/391 [01:00<01:35,  2.53it/s][A 39%|███▊      | 151/391 [01:02<01:34,  2.53it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 59869
+Gaussian num on CPU: 33346
+[  149] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 39%|███▊      | 151/391 [01:00<01:34,  2.53it/s][A 39%|███▉      | 152/391 [01:02<01:34,  2.53it/s][  150] kf=S metric=0.107 track=0.250(mf=0.007 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 39%|███▉      | 152/391 [01:01<01:34,  2.53it/s][A 39%|███▉      | 153/391 [01:02<01:34,  2.53it/s][  151] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 39%|███▉      | 153/391 [01:01<01:34,  2.53it/s][A 39%|███▉      | 154/391 [01:03<01:33,  2.53it/s][  152] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 39%|███▉      | 154/391 [01:02<01:33,  2.53it/s][A 40%|███▉      | 155/391 [01:03<01:33,  2.53it/s][  153] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 40%|███▉      | 155/391 [01:02<01:33,  2.53it/s][A 40%|███▉      | 156/391 [01:04<01:32,  2.53it/s][  154] kf=S metric=0.106 track=0.251(mf=0.006 fe=0.244) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 40%|███▉      | 156/391 [01:02<01:33,  2.51it/s][A 40%|████      | 157/391 [01:04<01:33,  2.51it/s][  155] kf=S metric=0.106 track=0.255(mf=0.006 fe=0.249) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.370 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 40%|████      | 157/391 [01:03<01:32,  2.52it/s][A 40%|████      | 158/391 [01:04<01:32,  2.52it/s][  156] kf=S metric=0.107 track=0.246(mf=0.006 fe=0.240) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 40%|████      | 158/391 [01:03<01:32,  2.51it/s][A 41%|████      | 159/391 [01:05<01:32,  2.51it/s][  157] kf=S metric=0.108 track=0.248(mf=0.007 fe=0.241) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 41%|████      | 159/391 [01:04<01:32,  2.51it/s][A 41%|████      | 160/391 [01:05<01:32,  2.51it/s][  158] kf=S metric=0.108 track=0.248(mf=0.007 fe=0.241) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 41%|████      | 160/391 [01:04<01:32,  2.51it/s][A 41%|████      | 161/391 [01:06<01:31,  2.50it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 59869
+Gaussian num on CPU: 33346
+[CPU-Prune] 0/33346 Gaussians entfernt (opacity < 0.1). Verbleibend auf CPU: 33346
+[  159] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 41%|████      | 161/391 [01:04<01:31,  2.51it/s][A 41%|████▏     | 162/391 [01:06<01:31,  2.51it/s][  160] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 41%|████▏     | 162/391 [01:05<01:30,  2.52it/s][A 42%|████▏     | 163/391 [01:06<01:30,  2.52it/s][  161] kf=S metric=0.108 track=0.246(mf=0.006 fe=0.239) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 42%|████▏     | 163/391 [01:05<01:30,  2.52it/s][A 42%|████▏     | 164/391 [01:07<01:30,  2.52it/s][  162] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 42%|████▏     | 164/391 [01:06<01:29,  2.53it/s][A 42%|████▏     | 165/391 [01:07<01:29,  2.53it/s][  163] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 42%|████▏     | 165/391 [01:06<01:29,  2.53it/s][A 42%|████▏     | 166/391 [01:08<01:28,  2.53it/s][  164] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 42%|████▏     | 166/391 [01:06<01:28,  2.53it/s][A 43%|████▎     | 167/391 [01:08<01:28,  2.53it/s][  165] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 43%|████▎     | 167/391 [01:07<01:28,  2.54it/s][A 43%|████▎     | 168/391 [01:08<01:27,  2.54it/s][  166] kf=S metric=0.105 track=0.246(mf=0.006 fe=0.240) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 43%|████▎     | 168/391 [01:07<01:27,  2.53it/s][A 43%|████▎     | 169/391 [01:09<01:27,  2.53it/s][  167] kf=S metric=0.106 track=0.246(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 43%|████▎     | 169/391 [01:08<01:27,  2.54it/s][A 43%|████▎     | 170/391 [01:09<01:27,  2.54it/s][  168] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 43%|████▎     | 170/391 [01:08<01:27,  2.53it/s][A 44%|████▎     | 171/391 [01:10<01:26,  2.53it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 59869
+Gaussian num on CPU: 33346
+[  169] kf=S metric=0.105 track=0.246(mf=0.006 fe=0.240) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 44%|████▎     | 171/391 [01:08<01:26,  2.53it/s][A 44%|████▍     | 172/391 [01:10<01:26,  2.53it/s][  170] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 44%|████▍     | 172/391 [01:09<01:26,  2.54it/s][A 44%|████▍     | 173/391 [01:10<01:26,  2.53it/s][  171] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 44%|████▍     | 173/391 [01:09<01:26,  2.53it/s][A 45%|████▍     | 174/391 [01:11<01:25,  2.53it/s][  172] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 45%|████▍     | 174/391 [01:10<01:25,  2.53it/s][A 45%|████▍     | 175/391 [01:11<01:25,  2.53it/s][  173] kf=S metric=0.107 track=0.251(mf=0.006 fe=0.244) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 45%|████▍     | 175/391 [01:10<01:25,  2.52it/s][A 45%|████▌     | 176/391 [01:12<01:25,  2.52it/s][  174] kf=S metric=0.107 track=0.251(mf=0.007 fe=0.244) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 45%|████▌     | 176/391 [01:10<01:25,  2.52it/s][A 45%|████▌     | 177/391 [01:12<01:24,  2.52it/s][  175] kf=S metric=0.107 track=0.250(mf=0.006 fe=0.244) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 45%|████▌     | 177/391 [01:11<01:24,  2.52it/s][A 46%|████▌     | 178/391 [01:12<01:24,  2.52it/s][  176] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 46%|████▌     | 178/391 [01:11<01:24,  2.51it/s][A 46%|████▌     | 179/391 [01:13<01:24,  2.51it/s][  177] kf=S metric=0.107 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 46%|████▌     | 179/391 [01:12<01:23,  2.53it/s][A 46%|████▌     | 180/391 [01:13<01:23,  2.53it/s][  178] kf=S metric=0.108 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 46%|████▌     | 180/391 [01:12<01:24,  2.51it/s][A 46%|████▋     | 181/391 [01:14<01:23,  2.51it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 59869
+Gaussian num on CPU: 33346
+[  179] kf=S metric=0.107 track=0.250(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 46%|████▋     | 181/391 [01:12<01:23,  2.51it/s][A 47%|████▋     | 182/391 [01:14<01:23,  2.51it/s][  180] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 47%|████▋     | 182/391 [01:13<01:23,  2.51it/s][A 47%|████▋     | 183/391 [01:14<01:22,  2.51it/s][  181] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 47%|████▋     | 183/391 [01:13<01:22,  2.52it/s][A 47%|████▋     | 184/391 [01:15<01:22,  2.52it/s][  182] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 47%|████▋     | 184/391 [01:14<01:22,  2.52it/s][A 47%|████▋     | 185/391 [01:15<01:21,  2.52it/s][  183] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 47%|████▋     | 185/391 [01:14<01:21,  2.52it/s][A 48%|████▊     | 186/391 [01:15<01:21,  2.52it/s][  184] kf=S metric=0.107 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 48%|████▊     | 186/391 [01:14<01:21,  2.50it/s][A 48%|████▊     | 187/391 [01:16<01:21,  2.51it/s][  185] kf=S metric=0.107 track=0.255(mf=0.006 fe=0.249) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.369 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 48%|████▊     | 187/391 [01:15<01:21,  2.52it/s][A 48%|████▊     | 188/391 [01:16<01:20,  2.52it/s][  186] kf=S metric=0.107 track=0.244(mf=0.006 fe=0.238) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 48%|████▊     | 188/391 [01:15<01:20,  2.51it/s][A 48%|████▊     | 189/391 [01:17<01:20,  2.51it/s][  187] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 48%|████▊     | 189/391 [01:16<01:20,  2.52it/s][A 49%|████▊     | 190/391 [01:17<01:19,  2.52it/s][  188] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 49%|████▊     | 190/391 [01:16<01:20,  2.51it/s][A 49%|████▉     | 191/391 [01:17<01:19,  2.51it/s]Convey 29242 Gaussians from GPU to CPU.
+Gaussian num on GPU: 30627
+Gaussian num on CPU: 62588
+[  189] kf=S metric=0.105 track=0.246(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 49%|████▉     | 191/391 [01:16<01:19,  2.52it/s][A 49%|████▉     | 192/391 [01:18<01:18,  2.52it/s][  190] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 49%|████▉     | 192/391 [01:17<01:18,  2.53it/s][A 49%|████▉     | 193/391 [01:18<01:18,  2.53it/s][  191] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 49%|████▉     | 193/391 [01:17<01:18,  2.54it/s][A 50%|████▉     | 194/391 [01:19<01:17,  2.54it/s][  192] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 50%|████▉     | 194/391 [01:18<01:17,  2.54it/s][A 50%|████▉     | 195/391 [01:19<01:17,  2.54it/s][  193] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 50%|████▉     | 195/391 [01:18<01:17,  2.54it/s][A 50%|█████     | 196/391 [01:19<01:16,  2.54it/s][  194] kf=S metric=0.105 track=0.246(mf=0.006 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 50%|█████     | 196/391 [01:18<01:16,  2.54it/s][A 50%|█████     | 197/391 [01:20<01:16,  2.54it/s][  195] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 50%|█████     | 197/391 [01:19<01:16,  2.54it/s][A 51%|█████     | 198/391 [01:20<01:15,  2.54it/s][  196] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 51%|█████     | 198/391 [01:19<01:15,  2.54it/s][A 51%|█████     | 199/391 [01:21<01:15,  2.54it/s][  197] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 51%|█████     | 199/391 [01:19<01:15,  2.54it/s][A 51%|█████     | 200/391 [01:21<01:15,  2.54it/s][  198] kf=S metric=0.106 track=0.246(mf=0.006 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 51%|█████     | 200/391 [01:20<01:15,  2.52it/s][A 51%|█████▏    | 201/391 [01:21<01:15,  2.51it/s]Convey 30627 Gaussians from GPU to CPU.
+Gaussian num on GPU: 0
+Gaussian num on CPU: 93215
+[CPU-Prune] 26176/93215 Gaussians entfernt (opacity < 0.1). Verbleibend auf CPU: 67039
+[  199] kf=S metric=0.105 track=0.247(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 51%|█████▏    | 201/391 [01:20<01:15,  2.52it/s][A 52%|█████▏    | 202/391 [01:22<01:14,  2.52it/s][  200] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 52%|█████▏    | 202/391 [01:21<01:14,  2.52it/s][A 52%|█████▏    | 203/391 [01:22<01:14,  2.52it/s][  201] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 52%|█████▏    | 203/391 [01:21<01:14,  2.53it/s][A 52%|█████▏    | 204/391 [01:23<01:13,  2.53it/s][  202] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 52%|█████▏    | 204/391 [01:21<01:13,  2.54it/s][A 52%|█████▏    | 205/391 [01:23<01:13,  2.54it/s][  203] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 52%|█████▏    | 205/391 [01:22<01:13,  2.54it/s][A 53%|█████▎    | 206/391 [01:23<01:12,  2.54it/s][  204] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 53%|█████▎    | 206/391 [01:22<01:12,  2.53it/s][A 53%|█████▎    | 207/391 [01:24<01:12,  2.53it/s][  205] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 53%|█████▎    | 207/391 [01:23<01:12,  2.54it/s][A 53%|█████▎    | 208/391 [01:24<01:12,  2.54it/s][  206] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 53%|█████▎    | 208/391 [01:23<01:12,  2.54it/s][A 53%|█████▎    | 209/391 [01:25<01:11,  2.54it/s][  207] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 53%|█████▎    | 209/391 [01:24<01:43,  1.76it/s][A 54%|█████▎    | 210/391 [01:26<01:42,  1.76it/s][  208] kf=Y metric=0.105 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.579(prep=0.058 train=0.521) total=0.938 fs(step=force_after)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 54%|█████▎    | 210/391 [01:24<01:33,  1.93it/s][A 54%|█████▍    | 211/391 [01:26<01:33,  1.93it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 40000
+Gaussian num on CPU: 67039
+[  209] kf=S metric=0.104 track=0.250(mf=0.006 fe=0.244) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 54%|█████▍    | 211/391 [01:25<01:26,  2.08it/s][A 54%|█████▍    | 212/391 [01:26<01:25,  2.08it/s][  210] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 54%|█████▍    | 212/391 [01:25<01:21,  2.20it/s][A 54%|█████▍    | 213/391 [01:27<01:20,  2.20it/s][  211] kf=S metric=0.106 track=0.250(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 54%|█████▍    | 213/391 [01:26<01:17,  2.29it/s][A 55%|█████▍    | 214/391 [01:27<01:17,  2.29it/s][  212] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 55%|█████▍    | 214/391 [01:26<01:15,  2.36it/s][A 55%|█████▍    | 215/391 [01:28<01:14,  2.36it/s][  213] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 55%|█████▍    | 215/391 [01:26<01:13,  2.41it/s][A 55%|█████▌    | 216/391 [01:28<01:12,  2.41it/s][  214] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 55%|█████▌    | 216/391 [01:27<01:12,  2.43it/s][A 55%|█████▌    | 217/391 [01:28<01:11,  2.43it/s][  215] kf=S metric=0.106 track=0.255(mf=0.006 fe=0.249) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.370 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 55%|█████▌    | 217/391 [01:27<01:10,  2.46it/s][A 56%|█████▌    | 218/391 [01:29<01:10,  2.46it/s][  216] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 56%|█████▌    | 218/391 [01:28<01:09,  2.47it/s][A 56%|█████▌    | 219/391 [01:29<01:09,  2.47it/s][  217] kf=S metric=0.108 track=0.247(mf=0.006 fe=0.241) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 56%|█████▌    | 219/391 [01:28<01:09,  2.49it/s][A 56%|█████▋    | 220/391 [01:30<01:08,  2.49it/s][  218] kf=S metric=0.106 track=0.246(mf=0.006 fe=0.240) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 56%|█████▋    | 220/391 [01:28<01:08,  2.50it/s][A 57%|█████▋    | 221/391 [01:30<01:08,  2.49it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 40000
+Gaussian num on CPU: 67039
+[  219] kf=S metric=0.105 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 57%|█████▋    | 221/391 [01:29<01:07,  2.51it/s][A 57%|█████▋    | 222/391 [01:30<01:07,  2.51it/s][  220] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 57%|█████▋    | 222/391 [01:29<01:07,  2.51it/s][A 57%|█████▋    | 223/391 [01:31<01:07,  2.49it/s][  221] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 57%|█████▋    | 223/391 [01:30<01:07,  2.49it/s][A 57%|█████▋    | 224/391 [01:31<01:06,  2.50it/s][  222] kf=S metric=0.110 track=0.246(mf=0.007 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 57%|█████▋    | 224/391 [01:30<01:06,  2.52it/s][A 58%|█████▊    | 225/391 [01:32<01:05,  2.52it/s][  223] kf=S metric=0.105 track=0.246(mf=0.006 fe=0.239) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.356 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 58%|█████▊    | 225/391 [01:30<01:05,  2.52it/s][A 58%|█████▊    | 226/391 [01:32<01:05,  2.52it/s][  224] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 58%|█████▊    | 226/391 [01:31<01:05,  2.52it/s][A 58%|█████▊    | 227/391 [01:32<01:05,  2.52it/s][  225] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 58%|█████▊    | 227/391 [01:31<01:05,  2.52it/s][A 58%|█████▊    | 228/391 [01:33<01:04,  2.52it/s][  226] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 58%|█████▊    | 228/391 [01:32<01:04,  2.52it/s][A 59%|█████▊    | 229/391 [01:33<01:04,  2.52it/s][  227] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 59%|█████▊    | 229/391 [01:32<01:04,  2.53it/s][A 59%|█████▉    | 230/391 [01:33<01:03,  2.53it/s][  228] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 59%|█████▉    | 230/391 [01:32<01:04,  2.51it/s][A 59%|█████▉    | 231/391 [01:34<01:03,  2.51it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 40000
+Gaussian num on CPU: 67039
+[  229] kf=S metric=0.106 track=0.251(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 59%|█████▉    | 231/391 [01:33<01:03,  2.52it/s][A 59%|█████▉    | 232/391 [01:34<01:03,  2.52it/s][  230] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 59%|█████▉    | 232/391 [01:33<01:03,  2.52it/s][A 60%|█████▉    | 233/391 [01:35<01:02,  2.52it/s][  231] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 60%|█████▉    | 233/391 [01:34<01:02,  2.52it/s][A 60%|█████▉    | 234/391 [01:35<01:02,  2.52it/s][  232] kf=S metric=0.106 track=0.248(mf=0.007 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 60%|█████▉    | 234/391 [01:34<01:02,  2.53it/s][A 60%|██████    | 235/391 [01:35<01:01,  2.53it/s][  233] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 60%|██████    | 235/391 [01:34<01:01,  2.53it/s][A 60%|██████    | 236/391 [01:36<01:01,  2.53it/s][  234] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 60%|██████    | 236/391 [01:35<01:01,  2.53it/s][A 61%|██████    | 237/391 [01:36<01:00,  2.52it/s][  235] kf=S metric=0.106 track=0.250(mf=0.006 fe=0.244) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 61%|██████    | 237/391 [01:35<01:00,  2.53it/s][A 61%|██████    | 238/391 [01:37<01:00,  2.53it/s][  236] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 61%|██████    | 238/391 [01:36<01:00,  2.53it/s][A 61%|██████    | 239/391 [01:37<01:00,  2.53it/s][  237] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 61%|██████    | 239/391 [01:36<00:59,  2.54it/s][A 61%|██████▏   | 240/391 [01:37<00:59,  2.54it/s][  238] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 61%|██████▏   | 240/391 [01:36<00:59,  2.52it/s][A 62%|██████▏   | 241/391 [01:38<00:59,  2.52it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 40000
+Gaussian num on CPU: 67039
+[CPU-Prune] 0/67039 Gaussians entfernt (opacity < 0.1). Verbleibend auf CPU: 67039
+[  239] kf=S metric=0.105 track=0.251(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 62%|██████▏   | 241/391 [01:37<00:59,  2.51it/s][A 62%|██████▏   | 242/391 [01:38<00:59,  2.51it/s][  240] kf=S metric=0.107 track=0.251(mf=0.006 fe=0.245) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 62%|██████▏   | 242/391 [01:37<00:59,  2.51it/s][A 62%|██████▏   | 243/391 [01:39<00:58,  2.51it/s][  241] kf=S metric=0.106 track=0.251(mf=0.006 fe=0.245) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 62%|██████▏   | 243/391 [01:37<00:59,  2.51it/s][A 62%|██████▏   | 244/391 [01:39<00:58,  2.51it/s][  242] kf=S metric=0.107 track=0.253(mf=0.006 fe=0.247) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.366 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 62%|██████▏   | 244/391 [01:38<00:58,  2.51it/s][A 63%|██████▎   | 245/391 [01:39<00:58,  2.50it/s][  243] kf=S metric=0.106 track=0.252(mf=0.006 fe=0.245) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 63%|██████▎   | 245/391 [01:38<00:58,  2.51it/s][A 63%|██████▎   | 246/391 [01:40<00:57,  2.51it/s][  244] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 63%|██████▎   | 246/391 [01:39<00:58,  2.50it/s][A 63%|██████▎   | 247/391 [01:40<00:57,  2.50it/s][  245] kf=S metric=0.106 track=0.255(mf=0.006 fe=0.248) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.368 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 63%|██████▎   | 247/391 [01:39<00:57,  2.51it/s][A 63%|██████▎   | 248/391 [01:41<00:56,  2.51it/s][  246] kf=S metric=0.106 track=0.245(mf=0.006 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 63%|██████▎   | 248/391 [01:39<00:56,  2.52it/s][A 64%|██████▎   | 249/391 [01:41<00:56,  2.52it/s][  247] kf=S metric=0.105 track=0.245(mf=0.006 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 64%|██████▎   | 249/391 [01:40<00:56,  2.53it/s][A 64%|██████▍   | 250/391 [01:41<00:55,  2.53it/s][  248] kf=S metric=0.105 track=0.245(mf=0.006 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 64%|██████▍   | 250/391 [01:40<00:55,  2.52it/s][A 64%|██████▍   | 251/391 [01:42<00:55,  2.52it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 40000
+Gaussian num on CPU: 67039
+[  249] kf=S metric=0.106 track=0.246(mf=0.006 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 64%|██████▍   | 251/391 [01:41<00:55,  2.53it/s][A 64%|██████▍   | 252/391 [01:42<00:55,  2.53it/s][  250] kf=S metric=0.106 track=0.244(mf=0.006 fe=0.238) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 64%|██████▍   | 252/391 [01:41<00:54,  2.53it/s][A 65%|██████▍   | 253/391 [01:43<00:54,  2.53it/s][  251] kf=S metric=0.106 track=0.244(mf=0.006 fe=0.238) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 65%|██████▍   | 253/391 [01:41<00:54,  2.54it/s][A 65%|██████▍   | 254/391 [01:43<00:53,  2.54it/s][  252] kf=S metric=0.104 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 65%|██████▍   | 254/391 [01:42<00:53,  2.54it/s][A 65%|██████▌   | 255/391 [01:43<00:53,  2.54it/s][  253] kf=S metric=0.105 track=0.245(mf=0.006 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.356 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 65%|██████▌   | 255/391 [01:42<00:53,  2.54it/s][A 65%|██████▌   | 256/391 [01:44<00:53,  2.54it/s][  254] kf=S metric=0.104 track=0.245(mf=0.006 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.356 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 65%|██████▌   | 256/391 [01:43<00:52,  2.55it/s][A 66%|██████▌   | 257/391 [01:44<00:52,  2.55it/s][  255] kf=S metric=0.105 track=0.245(mf=0.006 fe=0.239) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.355 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 66%|██████▌   | 257/391 [01:43<00:52,  2.55it/s][A 66%|██████▌   | 258/391 [01:45<00:52,  2.55it/s][  256] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 66%|██████▌   | 258/391 [01:43<00:52,  2.53it/s][A 66%|██████▌   | 259/391 [01:45<00:52,  2.53it/s][  257] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 66%|██████▌   | 259/391 [01:44<00:52,  2.53it/s][A 66%|██████▋   | 260/391 [01:45<00:51,  2.53it/s][  258] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 66%|██████▋   | 260/391 [01:44<00:52,  2.50it/s][A 67%|██████▋   | 261/391 [01:46<00:51,  2.50it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 40000
+Gaussian num on CPU: 67039
+[  259] kf=S metric=0.106 track=0.250(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 67%|██████▋   | 261/391 [01:45<00:51,  2.51it/s][A 67%|██████▋   | 262/391 [01:46<00:51,  2.51it/s][  260] kf=S metric=0.106 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 67%|██████▋   | 262/391 [01:45<00:51,  2.51it/s][A 67%|██████▋   | 263/391 [01:47<00:50,  2.51it/s][  261] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 67%|██████▋   | 263/391 [01:45<00:51,  2.51it/s][A 68%|██████▊   | 264/391 [01:47<00:50,  2.51it/s][  262] kf=S metric=0.105 track=0.252(mf=0.006 fe=0.245) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 68%|██████▊   | 264/391 [01:46<00:50,  2.51it/s][A 68%|██████▊   | 265/391 [01:47<00:50,  2.51it/s][  263] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 68%|██████▊   | 265/391 [01:46<00:50,  2.51it/s][A 68%|██████▊   | 266/391 [01:48<00:49,  2.51it/s][  264] kf=S metric=0.107 track=0.251(mf=0.006 fe=0.245) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 68%|██████▊   | 266/391 [01:47<00:49,  2.51it/s][A 68%|██████▊   | 267/391 [01:48<00:49,  2.51it/s][  265] kf=S metric=0.107 track=0.252(mf=0.006 fe=0.245) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 68%|██████▊   | 267/391 [01:47<00:49,  2.52it/s][A 69%|██████▊   | 268/391 [01:49<00:48,  2.52it/s][  266] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 69%|██████▊   | 268/391 [01:47<00:48,  2.51it/s][A 69%|██████▉   | 269/391 [01:49<00:48,  2.51it/s][  267] kf=S metric=0.105 track=0.251(mf=0.006 fe=0.245) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 69%|██████▉   | 269/391 [01:48<00:48,  2.52it/s][A 69%|██████▉   | 270/391 [01:49<00:47,  2.52it/s][  268] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.243) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 69%|██████▉   | 270/391 [01:48<00:48,  2.51it/s][A 69%|██████▉   | 271/391 [01:50<00:47,  2.50it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 40000
+Gaussian num on CPU: 67039
+[  269] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 69%|██████▉   | 271/391 [01:49<00:47,  2.51it/s][A 70%|██████▉   | 272/391 [01:50<00:47,  2.51it/s][  270] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 70%|██████▉   | 272/391 [01:49<00:47,  2.51it/s][A 70%|██████▉   | 273/391 [01:51<00:47,  2.51it/s][  271] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 70%|██████▉   | 273/391 [01:49<00:46,  2.51it/s][A 70%|███████   | 274/391 [01:51<00:46,  2.51it/s][  272] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.244) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 70%|███████   | 274/391 [01:50<00:46,  2.52it/s][A 70%|███████   | 275/391 [01:51<00:46,  2.52it/s][  273] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 70%|███████   | 275/391 [01:50<00:46,  2.52it/s][A 71%|███████   | 276/391 [01:52<00:45,  2.52it/s][  274] kf=S metric=0.106 track=0.250(mf=0.006 fe=0.244) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 71%|███████   | 276/391 [01:51<00:45,  2.50it/s][A 71%|███████   | 277/391 [01:52<00:45,  2.50it/s][  275] kf=S metric=0.105 track=0.257(mf=0.006 fe=0.250) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.371 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 71%|███████   | 277/391 [01:51<00:45,  2.52it/s][A 71%|███████   | 278/391 [01:53<00:44,  2.52it/s][  276] kf=S metric=0.105 track=0.245(mf=0.006 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 71%|███████   | 278/391 [01:51<00:44,  2.52it/s][A 71%|███████▏  | 279/391 [01:53<00:44,  2.52it/s][  277] kf=S metric=0.105 track=0.244(mf=0.006 fe=0.238) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 71%|███████▏  | 279/391 [01:52<00:44,  2.52it/s][A 72%|███████▏  | 280/391 [01:53<00:43,  2.52it/s][  278] kf=S metric=0.105 track=0.247(mf=0.006 fe=0.241) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 72%|███████▏  | 280/391 [01:52<00:44,  2.51it/s][A 72%|███████▏  | 281/391 [01:54<00:43,  2.51it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 40000
+Gaussian num on CPU: 67039
+[CPU-Prune] 0/67039 Gaussians entfernt (opacity < 0.1). Verbleibend auf CPU: 67039
+[  279] kf=S metric=0.105 track=0.246(mf=0.006 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 72%|███████▏  | 281/391 [01:53<00:43,  2.52it/s][A 72%|███████▏  | 282/391 [01:54<00:43,  2.52it/s][  280] kf=S metric=0.105 track=0.247(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 72%|███████▏  | 282/391 [01:53<00:43,  2.53it/s][A 72%|███████▏  | 283/391 [01:55<00:42,  2.52it/s][  281] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 72%|███████▏  | 283/391 [01:53<00:42,  2.53it/s][A 73%|███████▎  | 284/391 [01:55<00:42,  2.53it/s][  282] kf=S metric=0.106 track=0.246(mf=0.006 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 73%|███████▎  | 284/391 [01:54<00:42,  2.54it/s][A 73%|███████▎  | 285/391 [01:55<00:41,  2.54it/s][  283] kf=S metric=0.105 track=0.245(mf=0.006 fe=0.239) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.356 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 73%|███████▎  | 285/391 [01:54<00:41,  2.54it/s][A 73%|███████▎  | 286/391 [01:56<00:41,  2.54it/s][  284] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 73%|███████▎  | 286/391 [01:55<00:41,  2.54it/s][A 73%|███████▎  | 287/391 [01:56<00:40,  2.54it/s][  285] kf=S metric=0.105 track=0.247(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 73%|███████▎  | 287/391 [01:55<00:40,  2.54it/s][A 74%|███████▎  | 288/391 [01:56<00:40,  2.54it/s][  286] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.241) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 74%|███████▎  | 288/391 [01:55<00:40,  2.53it/s][A 74%|███████▍  | 289/391 [01:57<00:40,  2.53it/s][  287] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 74%|███████▍  | 289/391 [01:56<00:40,  2.53it/s][A 74%|███████▍  | 290/391 [01:57<00:39,  2.53it/s][  288] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 74%|███████▍  | 290/391 [01:56<00:40,  2.51it/s][A 74%|███████▍  | 291/391 [01:58<00:39,  2.51it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 40000
+Gaussian num on CPU: 67039
+[  289] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 74%|███████▍  | 291/391 [01:57<00:39,  2.51it/s][A 75%|███████▍  | 292/391 [01:58<00:39,  2.51it/s][  290] kf=S metric=0.106 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 75%|███████▍  | 292/391 [01:57<00:39,  2.52it/s][A 75%|███████▍  | 293/391 [01:58<00:38,  2.52it/s][  291] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 75%|███████▍  | 293/391 [01:57<00:38,  2.52it/s][A 75%|███████▌  | 294/391 [01:59<00:38,  2.52it/s][  292] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 75%|███████▌  | 294/391 [01:58<00:38,  2.52it/s][A 75%|███████▌  | 295/391 [01:59<00:38,  2.50it/s][  293] kf=S metric=0.110 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 75%|███████▌  | 295/391 [01:58<00:38,  2.51it/s][A 76%|███████▌  | 296/391 [02:00<00:37,  2.51it/s][  294] kf=S metric=0.109 track=0.247(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 76%|███████▌  | 296/391 [01:59<00:37,  2.51it/s][A 76%|███████▌  | 297/391 [02:00<00:37,  2.52it/s][  295] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 76%|███████▌  | 297/391 [01:59<00:37,  2.52it/s][A 76%|███████▌  | 298/391 [02:00<00:36,  2.52it/s][  296] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 76%|███████▌  | 298/391 [01:59<00:36,  2.52it/s][A 76%|███████▋  | 299/391 [02:01<00:36,  2.52it/s][  297] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 76%|███████▋  | 299/391 [02:00<00:36,  2.52it/s][A 77%|███████▋  | 300/391 [02:01<00:36,  2.52it/s][  298] kf=S metric=0.106 track=0.251(mf=0.006 fe=0.245) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 77%|███████▋  | 300/391 [02:00<00:36,  2.49it/s][A 77%|███████▋  | 301/391 [02:02<00:36,  2.47it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 40000
+Gaussian num on CPU: 67039
+[  299] kf=S metric=0.110 track=0.250(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.367 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 77%|███████▋  | 301/391 [02:01<00:36,  2.46it/s][A 77%|███████▋  | 302/391 [02:02<00:36,  2.46it/s][  300] kf=S metric=0.110 track=0.254(mf=0.007 fe=0.248) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.373 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 77%|███████▋  | 302/391 [02:01<00:36,  2.45it/s][A 77%|███████▋  | 303/391 [02:02<00:35,  2.45it/s][  301] kf=S metric=0.113 track=0.255(mf=0.006 fe=0.249) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.376 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 77%|███████▋  | 303/391 [02:01<00:35,  2.46it/s][A 78%|███████▊  | 304/391 [02:03<00:35,  2.46it/s][  302] kf=S metric=0.106 track=0.253(mf=0.007 fe=0.247) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.366 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 78%|███████▊  | 304/391 [02:02<00:35,  2.47it/s][A 78%|███████▊  | 305/391 [02:03<00:34,  2.48it/s][  303] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 78%|███████▊  | 305/391 [02:02<00:34,  2.49it/s][A 78%|███████▊  | 306/391 [02:04<00:34,  2.49it/s][  304] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 78%|███████▊  | 306/391 [02:03<00:34,  2.49it/s][A 79%|███████▊  | 307/391 [02:04<00:33,  2.49it/s][  305] kf=S metric=0.105 track=0.255(mf=0.006 fe=0.249) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.367 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 79%|███████▊  | 307/391 [02:03<00:33,  2.51it/s][A 79%|███████▉  | 308/391 [02:04<00:33,  2.51it/s][  306] kf=S metric=0.105 track=0.243(mf=0.006 fe=0.237) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.356 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 79%|███████▉  | 308/391 [02:03<00:33,  2.51it/s][A 79%|███████▉  | 309/391 [02:05<00:32,  2.51it/s][  307] kf=S metric=0.105 track=0.244(mf=0.006 fe=0.238) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.357 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 79%|███████▉  | 309/391 [02:04<00:50,  1.64it/s][A 79%|███████▉  | 310/391 [02:06<00:49,  1.64it/s][  308] kf=Y metric=0.104 track=0.244(mf=0.006 fe=0.238) pkg=0.008 map=0.707(prep=0.045 train=0.662) total=1.063 fs(step=force_after)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 79%|███████▉  | 310/391 [02:05<00:44,  1.83it/s][A 80%|███████▉  | 311/391 [02:06<00:43,  1.83it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 52222
+Gaussian num on CPU: 67039
+[  309] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 80%|███████▉  | 311/391 [02:05<00:40,  1.99it/s][A 80%|███████▉  | 312/391 [02:07<00:39,  1.99it/s][  310] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.240) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 80%|███████▉  | 312/391 [02:06<00:37,  2.12it/s][A 80%|████████  | 313/391 [02:07<00:36,  2.12it/s][  311] kf=S metric=0.107 track=0.249(mf=0.007 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 80%|████████  | 313/391 [02:06<00:34,  2.23it/s][A 80%|████████  | 314/391 [02:08<00:34,  2.23it/s][  312] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B1_pose_below_min)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 80%|████████  | 314/391 [02:06<00:33,  2.31it/s][A 81%|████████  | 315/391 [02:08<00:32,  2.31it/s][  313] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 81%|████████  | 315/391 [02:07<00:32,  2.37it/s][A 81%|████████  | 316/391 [02:08<00:31,  2.37it/s][  314] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 81%|████████  | 316/391 [02:07<00:31,  2.41it/s][A 81%|████████  | 317/391 [02:09<00:30,  2.41it/s][  315] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 81%|████████  | 317/391 [02:08<00:30,  2.44it/s][A 81%|████████▏ | 318/391 [02:09<00:29,  2.44it/s][  316] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 81%|████████▏ | 318/391 [02:08<00:29,  2.46it/s][A 82%|████████▏ | 319/391 [02:10<00:29,  2.46it/s][  317] kf=S metric=0.108 track=0.247(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 82%|████████▏ | 319/391 [02:08<00:29,  2.47it/s][A 82%|████████▏ | 320/391 [02:10<00:28,  2.47it/s][  318] kf=S metric=0.108 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 82%|████████▏ | 320/391 [02:09<00:28,  2.45it/s][A 82%|████████▏ | 321/391 [02:10<00:28,  2.45it/s]Convey 24110 Gaussians from GPU to CPU.
+Gaussian num on GPU: 28112
+Gaussian num on CPU: 91149
+[CPU-Prune] 9609/91149 Gaussians entfernt (opacity < 0.1). Verbleibend auf CPU: 81540
+[  319] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 82%|████████▏ | 321/391 [02:09<00:28,  2.47it/s][A 82%|████████▏ | 322/391 [02:11<00:27,  2.47it/s][  320] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 82%|████████▏ | 322/391 [02:10<00:27,  2.49it/s][A 83%|████████▎ | 323/391 [02:11<00:27,  2.49it/s][  321] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 83%|████████▎ | 323/391 [02:10<00:27,  2.50it/s][A 83%|████████▎ | 324/391 [02:12<00:26,  2.50it/s][  322] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 83%|████████▎ | 324/391 [02:10<00:26,  2.51it/s][A 83%|████████▎ | 325/391 [02:12<00:26,  2.51it/s][  323] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 83%|████████▎ | 325/391 [02:11<00:26,  2.51it/s][A 83%|████████▎ | 326/391 [02:12<00:25,  2.51it/s][  324] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 83%|████████▎ | 326/391 [02:11<00:25,  2.52it/s][A 84%|████████▎ | 327/391 [02:13<00:25,  2.52it/s][  325] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 84%|████████▎ | 327/391 [02:12<00:25,  2.52it/s][A 84%|████████▍ | 328/391 [02:13<00:24,  2.52it/s][  326] kf=S metric=0.105 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 84%|████████▍ | 328/391 [02:12<00:25,  2.52it/s][A 84%|████████▍ | 329/391 [02:14<00:24,  2.52it/s][  327] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 84%|████████▍ | 329/391 [02:12<00:24,  2.52it/s][A 84%|████████▍ | 330/391 [02:14<00:24,  2.52it/s][  328] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 84%|████████▍ | 330/391 [02:13<00:24,  2.50it/s][A 85%|████████▍ | 331/391 [02:14<00:23,  2.50it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 28112
+Gaussian num on CPU: 81540
+[  329] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 85%|████████▍ | 331/391 [02:13<00:23,  2.50it/s][A 85%|████████▍ | 332/391 [02:15<00:23,  2.50it/s][  330] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 85%|████████▍ | 332/391 [02:14<00:23,  2.50it/s][A 85%|████████▌ | 333/391 [02:15<00:23,  2.50it/s][  331] kf=S metric=0.107 track=0.251(mf=0.007 fe=0.244) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 85%|████████▌ | 333/391 [02:14<00:23,  2.50it/s][A 85%|████████▌ | 334/391 [02:16<00:22,  2.50it/s][  332] kf=S metric=0.108 track=0.250(mf=0.007 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 85%|████████▌ | 334/391 [02:14<00:22,  2.50it/s][A 86%|████████▌ | 335/391 [02:16<00:22,  2.50it/s][  333] kf=S metric=0.108 track=0.250(mf=0.007 fe=0.244) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 86%|████████▌ | 335/391 [02:15<00:22,  2.50it/s][A 86%|████████▌ | 336/391 [02:16<00:22,  2.50it/s][  334] kf=S metric=0.108 track=0.250(mf=0.007 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 86%|████████▌ | 336/391 [02:15<00:22,  2.48it/s][A 86%|████████▌ | 337/391 [02:17<00:21,  2.48it/s][  335] kf=S metric=0.108 track=0.256(mf=0.007 fe=0.249) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.372 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 86%|████████▌ | 337/391 [02:16<00:21,  2.49it/s][A 86%|████████▋ | 338/391 [02:17<00:21,  2.49it/s][  336] kf=S metric=0.108 track=0.246(mf=0.007 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 86%|████████▋ | 338/391 [02:16<00:21,  2.49it/s][A 87%|████████▋ | 339/391 [02:18<00:20,  2.49it/s][  337] kf=S metric=0.109 track=0.246(mf=0.007 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 87%|████████▋ | 339/391 [02:16<00:20,  2.50it/s][A 87%|████████▋ | 340/391 [02:18<00:20,  2.50it/s][  338] kf=S metric=0.108 track=0.246(mf=0.007 fe=0.239) pkg=0.009 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 87%|████████▋ | 340/391 [02:17<00:20,  2.49it/s][A 87%|████████▋ | 341/391 [02:18<00:20,  2.49it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 28112
+Gaussian num on CPU: 81540
+[  339] kf=S metric=0.106 track=0.246(mf=0.007 fe=0.239) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 87%|████████▋ | 341/391 [02:17<00:19,  2.50it/s][A 87%|████████▋ | 342/391 [02:19<00:19,  2.50it/s][  340] kf=S metric=0.108 track=0.246(mf=0.007 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 87%|████████▋ | 342/391 [02:18<00:19,  2.51it/s][A 88%|████████▊ | 343/391 [02:19<00:19,  2.51it/s][  341] kf=S metric=0.107 track=0.246(mf=0.007 fe=0.239) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 88%|████████▊ | 343/391 [02:18<00:19,  2.51it/s][A 88%|████████▊ | 344/391 [02:20<00:18,  2.51it/s][  342] kf=S metric=0.107 track=0.246(mf=0.007 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 88%|████████▊ | 344/391 [02:18<00:18,  2.52it/s][A 88%|████████▊ | 345/391 [02:20<00:18,  2.52it/s][  343] kf=S metric=0.106 track=0.246(mf=0.006 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 88%|████████▊ | 345/391 [02:19<00:18,  2.53it/s][A 88%|████████▊ | 346/391 [02:20<00:17,  2.53it/s][  344] kf=S metric=0.107 track=0.247(mf=0.007 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 88%|████████▊ | 346/391 [02:19<00:17,  2.52it/s][A 89%|████████▊ | 347/391 [02:21<00:17,  2.52it/s][  345] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 89%|████████▊ | 347/391 [02:20<00:17,  2.53it/s][A 89%|████████▉ | 348/391 [02:21<00:17,  2.53it/s][  346] kf=S metric=0.105 track=0.247(mf=0.006 fe=0.241) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 89%|████████▉ | 348/391 [02:20<00:17,  2.53it/s][A 89%|████████▉ | 349/391 [02:22<00:16,  2.53it/s][  347] kf=S metric=0.105 track=0.246(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 89%|████████▉ | 349/391 [02:20<00:16,  2.53it/s][A 90%|████████▉ | 350/391 [02:22<00:16,  2.53it/s][  348] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 90%|████████▉ | 350/391 [02:21<00:16,  2.52it/s][A 90%|████████▉ | 351/391 [02:22<00:15,  2.52it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 28112
+Gaussian num on CPU: 81540
+[  349] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 90%|████████▉ | 351/391 [02:21<00:15,  2.52it/s][A 90%|█████████ | 352/391 [02:23<00:15,  2.52it/s][  350] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 90%|█████████ | 352/391 [02:22<00:15,  2.52it/s][A 90%|█████████ | 353/391 [02:23<00:15,  2.52it/s][  351] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 90%|█████████ | 353/391 [02:22<00:15,  2.53it/s][A 91%|█████████ | 354/391 [02:24<00:14,  2.53it/s][  352] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 91%|█████████ | 354/391 [02:22<00:14,  2.53it/s][A 91%|█████████ | 355/391 [02:24<00:14,  2.53it/s][  353] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 91%|█████████ | 355/391 [02:23<00:14,  2.53it/s][A 91%|█████████ | 356/391 [02:24<00:13,  2.53it/s][  354] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 91%|█████████ | 356/391 [02:23<00:13,  2.54it/s][A 91%|█████████▏| 357/391 [02:25<00:13,  2.54it/s][  355] kf=S metric=0.105 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 91%|█████████▏| 357/391 [02:24<00:13,  2.53it/s][A 92%|█████████▏| 358/391 [02:25<00:13,  2.53it/s][  356] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 92%|█████████▏| 358/391 [02:24<00:13,  2.52it/s][A 92%|█████████▏| 359/391 [02:25<00:12,  2.52it/s][  357] kf=S metric=0.111 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 92%|█████████▏| 359/391 [02:24<00:12,  2.52it/s][A 92%|█████████▏| 360/391 [02:26<00:12,  2.52it/s][  358] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.004 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 92%|█████████▏| 360/391 [02:25<00:12,  2.49it/s][A 92%|█████████▏| 361/391 [02:26<00:12,  2.49it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 28112
+Gaussian num on CPU: 81540
+[CPU-Prune] 0/81540 Gaussians entfernt (opacity < 0.1). Verbleibend auf CPU: 81540
+[  359] kf=S metric=0.108 track=0.250(mf=0.007 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 92%|█████████▏| 361/391 [02:25<00:11,  2.50it/s][A 93%|█████████▎| 362/391 [02:27<00:11,  2.50it/s][  360] kf=S metric=0.106 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 93%|█████████▎| 362/391 [02:26<00:11,  2.50it/s][A 93%|█████████▎| 363/391 [02:27<00:11,  2.50it/s][  361] kf=S metric=0.106 track=0.251(mf=0.006 fe=0.244) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 93%|█████████▎| 363/391 [02:26<00:11,  2.51it/s][A 93%|█████████▎| 364/391 [02:27<00:10,  2.51it/s][  362] kf=S metric=0.105 track=0.250(mf=0.006 fe=0.244) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 93%|█████████▎| 364/391 [02:26<00:10,  2.51it/s][A 93%|█████████▎| 365/391 [02:28<00:10,  2.51it/s][  363] kf=S metric=0.107 track=0.250(mf=0.006 fe=0.244) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.364 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 93%|█████████▎| 365/391 [02:27<00:10,  2.51it/s][A 94%|█████████▎| 366/391 [02:28<00:09,  2.51it/s][  364] kf=S metric=0.107 track=0.251(mf=0.006 fe=0.244) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.363 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 94%|█████████▎| 366/391 [02:27<00:10,  2.49it/s][A 94%|█████████▍| 367/391 [02:29<00:09,  2.49it/s][  365] kf=S metric=0.108 track=0.256(mf=0.006 fe=0.250) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.372 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 94%|█████████▍| 367/391 [02:28<00:09,  2.51it/s][A 94%|█████████▍| 368/391 [02:29<00:09,  2.51it/s][  366] kf=S metric=0.106 track=0.245(mf=0.006 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 94%|█████████▍| 368/391 [02:28<00:09,  2.51it/s][A 94%|█████████▍| 369/391 [02:29<00:08,  2.51it/s][  367] kf=S metric=0.107 track=0.245(mf=0.006 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 94%|█████████▍| 369/391 [02:28<00:08,  2.51it/s][A 95%|█████████▍| 370/391 [02:30<00:08,  2.51it/s][  368] kf=S metric=0.107 track=0.245(mf=0.006 fe=0.239) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 95%|█████████▍| 370/391 [02:29<00:08,  2.51it/s][A 95%|█████████▍| 371/391 [02:30<00:07,  2.51it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 28112
+Gaussian num on CPU: 81540
+[  369] kf=S metric=0.106 track=0.246(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 95%|█████████▍| 371/391 [02:29<00:07,  2.50it/s][A 95%|█████████▌| 372/391 [02:31<00:07,  2.51it/s][  370] kf=S metric=0.107 track=0.250(mf=0.006 fe=0.244) pkg=0.008 map=0.000(prep=0.000 train=0.000) total=0.365 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 95%|█████████▌| 372/391 [02:30<00:07,  2.49it/s][A 95%|█████████▌| 373/391 [02:31<00:07,  2.49it/s][  371] kf=S metric=0.110 track=0.254(mf=0.007 fe=0.247) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.372 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 95%|█████████▌| 373/391 [02:30<00:07,  2.51it/s][A 96%|█████████▌| 374/391 [02:31<00:06,  2.51it/s][  372] kf=S metric=0.105 track=0.246(mf=0.006 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.358 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 96%|█████████▌| 374/391 [02:30<00:06,  2.52it/s][A 96%|█████████▌| 375/391 [02:32<00:06,  2.52it/s][  373] kf=S metric=0.107 track=0.246(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 96%|█████████▌| 375/391 [02:31<00:06,  2.51it/s][A 96%|█████████▌| 376/391 [02:32<00:05,  2.51it/s][  374] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 96%|█████████▌| 376/391 [02:31<00:05,  2.52it/s][A 96%|█████████▋| 377/391 [02:33<00:05,  2.52it/s][  375] kf=S metric=0.107 track=0.246(mf=0.006 fe=0.240) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 96%|█████████▋| 377/391 [02:32<00:05,  2.53it/s][A 97%|█████████▋| 378/391 [02:33<00:05,  2.53it/s][  376] kf=S metric=0.106 track=0.247(mf=0.006 fe=0.241) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 97%|█████████▋| 378/391 [02:32<00:05,  2.52it/s][A 97%|█████████▋| 379/391 [02:33<00:04,  2.52it/s][  377] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.240) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 97%|█████████▋| 379/391 [02:32<00:04,  2.52it/s][A 97%|█████████▋| 380/391 [02:34<00:04,  2.52it/s][  378] kf=S metric=0.107 track=0.247(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 97%|█████████▋| 380/391 [02:33<00:04,  2.51it/s][A 97%|█████████▋| 381/391 [02:34<00:03,  2.51it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 28112
+Gaussian num on CPU: 81540
+[  379] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.242) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 97%|█████████▋| 381/391 [02:33<00:03,  2.51it/s][A 98%|█████████▊| 382/391 [02:35<00:03,  2.51it/s][  380] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.241) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.359 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 98%|█████████▊| 382/391 [02:34<00:03,  2.52it/s][A 98%|█████████▊| 383/391 [02:35<00:03,  2.52it/s][  381] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 98%|█████████▊| 383/391 [02:34<00:03,  2.52it/s][A 98%|█████████▊| 384/391 [02:35<00:02,  2.52it/s][  382] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 98%|█████████▊| 384/391 [02:34<00:02,  2.52it/s][A 98%|█████████▊| 385/391 [02:36<00:02,  2.52it/s][  383] kf=S metric=0.106 track=0.248(mf=0.006 fe=0.241) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 98%|█████████▊| 385/391 [02:35<00:02,  2.53it/s][A 99%|█████████▊| 386/391 [02:36<00:01,  2.53it/s][  384] kf=S metric=0.108 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 99%|█████████▊| 386/391 [02:35<00:01,  2.52it/s][A 99%|█████████▉| 387/391 [02:37<00:01,  2.52it/s][  385] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 99%|█████████▉| 387/391 [02:35<00:01,  2.52it/s][A 99%|█████████▉| 388/391 [02:37<00:01,  2.52it/s][  386] kf=S metric=0.107 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.360 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 99%|█████████▉| 388/391 [02:36<00:01,  2.52it/s][A 99%|█████████▉| 389/391 [02:37<00:00,  2.52it/s][  387] kf=S metric=0.108 track=0.248(mf=0.006 fe=0.242) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+ 99%|█████████▉| 389/391 [02:36<00:00,  2.52it/s][A100%|█████████▉| 390/391 [02:38<00:00,  2.52it/s][  388] kf=S metric=0.108 track=0.248(mf=0.006 fe=0.242) pkg=0.005 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+100%|█████████▉| 390/391 [02:37<00:00,  2.51it/s][A100%|██████████| 391/391 [02:38<00:00,  2.51it/s]Convey 0 Gaussians from GPU to CPU.
+Gaussian num on GPU: 28112
+Gaussian num on CPU: 81540
+[  389] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.006 map=0.000(prep=0.000 train=0.000) total=0.361 fs(step=B2B3_novelty_below_theta)
+[vio_spike] init_VI: IMU-Anregung var_g=0.0000 (Schwelle 0.25)
+[vio_spike] -> var_g < 0.25: IMU excitation not enough -> VISUAL-ONLY Fallback (KEIN VIO)
+
+100%|██████████| 391/391 [02:37<00:00,  2.51it/s][A100%|██████████| 391/391 [02:37<00:00,  2.48it/s]
+[  390] kf=S metric=0.107 track=0.249(mf=0.006 fe=0.243) pkg=0.007 map=0.000(prep=0.000 train=0.000) total=0.362 fs(step=B2B3_novelty_below_theta)
+[save_ply_streaming] 109652 Gaussians (81540 CPU + 28112 GPU) → /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/fire3_two_gate_v2_a3_loose/06-17-01-10-generic_vo-fire3_two_gate_v2_a3_loose-/ply/idx=390_2dgs.ply
+tracker_poses_w2c.txt geschrieben (377 marginalisiert + 61 aktiv).
+
+=== Profiling Summary (383 KFs, 4 mapped / 391 processed / 391 dataset, frame_skip=1, mapper_kf_skip=1, wall=157.7s) ===
+phase                             n   total[s]   mean[ms]    med[ms]    p95[ms]       %
+--------------------------------------------------------------------------------------
+track.total                     391      96.36      246.4      248.1      252.9   61.1%
+track.frontend_ba               391      93.59      239.4      241.8      246.5   59.4%
+metric                          391      42.17      107.8      106.3      109.0   26.7%
+map.total                         4       2.79      697.6      681.6      707.3    1.8%
+track.motion_filter             391       2.75        7.0        6.2        7.2    1.7%
+frame_select                    383       2.63        6.9        6.8        7.3    1.7%
+map.train_loop                    4       2.48      619.5      632.9      661.8    1.6%
+judge_pkg                       391       2.44        6.2        6.3        8.5    1.5%
+gate_a                          391       0.52        1.3        1.3        1.7    0.3%
+storage                          39       0.27        6.9        7.5       13.1    0.2%
+map.add_new_frame                 3       0.16       51.8       51.8       51.8    0.1%
+save_ply                          1       0.06       63.3       63.3       63.3    0.0%
+ext_pose_apply                  383       0.00        0.0        0.0        0.0    0.0%
+profiling.json -> /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/fire3_two_gate_v2_a3_loose/06-17-01-10-generic_vo-fire3_two_gate_v2_a3_loose-/profiling.json
+100%|██████████| 391/391 [02:39<00:00,  2.45it/s]

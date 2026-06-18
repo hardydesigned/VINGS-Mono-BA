@@ -54,6 +54,12 @@ def main():
 
     # --- Posen laden ---
     r = np.loadtxt(a.droid_poses, comments="#")
+    if r.ndim < 2 or len(r) < 2:
+        # Degeneriertes Segment: <2 DROID-Keyframes (z.B. harte Selektor-/gate_a-Drosselung).
+        # np.loadtxt gibt dann 1D zurueck -> r[:,1] crasht. Sauber ueberspringen statt
+        # abbrechen (wie der keep=0-Fall unten); merge globt eh nur vorhandene sN_gps.ply.
+        print(f"[unwarp] WARN: <2 DROID-Posen in {a.droid_poses} -- Segment degeneriert, keine ply ({a.out})")
+        return
     td = r[:, 1]; Cd = r[:, [5, 9, 13]]
     if a.gps_csv:
         # GPS-Anker: easting/northing/alt mit FIXEM globalem Ursprung (erste rtk-Zeile)

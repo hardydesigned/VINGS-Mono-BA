@@ -1,0 +1,25 @@
+############################################################
+# AGZ SURVEY x SELEKTOREN: two_gate_v2
+# Summary-CSV: output/agz_selsmoke/summary.csv
+# Root: output/agz_selsmoke
+############################################################
+
+============================================================
+= SELEKTOR: two_gate_v2   cfg=configs/local/agz/s2675_400f/two_gate_v2/agz_s2675_400f_two_gate_v2_a3_loose.yaml   -> output/agz_selsmoke/two_gate_v2
+============================================================
+[gen] output/agz_selsmoke/two_gate_v2/cfg_s7000.yaml: hw=[240, 432] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=7000 frames=500 selector=two_gate_v2
+=========== SEGMENT start=7000 (numkf=4) ===========
+[log_sweep_row] s7000: status=OK psnr=21.5981 kf=28 ply=1 dur=0.47min
+[unwarp] N=28  global-Sim3 RMSE=1.66m  ->  lokal(window=80, R=global) RMSE=1.66m
+[unwarp] WARN: keep=0 -- alle Gaussians ausgecroppt, keine ply geschrieben (output/agz_selsmoke/two_gate_v2/s7000_gps.ply)
+MERGE=0 -> kein Merge
+=========== MESSUNG -> output/agz_selsmoke/two_gate_v2/segments.csv ===========
+  s7000: status=OK psnr=21.5981 kf=28 vram=2349 ate=1.8005498748535047 ply=MB
+[measure_survey] 1/1 Segmente + 1 Aggregat -> output/agz_selsmoke/two_gate_v2/segments.csv
+[measure_survey] Survey-Zeile 'two_gate_v2' -> output/agz_selsmoke/summary.csv  (dur=0.43min ply=MB gauss= psnr min/max/mean=21.5981/21.5981/21.5981)
+# [two_gate_v2] WARN: keine survey_complete.ply -- output/agz_selsmoke/two_gate_v2 NICHT aufgeraeumt (Diagnose behalten)
+/dev/sdc2       219G    208G  550M  100% /
+
+=========== ALLE AGZ-SELEKTOREN FERTIG ===========
+Summary (1 Zeile/Selektor): output/agz_selsmoke/summary.csv
+  (keine)

@@ -1,0 +1,7 @@
+[chain] waiting for fire2 two_gate pid 52404 ...
+[chain] fire2 done.
+[chain] starting fire1 two_gate at 19:06:27
+[chain] fire1 exited rc=0 at 19:10:39
+[chain] starting fire3 two_gate at 19:10:39
+[chain] fire3 exited rc=0 at 19:13:23
+[chain] ALL THREE TWO_GATE RUNS DONE

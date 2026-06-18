@@ -1,0 +1,11 @@
+[gen] output/exp_agz_survey_smoke/cfg_s7000.yaml: hw=[240, 432] iters=150 numkf=4 kfskip=1 rgb=1.0 depth=0.5 ssim=0.0 start=7000 frames=150 selector=none
+=========== SEGMENT start=7000 (numkf=4) ===========
+[log_sweep_row] s7000: status=FAIL psnr=13.7378 kf=30 ply=1 dur=1.3min
+[unwarp] N=36  global-Sim3 RMSE=0.09m  ->  lokal(window=80, R=global) RMSE=0.09m
+[unwarp] 588234 -> 53107 Gaussians (crop+nadir) -> output/exp_agz_survey_smoke/s7000_gps.ply
+  -> output/exp_agz_survey_smoke/s7000_gps.ply
+MERGE=0 -> kein Merge
+=========== MESSUNG -> output/exp_agz_survey_smoke/segments.csv ===========
+  s7000: status=FAIL psnr=13.7378 kf=30 vram=9784 ate= ply=12.96MB
+[measure_survey] 1/1 Segmente + 1 Aggregat -> output/exp_agz_survey_smoke/segments.csv
+[measure_survey] Survey-Zeile 'exp_agz_survey_smoke' -> docs/results/survey_summary.csv  (dur=1.22min ply=MB gauss= psnr min/max/mean=13.7378/13.7378/13.7378)

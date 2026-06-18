@@ -1,7 +1,7 @@
-# Fire-Video 1 (11584957-sd) — 960x540, 3132 Frames / ~105 s @ 30 fps.
-# Stock-Footage OHNE Kalibrierung: Intrinsics geschaetzt (focal ~0.9*W, PP=Bildmitte).
-# VO ist scale-frei und toleriert grobe K. Lange Sequenz -> hoeherer mapper_kf_skip
-# + storage_manager gegen die VRAM-Wand (~150 mapped frames). use_metric:false.
+# Fire-Video 2 (14360830) — 960x540, 434 Frames. Drohnen-Orbit ueber Strasse/Feuerwehr.
+# Selektor: two_gate_v2 "a3_loose". Kein GPS -> Gate-A3 dormant; A2 (Blur/Grad) + Post-
+# Tracker B1/B2/B3 (pose 0.2m / SSIM / DINO) gaten die gemappten KFs -> keine Gaussian-
+# Explosion. mapper_kf_skip:1 (Selektor entscheidet). use_metric:true (pose_d_min in Metern).
 adc_args:
   accum_thresh: 0.98
 
@@ -10,9 +10,9 @@ dataset:
   image_ext: '*.jpg'
   module: datasets.generic_vo
   rgb_strip: 1
-  root: /home/philipp/Dokumente/datasets/fire/fire1_11584957/
+  root: /home/philipp/Dokumente/datasets/fire/fire2_14360830/
   start_frame: 0
-  max_frames: 3132
+  max_frames: 434
 
 debug_mode: false
 device:
@@ -20,26 +20,58 @@ device:
   tracker: cuda:0
 
 frame_selector:
-  kind: none
-frame_skip: 5            # 3132 Frames -> ~626 (sonst sprengt jeder-Frame-KF Buffer/VRAM)
-mapper_kf_skip: 8        # ~78 mapped KFs: unter der ~100-RAM-Decke (15 GB, static-cam Gaussian-Explosion)
+  kind: two_gate_v2
+  pose_d_min_m: 0.20
+  visual_change_max_ssim: 0.985
+  ssim_resize: 80
+  enable_ssim_veto: true
+  covis_thresh: 0.85
+  n_samples_covis: 2048
+  min_depth: 0.2
+  max_depth: 35.0
+  enable_b3: true
+  alpha: 0.30
+  dino_model: dinov2_vits14
+  dino_image_size: 224
+  dino_device: cuda
+  dino_max_kfs: 10
+  theta0: 0.15
+  theta_init: 0.20
+  window_size: 30
+  sensitivity: 0.5
+  decay: 0.85
+  min_spacing: 3
+  max_per_window: 2
+  rate_window: 30
+  force_after: 100
 
+gate_a:
+  enabled: true
+  version: v2
+  enable_a3: true
+  gps_d_min_m: 0.4
+  enable_a1: false
+  enable_a2: true
+  blur_thresh: 50.0
+  grad_density_thresh: 0.02
+
+mapper_kf_skip: 1
 ply_checkpoint_every_kf: 50
 
 frontend:
   active_window: 12
   beta: 0.3
-  buffer: 700
+  buffer: 480
   c2i: None
   far_threshold: 0.02
-  filter_thresh: -1.0    # Motion-Filter AUS: jeder Frame wird Tracker-KF (statische Kamera)
+  filter_thresh: -1.0
   frontend_nms: 1
   frontend_radius: 2
   frontend_thresh: 16.0
   frontend_window: 5
   image_size:
-  - 240
-  - 432
+  - 288
+  - 512
   inac_range: 3
   keyframe_thresh: 0.0
   mask_threshold: -1.0
@@ -73,14 +105,14 @@ middleware:
 mode: vo
 
 output:
-  save_dir: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/fire1_11584957/
+  save_dir: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/fire2_two_gate_v2_a3_loose/
 
 storage_manager:
   cpu_prune_opacity_threshold: 0.10
   distance_threshold: 5.0
 
 training_args:
-  iters: 50
+  iters: 150
   loss_weights:
     alpha_loss: 0.1
     depth_loss: 0.5
@@ -96,7 +128,7 @@ training_args:
   num_keyframe: 8
 
 use_dynamic: false
-use_metric: true         # Metric3D-Tiefenprior: ankert Skala/Struktur bei langsamer Drohnen-Bewegung
+use_metric: true
 use_pose_refine: false
 use_sky: false
 use_storage_manager: true
