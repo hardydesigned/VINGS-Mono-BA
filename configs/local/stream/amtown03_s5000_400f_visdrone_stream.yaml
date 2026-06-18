@@ -1,0 +1,175 @@
+# amtown03 frames 5000..5199 (200f) + Live-Stream zum Web-Frontend + VisDrone-OD.
+# Basis: configs/local/stream/amtown03_s3100_200f_stream.yaml (mode:vo, use_metric:false
+# -> gauge-freier DROID-Frame, KEINE Meter). Detektor = VisDrone-yolov8s (winzige
+# Aerial-Fahrzeuge, COCO-YOLO ist auf Nadir unbrauchbar).
+adc_args:
+  accum_thresh: 0.98
+dataset:
+  camstamp_file: /home/philipp/Dokumente/datasets/amtown03/metadata/camstamp_all.txt
+  gps_alt_col: 3
+  gps_csv: /home/philipp/Dokumente/datasets/amtown03/metadata/rtk.csv
+  gps_lat_col: 1
+  gps_lon_col: 2
+  gps_t_col: 0
+  image_dir: images_all
+  image_ext: '*.jpg'
+  max_frames: 400
+  module: datasets.generic_vo
+  rgb_strip: 1
+  root: /home/philipp/Dokumente/datasets/amtown03/
+  start_frame: 5000
+debug_mode: false
+device:
+  mapper: cuda:0
+  tracker: cuda:0
+frame_selector:
+  kind: none
+mapper_kf_skip: 1
+ply_checkpoint_every_kf: 50
+frontend:
+  active_window: 12
+  beta: 0.3
+  buffer: 80
+  c2i: None
+  far_threshold: 0.02
+  filter_thresh: 2.4
+  frontend_nms: 1
+  frontend_radius: 2
+  frontend_thresh: 16.0
+  frontend_window: 5
+  image_size:
+  - 240
+  - 288
+  inac_range: 3
+  keyframe_thresh: 0.0
+  mask_threshold: -1.0
+  max_factors: 48
+  save_buffer_size: 1300
+  upsample: false
+  show_plot: false
+  skip_edge:
+  - -4
+  - -5
+  - -6
+  translation_threshold: 0.5
+  warm_up: 8
+  weight: /home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+intrinsic:
+  H: 1024
+  W: 1224
+  bg: 0
+  cu: 520.89
+  cv: 586.09
+  fu: 726.64
+  fv: 726.86
+  resolution_scale: 1.0
+middleware:
+  cov_times: 1000
+  max_cov: 3000.0
+  max_depth: 100
+mode: vo
+output:
+  save_dir: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_amtown03_s5000_200f_visdrone_stream/
+storage_manager:
+  cpu_prune_opacity_threshold: 0.1
+  distance_threshold: 3.0
+training_args:
+  iters: 50
+  loss_weights:
+    rgb_loss: 1.0
+    depth_loss: 0.5
+    normal_loss: 0.1
+    alpha_loss: 0.1
+    dist_loss: 0.0
+  lr:
+    _opacity_lr: 0.05
+    _rgb_lr: 0.0005
+    _rotation_lr: 0.001
+    _scaling_lr: 0.001
+    _xyz_lr: 0.0001
+  num_keyframe: 8
+use_dynamic: false
+use_loop: false
+use_metric: false
+use_pose_refine: false
+seed_video_with_ext_pose: false
+use_sky: false
+use_storage_manager: true
+use_vis: false
+use_wandb: false
+vis:
+  bev_intrinsic_dict:
+    H: 758
+    W: 1372
+    cu: 378.5
+    cv: 685.5
+    fu: 656.4
+    fv: 656.4
+  bev_w2c:
+  - - 1
+    - 0
+    - 0
+    - 0
+  - - 0
+    - 1
+    - 0
+    - 0
+  - - 0
+    - 0
+    - 1
+    - 0
+  - - 0
+    - 0
+    - 0
+    - 1
+  pose_scale: 1.0
+
+# --- Online object detection (VisDrone) + 3D-Lokalisierung ------------------
+# detect_objects laeuft auf jedem object_detect_stride-ten Tracker-KF (entkoppelt
+# vom Mapper). Boxen -> Tiefe (DROID-BA, gauge-frei) -> DROID-Welt -> Objekt-Tracks.
+# Marker streamen live ans Frontend (als per-Klasse-Modelle / Box-Fallback).
+detect_objects: true
+object_detect_stride: 3        # jeder 3. Tracker-KF; bei Last hoeher (5-10)
+object_detector:
+  kind: yolo
+  model: yolov8s               # VisDrone-trainiert (mshamrai/yolov8s-visdrone)
+  ckpt_path: ckpts/yolov8s-visdrone.pt
+  conf: 0.25                   # Aerial: niedrig (winzige Objekte)
+  iou: 0.7
+  imgsz: 1280                  # hoch -> kleine Nadir-Fahrzeuge ueberhaupt sichtbar
+  device: cpu                  # VRAM-schonend (GPU ist beim Mapper); cuda:0 wenn frei
+  classes: [3, 4, 5, 8]        # VisDrone: car=3 van=4 truck=5 bus=8 (=Fahrzeuge); null=alle 10
+  max_det: 100
+  box_shrink: 0.6
+  depth_percentile: 30.0       # naehere Tiefe gewinnt ueber Boden dahinter
+  min_valid_px: 3              # kleine Aerial-Boxen auf 240x288-Depth
+  min_depth: 0.2
+  max_depth: 1000.0            # GAUGE-FREI (use_metric:false) -> KEINE Meter, grosszuegig
+object_tracker:
+  # ACHTUNG gauge-frei: assoc_radius ist in DROID-Einheiten, NICHT Meter. Start-
+  # wert konservativ; per Marker-Spread in objects_droid.csv nachziehen (zu viele
+  # Doppel-Tracks -> groesser, verschmolzene Autos -> kleiner).
+  assoc_radius: 0.08
+  min_hits: 2                  # Vorwaerts-Aerial-Flug: Objekt nur in wenigen KFs
+  class_agnostic: false
+  marker_radius: 0.05
+object_output:
+  csv: true
+  markers_ply: true
+  overlay_video: true          # object_overlay.mp4 = Sanity-Check der Boxen
+  overlay_fps: 10
+  detections_csv: true
+
+# --- Live-Streaming zum Web-Frontend ----------------------------------------
+stream:
+  enabled: true
+  host: 0.0.0.0
+  port: 8765
+  every_kf: 1
+  max_active_splats: 200000
+  max_queue: 16
+  flat_scale_eps: 0.001
+  # Server sendet KOMPLETTE Chunks (append_frozen + voller active-Satz wie im
+  # Original). Das graduelle "nach und nach in die Karte laden" passiert rein
+  # FRONTEND-seitig (progressive Reveal in viewer.html). stream_active default
+  # true -> nicht setzen.

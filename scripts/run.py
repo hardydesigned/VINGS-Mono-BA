@@ -543,6 +543,11 @@ class Runner:
             max_active = int(self.stream_cfg.get('max_active_splats', 200000))
             sm = self.storage_manager if self.use_storage_manager else None
 
+            # Server sends the COMPLETE current set every push (new frozen KF
+            # groups appended + the full live mapper set as replace_active; a
+            # single replace_all before the first convey). The "load it into the
+            # map gradually" happens purely frontend-side (progressive reveal in
+            # viewer.html) -- the wire stays simple and complete.
             if sm is not None and sm._xyz.shape[0] > 0:
                 kf_ids = sm._globalkf_id
                 present = set(int(k) for k in torch.unique(kf_ids).tolist())
@@ -564,6 +569,38 @@ class Runner:
                     'data': allblob})
         except Exception as _e:
             print(f"[stream] gaussian push skipped: {_e}")
+
+    def _stream_push_frame(self, f_idx):
+        """Push the original RGB keyframe (downscaled JPEG) to the frontend so the
+        viewer can show the live camera image next to the 3D map. Best-effort."""
+        if self.stream_server is None:
+            return
+        if not bool(self.stream_cfg.get('send_frames', True)):
+            return
+        try:
+            import base64
+            import cv2 as _cv2
+            fp = self.dataset.rgbinfo_dict['filepath'][f_idx]
+            bgr = _cv2.imread(fp)
+            if bgr is None:
+                return
+            max_px = int(self.stream_cfg.get('frame_max_px', 384))
+            h, w = bgr.shape[:2]
+            s = max_px / float(max(h, w))
+            if s < 1.0:
+                bgr = _cv2.resize(bgr, (max(1, int(w * s)), max(1, int(h * s))),
+                                  interpolation=_cv2.INTER_AREA)
+            q = int(self.stream_cfg.get('frame_jpeg_quality', 70))
+            ok, enc = _cv2.imencode('.jpg', bgr, [int(_cv2.IMWRITE_JPEG_QUALITY), q])
+            if not ok:
+                return
+            b64 = base64.b64encode(enc.tobytes()).decode('ascii')
+            self.stream_server.push({
+                'type': 'frame', 'epoch': self._stream_epoch,
+                'idx': int(f_idx), 'w': int(bgr.shape[1]), 'h': int(bgr.shape[0]),
+                'jpeg': b64})
+        except Exception as _e:
+            print(f"[stream] frame push skipped: {_e}")
 
     def run(self):
         # Load imu data.
@@ -812,6 +849,15 @@ class Runner:
                                     'objects': self.object_tracker.snapshot()})
                     except Exception as _e:
                         print(f"[detect] keyframe skipped: {_e}")
+                # stream the original RGB keyframe for the viewer's camera card
+                # (own stride, decoupled from mapper/detector). Best-effort.
+                if self.stream_server is not None and 'images' in viz_out:
+                    _fstride = max(1, int(self.stream_cfg.get('frame_stride', 2)))
+                    if (n_keyframes - 1) % _fstride == 0:
+                        try:
+                            self._stream_push_frame(int(viz_out['viz_out_idx_to_f_idx'][-1]))
+                        except Exception:
+                            pass
                 if do_map:
                     n_mapped += 1
                     # Snapshot der Sub-Phase-Counts: nur Inkremente dieses Calls anzeigen.

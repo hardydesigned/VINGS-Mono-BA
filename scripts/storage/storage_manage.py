@@ -138,15 +138,20 @@ class StorageManager: # Works in the same thread as the mapper.
         
         if convey_kf_id.sum() > 0:
             # Update storage manager.
+            # .detach(): die Mapper-Tensoren sind nn.Parameter mit requires_grad;
+            # ohne detach erben die CPU-Kopien die Gradientenhistorie -> hält den
+            # GPU-Graph am Leben (VRAM-Leck) und .numpy() im Stream-Encoder wirft
+            # "Can't call numpy() on Tensor that requires grad". Hier gibt es keinen
+            # Optimizer -> Gradienten werden nie gebraucht.
             # .half(): GPU-float32 → CPU-float16 (halbiert den RAM-Bedarf).
             # _stable_mask (bool) und _globalkf_id (long) bleiben unverändert.
-            self._xyz           = torch.concat((self._xyz[~delete_gaussian_mask],           mapper._xyz[convey_gaussian_mask].cpu().half()), dim=0)
-            self._rgb           = torch.concat((self._rgb[~delete_gaussian_mask],           mapper._rgb[convey_gaussian_mask].cpu().half()), dim=0)
-            self._scaling       = torch.concat((self._scaling[~delete_gaussian_mask],       mapper._scaling[convey_gaussian_mask].cpu().half()), dim=0)
-            self._rotation      = torch.concat((self._rotation[~delete_gaussian_mask],      mapper._rotation[convey_gaussian_mask].cpu().half()), dim=0)
-            self._opacity       = torch.concat((self._opacity[~delete_gaussian_mask],       mapper._opacity[convey_gaussian_mask].cpu().half()), dim=0)
-            self._global_scores = torch.concat((self._global_scores[~delete_gaussian_mask], mapper._global_scores[convey_gaussian_mask].cpu().half()), dim=0)
-            self._local_scores  = torch.concat((self._local_scores[~delete_gaussian_mask],  mapper._local_scores[convey_gaussian_mask].cpu().half()), dim=0)
+            self._xyz           = torch.concat((self._xyz[~delete_gaussian_mask],           mapper._xyz[convey_gaussian_mask].detach().cpu().half()), dim=0)
+            self._rgb           = torch.concat((self._rgb[~delete_gaussian_mask],           mapper._rgb[convey_gaussian_mask].detach().cpu().half()), dim=0)
+            self._scaling       = torch.concat((self._scaling[~delete_gaussian_mask],       mapper._scaling[convey_gaussian_mask].detach().cpu().half()), dim=0)
+            self._rotation      = torch.concat((self._rotation[~delete_gaussian_mask],      mapper._rotation[convey_gaussian_mask].detach().cpu().half()), dim=0)
+            self._opacity       = torch.concat((self._opacity[~delete_gaussian_mask],       mapper._opacity[convey_gaussian_mask].detach().cpu().half()), dim=0)
+            self._global_scores = torch.concat((self._global_scores[~delete_gaussian_mask], mapper._global_scores[convey_gaussian_mask].detach().cpu().half()), dim=0)
+            self._local_scores  = torch.concat((self._local_scores[~delete_gaussian_mask],  mapper._local_scores[convey_gaussian_mask].detach().cpu().half()), dim=0)
             self._stable_mask   = torch.concat((self._stable_mask[~delete_gaussian_mask],   mapper._stable_mask[convey_gaussian_mask].cpu()), dim=0)
             self._globalkf_id         = torch.concat((self._globalkf_id[~delete_gaussian_mask],         mapper._globalkf_id[convey_gaussian_mask].cpu()), dim=0)
             self._globalkf_max_scores = torch.concat((self._globalkf_max_scores[~delete_gaussian_mask], mapper._globalkf_max_scores[convey_gaussian_mask].cpu().half()), dim=0)

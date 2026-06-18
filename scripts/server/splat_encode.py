@@ -129,9 +129,11 @@ def encode_splat_from_storage(sm, mask, flat_scale_eps: float = 1e-3) -> bytes:
 
     if sm._xyz.shape[0] == 0 or int(mask.sum()) == 0:
         return b""
-    xyz = sm._xyz[mask].float().numpy()
-    sc2 = torch.exp(sm._scaling[mask].float()).numpy()
-    rgb = sm._rgb[mask].float().numpy()
-    op = torch.sigmoid(sm._opacity[mask].float()).numpy()
-    quat = torch.nn.functional.normalize(sm._rotation[mask].float(), dim=-1).numpy()
+    # detach defensively: storage tensors are normally grad-free, but a convey
+    # that forgot to detach would otherwise make .numpy() raise here.
+    xyz = sm._xyz[mask].float().detach().numpy()
+    sc2 = torch.exp(sm._scaling[mask].float()).detach().numpy()
+    rgb = sm._rgb[mask].float().detach().numpy()
+    op = torch.sigmoid(sm._opacity[mask].float()).detach().numpy()
+    quat = torch.nn.functional.normalize(sm._rotation[mask].float(), dim=-1).detach().numpy()
     return _to_splat_bytes(xyz, _pad_scale(sc2, flat_scale_eps), rgb, op, quat)

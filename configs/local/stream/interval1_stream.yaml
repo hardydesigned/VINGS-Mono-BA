@@ -9,8 +9,8 @@ dataset:
   lidar_sign_u: -1.0
   lidar_sign_v: -1.0
   module: datasets.generic_vo
-  start_frame: 300
-  max_frames: 600
+  start_frame: 5000
+  max_frames: 300
   rgb_strip: 1
 debug_mode: false
 device: {mapper: 'cuda:0', tracker: 'cuda:0'}

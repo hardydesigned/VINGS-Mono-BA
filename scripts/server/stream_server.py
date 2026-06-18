@@ -192,6 +192,11 @@ class SplatStreamServer:
         if upgrade == "websocket":
             return None  # echte WS-Verbindung: Handshake fortsetzen
 
+        # Browser fragen /favicon.ico automatisch an -> sonst loggt websockets ein
+        # 404 pro Seitenaufruf. Leeres 204 statt 404 haelt das Run-Log sauber.
+        if path.split("?")[0] in ("/favicon.ico", "/favicon.png"):
+            return (http.HTTPStatus.NO_CONTENT, [], b"")
+
         # statische Datei ausliefern: top-level Dateien ODER eine Ebene unter
         # models/ (fuer glTF-Assets der 3D-Objekt-Marker). Kein Path-Traversal.
         name = (path.split("?")[0].lstrip("/") or "viewer.html")

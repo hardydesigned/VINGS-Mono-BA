@@ -10,3 +10,4 @@ submodules/
 scripts/FastSAM-x.pt
 ckpts/FastSAM-x.pt
 *.pt
+*.glb

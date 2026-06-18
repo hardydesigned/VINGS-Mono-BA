@@ -35,6 +35,12 @@
   .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e0564b; }
   .dot.ok { background: #4bd07a; }
   .hint { opacity: .5; font-size: 11px; }
+  /* live camera-frame card (bottom-right) */
+  #cam { right: 10px; bottom: 10px; width: 300px; padding: 6px; }
+  #cam img { display: block; width: 100%; border-radius: 5px; background: #0e1119; }
+  #cam .cap { display: flex; justify-content: space-between; opacity: .7;
+    font-size: 11px; margin-top: 4px; padding: 0 2px; }
+  #cam.off { display: none; }
 </style>
 </head>
 <body>
@@ -58,8 +64,22 @@
     <button id="up">Z-up</button>
     <button id="models" class="on">models</button>
   </div>
+  <div class="row">
+    <button id="camtoggle" class="on">camera frame</button>
+  </div>
+  <div class="row"><label>obj rotX <span id="rotxval">0°</span></label>
+    <input id="objrotx" type="range" min="-180" max="180" step="5" value="0" /></div>
+  <div class="row"><label>obj rotY <span id="rotyval">0°</span></label>
+    <input id="objroty" type="range" min="-180" max="180" step="5" value="0" /></div>
+  <div class="row"><label>obj rotZ <span id="rotzval">0°</span></label>
+    <input id="objrotz" type="range" min="-180" max="180" step="5" value="0" /></div>
   <button id="refit">⤢ frame scene</button>
   <div class="hint">drag = orbit · scroll = zoom · right-drag = pan<br/>URL override: <code>viewer.html#ws://host:port</code></div>
+</div>
+
+<div id="cam" class="panel off">
+  <img id="camimg" alt="camera frame" />
+  <div class="cap"><span>camera frame</span><span id="camidx">—</span></div>
 </div>
 
 <script type="importmap">
@@ -92,6 +112,13 @@ camera.position.set(4, -6, 4);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
+
+// lights: splats/disks are unlit (vertex colours), but glTF object models use
+// PBR materials and would render pure black without any light in the scene.
+scene.add(new THREE.HemisphereLight(0xffffff, 0x444a55, 1.1));
+const _sun = new THREE.DirectionalLight(0xffffff, 1.4);
+_sun.position.set(3, -4, 8);              // from above-ish (Z-up)
+scene.add(_sun);
 
 const grid = new THREE.GridHelper(40, 40, 0x3a4250, 0x232833);
 grid.rotation.x = Math.PI / 2;            // GridHelper is XZ; rotate into XY for Z-up
@@ -198,8 +225,11 @@ function makeSplatMaterial() {
   return new THREE.ShaderMaterial({
     uniforms: splatUniforms, vertexShader: splatVert, fragmentShader: splatFrag,
     transparent: true, depthTest: true, depthWrite: false,
+    // premultiplied alpha-OVER (C = src + dst*(1-srcA)), like the VINGS 2DGS
+    // rasterizer's transmittance compositing -- bounded in [0,1] so dense,
+    // opaque surfaces don't saturate to white (pure-additive blended them out).
     blending: THREE.CustomBlending, blendEquation: THREE.AddEquation,
-    blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor });
+    blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor });
 }
 const splatMaterial = makeSplatMaterial();
 const CORNERS = new Float32Array([-2,-2, 2,-2, 2,2, -2,2]);
@@ -288,24 +318,83 @@ function growBBox(raw) {
   haveData = true;
 }
 
+// ---- progressive reveal ---------------------------------------------------
+// A freshly-arrived chunk would otherwise pop in as one solid block. Instead we
+// grow the number of *rendered* instances at a fixed RATE (points/second) out of
+// a single global budget. Two consequences vs. a fixed per-chunk duration:
+//   * big chunks take proportionally LONGER -> a 50k-chunk visibly builds up,
+//     it doesn't appear in one frame like a 2k-chunk does.
+//   * frozen chunks reveal SEQUENTIALLY in arrival order -> the map grows KF by
+//     KF (point after point), not several blocks fading at once.
+// The active (still-optimised) set also reveals, but carries its shown-count
+// across the per-tick full-replace so it grows once and then stays put instead
+// of flickering. REVEAL_RATE is the one knob: lower = more gradual build-up.
+const REVEAL_RATE = 18000;      // instances revealed per second (global budget)
+let _lastRevealT = performance.now();
+let _activeShown = 0;           // carried across active full-replaces
+const _frozenReveal = [];       // {obj,n,shown} in arrival order (sequential)
+let _activeReveal = null;       // {obj,n,shown} | null
+
+function setObjCount(obj, k) {   // works for disk InstancedMesh and splat Mesh
+  if (!obj) return;
+  if (obj.isInstancedMesh) obj.count = k;
+  else if (obj.geometry) obj.geometry.instanceCount = k;
+}
+function clearReveals() { _frozenReveal.length = 0; _activeReveal = null; _activeShown = 0; }
+function revealPending() {
+  return _frozenReveal.length + ((_activeReveal && _activeReveal.shown < _activeReveal.n) ? 1 : 0);
+}
+function pumpReveals(now) {
+  let budget = REVEAL_RATE * (now - _lastRevealT) / 1000;
+  _lastRevealT = now;
+  budget = Math.min(budget, REVEAL_RATE * 0.25);   // clamp a tab-away/GC stall
+  // active first: usually near-full via carry-over so it barely costs budget,
+  // but lets the early pre-convey GPU blob build up instead of popping.
+  if (_activeReveal) {
+    const r = _activeReveal, need = r.n - r.shown;
+    if (need > 0) { const add = Math.min(need, budget); r.shown += add; budget -= add; setObjCount(r.obj, Math.floor(r.shown)); }
+    _activeShown = r.shown;
+    if (r.shown >= r.n) { setObjCount(r.obj, r.n); _activeReveal = null; }
+  }
+  // frozen sequentially in arrival order: drain chunk 0 fully before chunk 1.
+  for (let i = 0; i < _frozenReveal.length && budget > 0; i++) {
+    const r = _frozenReveal[i], need = r.n - r.shown;
+    if (need <= 0) continue;
+    const add = Math.min(need, budget); r.shown += add; budget -= add;
+    setObjCount(r.obj, Math.floor(r.shown));
+  }
+  for (let i = _frozenReveal.length - 1; i >= 0; i--) {
+    if (_frozenReveal[i].shown >= _frozenReveal[i].n) { setObjCount(_frozenReveal[i].obj, _frozenReveal[i].n); _frozenReveal.splice(i, 1); }
+  }
+}
+
 // ---- stream message handlers ----------------------------------------------
 function addFrozen(raw) {
   const obj = buildObj(raw); frozenGroup.add(obj);
   frozenBlocks.push({ raw, obj }); growBBox(raw);
+  setObjCount(obj, 0);
+  _frozenReveal.push({ obj, n: raw.n, shown: 0 });   // grow KF by KF, in order
   if (!didAutoFit) { didAutoFit = true; refit(); }
 }
 function replaceActive(raw) {
   if (activeBlock) { activeGroup.remove(activeBlock.obj); disposeObj(activeBlock.obj); }
   const obj = buildObj(raw); activeGroup.add(obj); activeBlock = { raw, obj }; growBBox(raw);
+  // carry the shown-count across the replace so a stable-size active set holds
+  // steady (no flicker) while still building up the first time it appears.
+  const start = Math.min(_activeShown, raw.n);
+  setObjCount(obj, start);
+  _activeReveal = { obj, n: raw.n, shown: start };
 }
 function clearAll() {
+  clearReveals();
   for (const b of frozenBlocks) { frozenGroup.remove(b.obj); disposeObj(b.obj); }
   frozenBlocks.length = 0;
   if (activeBlock) { activeGroup.remove(activeBlock.obj); disposeObj(activeBlock.obj); activeBlock = null; }
 }
 function rebuildAll() {  // on mode toggle: rebuild GPU objects from kept raw data
+  clearReveals();        // user-driven toggle -> show everything full, no re-trickle
   for (const b of frozenBlocks) { frozenGroup.remove(b.obj); disposeObj(b.obj); b.obj = buildObj(b.raw); frozenGroup.add(b.obj); }
-  if (activeBlock) { activeGroup.remove(activeBlock.obj); disposeObj(activeBlock.obj); activeBlock.obj = buildObj(activeBlock.raw); activeGroup.add(activeBlock.obj); }
+  if (activeBlock) { activeGroup.remove(activeBlock.obj); disposeObj(activeBlock.obj); activeBlock.obj = buildObj(activeBlock.raw); activeGroup.add(activeBlock.obj); _activeShown = activeBlock.raw.n; }
 }
 
 // ===========================================================================
@@ -314,23 +403,49 @@ function rebuildAll() {  // on mode toggle: rebuild GPU objects from kept raw da
 // Per-class glTF models. Paths are served by stream_server.py from static/models/.
 // Class names arrive in the `objects` message (o.class). Missing class -> box.
 // Optional: a static/models/registry.json (fetched below) overrides these.
-const MODEL_REGISTRY = { car: 'models/car.glb', truck: 'models/car.glb',
-                        bus: 'models/car.glb' };
+// Each entry is either a url string or {url, yaw} where yaw is an extra heading
+// offset in DEGREES (the streamed yaw is 180°-ambiguous by construction, so flip
+// front/back here without touching code). registry.json can override either form.
+const MODEL_REGISTRY = { car: { url: 'models/car.glb', yaw: 0 },
+                        truck: { url: 'models/truck.glb', yaw: 0 },
+                        bus: { url: 'models/bus.glb', yaw: 0 },
+                        van: { url: 'models/car.glb', yaw: 0 } };
 fetch('models/registry.json').then(r => r.ok ? r.json() : null)
   .then(j => { if (j) Object.assign(MODEL_REGISTRY, j); }).catch(() => {});
+function modelEntry(cls) {
+  const e = MODEL_REGISTRY[cls];
+  if (!e) return null;
+  // per-class fixed rotation offsets (deg) -> bake calibrated slider values here
+  return (typeof e === 'string')
+    ? { url: e, yaw: 0, rx: 0, ry: 0, rz: 0 }
+    : { url: e.url, yaw: e.yaw || 0, rx: e.rotX || 0, ry: e.rotY || 0, rz: e.rotZ || 0 };
+}
 
 const _gltf = new GLTFLoader();
-const _modelCache = new Map();   // class -> Promise<{scene, base:Vector3} | null>
+const _modelCache = new Map();   // class -> Promise<{scene, align, dims, center} | null>
 function loadModel(cls) {
-  const url = MODEL_REGISTRY[cls];
-  if (!url) return Promise.resolve(null);
+  const e = modelEntry(cls);
+  if (!e || !e.url) return Promise.resolve(null);
   if (!_modelCache.has(cls)) {
     _modelCache.set(cls, new Promise((res) => {
-      _gltf.load(url, (g) => {
+      _gltf.load(e.url, (g) => {
         const s = g.scene;
-        const sz = new THREE.Vector3(); new THREE.Box3().setFromObject(s).getSize(sz);
-        sz.set(Math.max(sz.x, 1e-3), Math.max(sz.y, 1e-3), Math.max(sz.z, 1e-3));
-        res({ scene: s, base: sz });   // base = model's own extent (for unit scaling)
+        const bb = new THREE.Box3().setFromObject(s);
+        const sz = new THREE.Vector3(); bb.getSize(sz);
+        const ctr = new THREE.Vector3(); bb.getCenter(ctr);
+        const ex = [Math.max(sz.x, 1e-3), Math.max(sz.y, 1e-3), Math.max(sz.z, 1e-3)];
+        // Robust axis mapping by extent (works for both Z-up and Y-up assets):
+        // longest extent = vehicle LENGTH (-> box +X heading), shortest = HEIGHT
+        // (-> +Z up), middle = WIDTH (-> +Y). Build a proper rotation that maps
+        // those model axes onto the box convention so the streamed yaw turns the
+        // model the same way as the wireframe box.
+        const order = [0, 1, 2].sort((a, b) => ex[b] - ex[a]);  // [longest, mid, shortest]
+        const iL = order[0], iW = order[1], iU = order[2];
+        const unit = (i) => new THREE.Vector3(i === 0 ? 1 : 0, i === 1 ? 1 : 0, i === 2 ? 1 : 0);
+        const L = unit(iL), U = unit(iU), W = new THREE.Vector3().crossVectors(U, L);
+        const align = new THREE.Quaternion().setFromRotationMatrix(
+          new THREE.Matrix4().makeBasis(L, W, U)).invert();
+        res({ scene: s, align, dims: { len: ex[iL], wid: ex[iW], hgt: ex[iU] }, center: ctr });
       }, undefined, () => res(null));   // load error -> null -> box fallback
     }));
   }
@@ -360,6 +475,10 @@ function labelSprite(text, color) {
 }
 let showLabels = true;
 let showModels = true;
+// manual orientation offset (deg) applied to ALL object models, in the box frame
+// (after auto-align, before the detected yaw). rotX/rotY fix upside-down/on-side,
+// rotZ is the heading flip. Read the values off the sliders to bake per-class.
+let objRot = { x: 0, y: 0, z: 0 };
 let lastObjs = [];
 let _objSeq = 0;                 // monotonic guard: drop stale async model adds
 function setObjects(objs) {
@@ -386,10 +505,28 @@ function setObjects(objs) {
       loadModel(o.class).then((m) => {
         if (seq !== _objSeq) return;            // a newer setObjects ran -> drop
         if (m) {
-          const obj = m.scene.clone(true);      // NOTE: per-asset forward axis may
-          obj.scale.set(size[0]/m.base.x,       // need a fixed yaw offset baked in
-                        size[1]/m.base.y, size[2]/m.base.z);
-          place(obj);
+          // recenter the asset on its own bbox centre so it sits *in* the box
+          const inner = m.scene.clone(true);
+          inner.position.sub(m.center);
+          const obj = new THREE.Group(); obj.add(inner);
+          // UNIFORM scale: largest factor that still fits the whole car inside
+          // the detected box (no per-axis squashing).
+          const us = Math.min(size[0] / m.dims.len, size[1] / m.dims.wid, size[2] / m.dims.hgt);
+          obj.scale.setScalar(us);
+          // orient: detected yaw q -> (global slider offset + per-class registry
+          // offset) in the box frame -> model->box auto-align.
+          const d2r = Math.PI / 180, me = modelEntry(o.class);
+          const qOff = new THREE.Quaternion().setFromEuler(new THREE.Euler(
+            (objRot.x + me.rx) * d2r, (objRot.y + me.ry) * d2r,
+            (objRot.z + me.rz + me.yaw) * d2r, 'XYZ'));
+          obj.quaternion.copy(q).multiply(qOff).multiply(m.align);
+          obj.position.set(o.xyz[0], o.xyz[1], o.xyz[2]);
+          objectGroup.add(obj);
+          if (showLabels) {
+            const lab = labelSprite(`${o.class} ${(o.conf ?? 0).toFixed(2)}`, col);
+            lab.position.set(o.xyz[0], o.xyz[1], o.xyz[2] + 0.5 * size[2] + r);
+            objectGroup.add(lab);
+          }
         } else { place(boxFallback(size, col)); }
       });
     } else { place(boxFallback(size, col)); }
@@ -449,7 +586,13 @@ function onBinary(buf) {
   if (header.type === 'append_frozen') { addFrozen(raw); nFrozen += header.n; }
   else if (header.type === 'replace_active') { replaceActive(raw); nActive = header.n; }
   else if (header.type === 'replace_all') {
-    clearAll(); nFrozen = 0; replaceActive(raw); nActive = header.n;
+    // bootstrap snapshot before the first convey (no frozen yet). Wipe frozen
+    // but DON'T reset the active reveal -> the set updates in place via the
+    // carry-over instead of re-ramping from 0 on every push (which read as a
+    // constant full-scene "reset").
+    for (const b of frozenBlocks) { frozenGroup.remove(b.obj); disposeObj(b.obj); }
+    frozenBlocks.length = 0; nFrozen = 0;
+    replaceActive(raw); nActive = header.n;
   }
   updateHud();
 }
@@ -457,6 +600,18 @@ function onText(str) {
   const msg = JSON.parse(str);
   if (msg.type === 'resync') { currentEpoch = msg.epoch; clearAll(); nFrozen = nActive = 0; bbox.makeEmpty(); didAutoFit = false; updateHud('— resync —'); }
   else if (msg.type === 'objects') { if (msg.epoch < currentEpoch) return; setObjects(msg.objects || []); updateHud(); }
+  else if (msg.type === 'frame') { if (msg.epoch < currentEpoch) return; onFrame(msg); }
+}
+
+// live camera-frame card ------------------------------------------------------
+let camEnabled = true, _haveFrame = false;
+const camCard = document.getElementById('cam');
+const camImg = document.getElementById('camimg');
+function onFrame(msg) {
+  _haveFrame = true;
+  camImg.src = 'data:image/jpeg;base64,' + msg.jpeg;
+  document.getElementById('camidx').textContent = '#' + msg.idx;
+  if (camEnabled) camCard.classList.remove('off');
 }
 
 // ===========================================================================
@@ -472,8 +627,17 @@ function updateHud(extra = '') {
     `frozen   <b>${nFrozen.toLocaleString()}</b> splats\n` +
     `active   <b>${nActive.toLocaleString()}</b> splats\n` +
     `objects  <b>${nObjects}</b>\n` +
-    `fps      <b>${fps}</b>` + (extra ? `\n${extra}` : '');
+    `fps      <b>${fps}</b>` +
+    (revealPending() ? `\n<span class="dot ok"></span> streaming <b>${revealPending()}</b>` : '') +
+    (extra ? `\n${extra}` : '');
 }
+// tiny debug hook (instance counts actually rendered) for smoke tests
+window.__reveal = () => ({
+  pending: revealPending(),
+  rendered: frozenBlocks.reduce((s, b) => s + (b.obj.isInstancedMesh ? b.obj.count
+            : (b.obj.geometry ? b.obj.geometry.instanceCount : 0)), 0),
+  total: frozenBlocks.reduce((s, b) => s + b.raw.n, 0),
+  activeShown: _activeShown });
 
 function sizeFactor() { return parseFloat(document.getElementById('size').value); }
 function setMode(mode) {
@@ -498,6 +662,20 @@ document.getElementById('up').onclick = (e) => {
   refit();
 };
 document.getElementById('refit').onclick = refit;
+document.getElementById('camtoggle').onclick = (e) => {
+  camEnabled = !camEnabled; e.target.classList.toggle('on', camEnabled);
+  camCard.classList.toggle('off', !camEnabled || !_haveFrame);
+};
+function _bindRot(id, axis, label) {
+  document.getElementById(id).oninput = (e) => {
+    objRot[axis] = parseFloat(e.target.value);
+    document.getElementById(label).textContent = objRot[axis] + '°';
+    setObjects(lastObjs);   // re-place current markers with the new offset
+  };
+}
+_bindRot('objrotx', 'x', 'rotxval');
+_bindRot('objroty', 'y', 'rotyval');
+_bindRot('objrotz', 'z', 'rotzval');
 document.getElementById('reconnect').onclick = connect;
 document.getElementById('url').onkeydown = (e) => { if (e.key === 'Enter') connect(); };
 
@@ -530,6 +708,7 @@ resize();
 
 function loop() {
   requestAnimationFrame(loop);
+  pumpReveals(performance.now());
   controls.update();
   renderer.render(scene, camera);
   _fc++; const now = performance.now();

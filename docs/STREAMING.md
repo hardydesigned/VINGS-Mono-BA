@@ -67,7 +67,11 @@ Gaussian, überlebt Prune — der Array-Index nicht).
      independent) → weicher Splat-Look.
 
    Controls: Modus-Toggle, Splat-Größe, Opacity, Labels/Grid an-aus, Up-Achse
-   (Z-up/Y-up), „frame scene". WS-Adresse per Eingabefeld oder URL-Hash
+   (Z-up/Y-up), models-Toggle, **camera-frame-Toggle**, **drei obj-Rotations-
+   Slider (rotX/rotY/rotZ, −180…+180°)** zum Live-Kalibrieren der Modell-
+   Orientierung (Werte per Klasse in `models/registry.json` als `rotX/rotY/rotZ`
+   persistierbar), „frame scene".
+   WS-Adresse per Eingabefeld oder URL-Hash
    (`…:8765/#ws://anderer-host:8765`) überschreibbar. Auto-Reconnect ist eingebaut.
 
    Smoketest-Viewer (Punkte): `http://localhost:8765/test_viewer.html`.
@@ -83,10 +87,15 @@ Gaussian, überlebt Prune — der Array-Index nicht).
 > server directly with a browser"* aus.
 
 > Hinweis zu den Modi: **Disks** ist die robuste Baseline mit korrekter
-> Verdeckung (opak, Depth-Buffer). **Splats** nutzt additive Blendung (kein
-> Tiefensortieren nötig, daher keine Verdeckung untereinander) — sieht „glühend"
-> aus, ideal für die Gaussian-Optik. Beide teilen sich dieselben gestreamten
-> Rohdaten; der Umschalter baut nur die GPU-Objekte neu.
+> Verdeckung (opak, Depth-Buffer). **Splats** nutzt **premultiplied Alpha-Over-
+> Blendung** (`C = src + dst·(1−srcα)`) — dasselbe Transmittance-Compositing-
+> Schema wie der VINGS-2DGS-Rasterizer, sodass die Farbe in [0,1] beschränkt
+> bleibt. Früher lag hier reine additive Blendung; die summierte überlappende
+> Splats über 1.0 auf und ließ dichte, opake Flächen zu **Weiß** ausbrennen.
+> Alpha-Over ist ohne Tiefensortierung zwar zeichenreihenfolge-abhängig
+> (approximativ), gibt aber korrekte, gesättigte Farben statt Blowout. Beide
+> Modi teilen sich dieselben gestreamten Rohdaten; der Umschalter baut nur die
+> GPU-Objekte neu.
 
 Die HTML-Dateien laufen auch direkt per `file://` (ES-Module + three.js vom CDN);
 dann muss die ws-Adresse aber manuell auf den Server zeigen (Default
@@ -129,7 +138,10 @@ Header: `{"type": ..., "epoch": int, "kf_id"?: int, "n": int}` mit `type` in
 | `replace_active` (binary) | active-Wolke **komplett ersetzen** |
 | `replace_all` (binary) | (Fallback ohne StorageManager) ganze Szene ersetzen |
 | `objects` (text) | Marker-Liste ersetzen: `[{object_id, class, cls_id, conf, n_hits, xyz:[x,y,z], quat:[w,x,y,z], size:[sx,sy,sz]}]` |
+| `frame` (text) | Live-Kamera-Frame: `{idx, w, h, jpeg:<base64-JPEG>}` → Frontend zeigt es in der **Kamera-Karte** unten rechts (Toggle „camera frame"). Eigener Takt `stream.frame_stride`, downscaled auf `stream.frame_max_px`. |
 | `resync` (text) | frozen+active **leeren**, `currentEpoch = epoch` setzen |
+
+Der Server sendet **komplette** Chunks (neue frozen-KF-Gruppen via `append_frozen` + den vollen live-Mapper-Satz via `replace_active`; ein `replace_all` vor dem ersten Convey). Das „nach und nach in die Karte laden" passiert rein **frontend-seitig** über den progressiven Reveal (siehe `viewer.html`-Zeile in der Architektur-Tabelle) — die Leitung bleibt simpel und vollständig.
 
 **Objekt-Orientierung + Größe (für 3D-Modelle):** Jedes Objekt trägt zusätzlich zu
 `xyz` jetzt `quat:[w,x,y,z]` (Rotation um die Welt-Hoch-Achse, DROID ist Z-up;
@@ -166,7 +178,7 @@ bekommen automatisch einen Backlog (alle frozen-Chunks + letzter active-Snapshot
 |---|---|
 | `scripts/server/stream_server.py` | `SplatStreamServer`: WebSocket-Server in einem **daemon-Thread** mit eigener asyncio-Loop. Run-Loop → Server über `queue.Queue` mit **drop-oldest** (nur `replace_active`/`objects` droppbar; `append_frozen`/`resync` nicht). Broadcast an alle Clients + Late-Join-Backlog. Liefert per `process_request` auch die `static/`-HTML **über denselben Port** aus (Browser-GET → `viewer.html`; WS-Upgrade → Handshake) → Ein-Port-Setup für Port-Forwarding. |
 | `scripts/server/splat_encode.py` | `.splat`-Serializer: `encode_splat_from_mapper` (GPU, aktiviert via `get_property`), `encode_splat_from_storage` (CPU, raw float16 → manuell aktiviert), `_pad_scale`, `_select_indices`. |
-| `scripts/server/static/viewer.html` | **Haupt-Frontend**: three.js 3D-Karten-Szene mit zwei umschaltbaren Render-Modi (orientierte 2DGS-Disks via `InstancedMesh` / echte EWA-Gaussian-Splats via Custom-`ShaderMaterial`, additive), Objekt-Markern mit Labels, HUD, UI-Controls, Auto-Reconnect. Gemeinsames Rohdaten-Modell, Modus-Toggle baut nur die GPU-Objekte neu. |
+| `scripts/server/static/viewer.html` | **Haupt-Frontend**: three.js 3D-Karten-Szene mit zwei umschaltbaren Render-Modi (orientierte 2DGS-Disks via `InstancedMesh` / echte EWA-Gaussian-Splats via Custom-`ShaderMaterial`, premultiplied Alpha-Over), Objekt-Markern mit Labels, HUD, UI-Controls, Auto-Reconnect. Gemeinsames Rohdaten-Modell, Modus-Toggle baut nur die GPU-Objekte neu. **Progressive Reveal (rate-basiert):** ankommende Chunks ploppen nicht als Block rein, sondern die gerenderte Instanz-Anzahl wächst mit fester **Rate** `REVEAL_RATE` (Punkte/Sekunde, ein globales Budget) hoch (`InstancedMesh.count` / `geometry.instanceCount`). Folge: **große Chunks bauen proportional länger auf** (ein 50k-Chunk baut sich sichtbar über Sekunden auf statt in einem Frame), und frozen-Chunks werden **sequenziell in Ankunftsreihenfolge** gefüllt → die Karte wächst KF für KF, Punkt nach Punkt. Der active-Satz (per-Tick full-replace) reveal-t ebenfalls, trägt seinen shown-count aber über die Replaces (kein Flackern; baut einmalig von leer auf). `REVEAL_RATE` ist der einzige Knopf (niedriger = gradueller). HUD zeigt „streaming N" solange Reveals laufen; `window.__reveal()` ist der Debug-Hook. |
 | `scripts/server/static/test_viewer.html` | Minimaler Smoketest-Viewer (Gaussian-Zentren als Punkte). Schneller Protokoll-Check, kein Render-Schnickschnack. |
 | `scripts/run.py` | Init-Gate (`stream.enabled`), `_stream_push_gaussians()` (Delta-Logik), OD-Push (nach `object_tracker.update`), Gaussian-Push (nach Storage-Run), Loop-Resync (nach `looper.run`), Cleanup. PhaseTimer-Phase `stream`. |
 | `scripts/vings_utils/object_tracker.py` | `snapshot()` — disk-freie Live-Variante von `finalize()`. |
