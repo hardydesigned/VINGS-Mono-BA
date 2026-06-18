@@ -6,3 +6,7 @@ ckpts/*
 output/*
 
 submodules/
+# FastSAM weights (large, not for git)
+scripts/FastSAM-x.pt
+ckpts/FastSAM-x.pt
+*.pt
