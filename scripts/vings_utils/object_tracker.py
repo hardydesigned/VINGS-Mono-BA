@@ -101,6 +101,77 @@ def sample_box_depth(depth: np.ndarray, bbox_xyxy, box_shrink: float,
     return float(np.percentile(valid, depth_percentile))
 
 
+def estimate_pose_size(depth: np.ndarray, bbox_xyxy, box_shrink: float,
+                       intr: dict, c2w: np.ndarray, min_d: float, max_d: float,
+                       min_pca_px: int = 30, up_axis: int = 2,
+                       size_percentile: float = 95.0):
+    """Yaw (rad, about the world up-axis) + 3D extent for a bbox via PCA.
+
+    Unprojects ALL valid depth pixels inside the shrunk box to a small DROID-world
+    point cloud and runs PCA (SVD on the centred points). Returns
+    ``(yaw | None, size_xyz (3,) | None)``:
+
+    * ``yaw`` = atan2 of the largest principal axis projected onto the horizontal
+      plane, canonicalised to ``[0, pi)`` -- a PCA axis is sign-free, so the
+      heading is 180-deg ambiguous by construction (front vs. back is not
+      recoverable from geometry alone). ``None`` when too few pixels or the
+      dominant axis is near-vertical (degenerate yaw).
+    * ``size`` = ``[long, lateral, vertical]`` robust extents (``size_percentile``
+      vs. its complement spread, outlier-robust). ``None`` when too few pixels.
+
+    Same pinhole convention as :func:`unproject_center` (fu=fy, fv=fx, cu=cy,
+    cv=cx). Works on raw DROID depth -- no segmentation mask required.
+    """
+    H, W = depth.shape
+    x1, y1, x2, y2 = bbox_xyxy
+    cx, cy = 0.5 * (x1 + x2), 0.5 * (y1 + y2)
+    hw, hh = 0.5 * (x2 - x1) * box_shrink, 0.5 * (y2 - y1) * box_shrink
+    c0 = max(0, int(round(cx - hw))); c1 = min(W, int(round(cx + hw)) + 1)
+    r0 = max(0, int(round(cy - hh))); r1 = min(H, int(round(cy + hh)) + 1)
+    if c1 <= c0 or r1 <= r0:
+        return None, None
+    patch = depth[r0:r1, c0:c1]
+    cols, rows = np.meshgrid(np.arange(c0, c1, dtype=np.float64),
+                             np.arange(r0, r1, dtype=np.float64))
+    z = patch.reshape(-1).astype(np.float64)
+    cols = cols.reshape(-1); rows = rows.reshape(-1)
+    valid = np.isfinite(z) & (z > min_d) & (z < max_d)
+    if int(valid.sum()) < min_pca_px:
+        return None, None
+    z, cols, rows = z[valid], cols[valid], rows[valid]
+
+    fu, fv = float(intr['fu']), float(intr['fv'])
+    cu, cv = float(intr['cu']), float(intr['cv'])
+    x_cam = (cols - cv) / fv * z
+    y_cam = (rows - cu) / fu * z
+    cam = np.stack([x_cam, y_cam, z], axis=1)               # (M, 3)
+    Rwc = np.asarray(c2w, dtype=np.float64)
+    P = cam @ Rwc[:3, :3].T + Rwc[:3, 3]                    # (M, 3) world
+    Pc = P - P.mean(0)
+    try:
+        _, _, Vt = np.linalg.svd(Pc, full_matrices=False)   # rows = principal axes
+    except np.linalg.LinAlgError:
+        return None, None
+
+    lo, hi = (100.0 - size_percentile), size_percentile
+    proj = Pc @ Vt.T                                         # coords in principal frame
+    ext = np.percentile(proj, hi, axis=0) - np.percentile(proj, lo, axis=0)
+    vext = float(np.percentile(Pc[:, up_axis], hi)
+                 - np.percentile(Pc[:, up_axis], lo))
+    # two largest principal extents -> horizontal long/lateral; world-up -> vertical
+    order = np.argsort(ext)[::-1]
+    size = np.array([float(ext[order[0]]), float(ext[order[1]]), vext],
+                    dtype=np.float64)
+
+    horiz = [i for i in range(3) if i != up_axis]
+    a = Vt[0]
+    a_h = np.array([a[horiz[0]], a[horiz[1]]])
+    if np.linalg.norm(a_h) < 1e-6:                           # axis ~vertical -> no yaw
+        return None, size
+    yaw = float(np.arctan2(a_h[1], a_h[0])) % np.pi
+    return yaw, size
+
+
 def _weighted_median(vals: np.ndarray, weights: np.ndarray) -> float:
     order = np.argsort(vals)
     v, w = vals[order], weights[order]
@@ -121,14 +192,19 @@ class _Track:
     pts: list = field(default_factory=list)      # list of (3,) world points
     confs: list = field(default_factory=list)
     cls_ids: list = field(default_factory=list)  # for class-agnostic majority vote
+    yaws: list = field(default_factory=list)     # per-hit yaw in [0,pi) or None
+    sizes: list = field(default_factory=list)    # per-hit (3,) extent or None
     _sum: np.ndarray = field(default_factory=lambda: np.zeros(3))
 
-    def add(self, p: np.ndarray, conf: float, cls_id: int, cls_name: str):
+    def add(self, p: np.ndarray, conf: float, cls_id: int, cls_name: str,
+            yaw=None, size=None):
         if not self.confs or conf > max(self.confs):  # keep most-confident label
             self.cls_id, self.cls_name = cls_id, cls_name
         self.pts.append(p)
         self.confs.append(conf)
         self.cls_ids.append(cls_id)
+        self.yaws.append(yaw)        # parallel to confs (None when no PCA yaw)
+        self.sizes.append(size)
         self._sum += p
 
     @property
@@ -154,6 +230,42 @@ class _Track:
         ids, counts = np.unique(self.cls_ids, return_counts=True)
         return int(ids[counts.argmax()]), self.cls_name
 
+    def fused_yaw(self, coherence_min: float = 0.5):
+        """Conf-weighted circular mean of the per-hit yaws.
+
+        Yaws live in ``[0, pi)`` (axis orientation, 180-deg ambiguous), so we
+        average via the double-angle trick: lift to ``2*yaw`` on the full circle,
+        average as unit vectors, then halve. Returns ``None`` when no hit carried
+        a yaw or the directions are incoherent (resultant length < coherence_min)
+        -> caller emits an identity quaternion (no false confident heading).
+        """
+        ys = [(y, c) for y, c in zip(self.yaws, self.confs) if y is not None]
+        if not ys:
+            return None
+        ang2 = 2.0 * np.array([y for y, _ in ys])
+        w = np.array([c for _, c in ys], dtype=np.float64)
+        if w.sum() <= 0:
+            w = np.ones_like(w)
+        C = float(np.sum(w * np.cos(ang2)))
+        S = float(np.sum(w * np.sin(ang2)))
+        if np.hypot(C, S) / w.sum() < coherence_min:
+            return None
+        return (0.5 * np.arctan2(S, C)) % np.pi
+
+    def fused_quat(self) -> list:
+        """(w,x,y,z) quaternion: rotation by fused_yaw about world up (Z)."""
+        yaw = self.fused_yaw()
+        if yaw is None:
+            return [1.0, 0.0, 0.0, 0.0]
+        return [float(np.cos(yaw / 2)), 0.0, 0.0, float(np.sin(yaw / 2))]
+
+    def fused_size(self):
+        """Per-axis median of the per-hit extents, or None if none available."""
+        ss = [s for s in self.sizes if s is not None]
+        if not ss:
+            return None
+        return np.maximum(np.median(np.asarray(ss, dtype=np.float64), axis=0), 0.2)
+
 
 # =============================================================================
 # Tracker
@@ -173,6 +285,11 @@ class ObjectTracker:
         self.min_valid_px = int(det.get('min_valid_px', 10))
         self.min_depth = float(det.get('min_depth', 0.2))
         self.max_depth = float(det.get('max_depth', 60.0))
+        # PCA pose/size estimation (orientation + 3D extent for the streamed
+        # 3D models). min_pca_px gates how many valid depth pixels a box needs
+        # before we trust a yaw/size estimate; below -> identity quat + fallback.
+        self.min_pca_px = int(det.get('min_pca_px', 30))
+        self.size_percentile = float(det.get('size_percentile', 95.0))
 
         # fusion
         self.assoc_radius = float(trk.get('assoc_radius', 0.05))   # DROID-frame units
@@ -246,7 +363,11 @@ class ObjectTracker:
                 col = 0.5 * (box_d[0] + box_d[2])
                 rw = 0.5 * (box_d[1] + box_d[3])
                 p = unproject_center(col, rw, z, intrinsic, c2w)
-                tr = self._associate(p, d.conf, d.cls_id, d.cls_name)
+                yaw, size = estimate_pose_size(
+                    depth, box_d, self.box_shrink, intrinsic, c2w,
+                    self.min_depth, self.max_depth, self.min_pca_px,
+                    size_percentile=self.size_percentile)
+                tr = self._associate(p, d.conf, d.cls_id, d.cls_name, yaw, size)
                 row.update(depth=float(z), wx=float(p[0]), wy=float(p[1]),
                            wz=float(p[2]), tid=tr.tid)
                 kept.append((d, z))
@@ -255,7 +376,7 @@ class ObjectTracker:
         if self.want_video and rgb_u8 is not None:
             self._save_overlay(rgb_u8, kept, f_idx)
 
-    def _associate(self, p, conf, cls_id, cls_name) -> _Track:
+    def _associate(self, p, conf, cls_id, cls_name, yaw=None, size=None) -> _Track:
         best, best_d = None, self.assoc_radius
         for tr in self.tracks:
             if not self.class_agnostic and tr.cls_id != cls_id:
@@ -267,8 +388,24 @@ class ObjectTracker:
             best = _Track(cls_id=cls_id, cls_name=cls_name, tid=self._next_tid)
             self._next_tid += 1
             self.tracks.append(best)
-        best.add(p, conf, cls_id, cls_name)
+        best.add(p, conf, cls_id, cls_name, yaw, size)
         return best
+
+    def _obj_geom(self, tr) -> tuple[list, list]:
+        """(quat (w,x,y,z), size [sx,sy,sz]) for one track, with fallbacks.
+
+        Identity quat when no coherent yaw; isotropic marker-scale size when no
+        PCA extent was ever recovered (sparse aerial depth). Shared by snapshot()
+        and finalize() so live stream and CSV stay consistent.
+        """
+        quat = tr.fused_quat()
+        size = tr.fused_size()
+        if size is None:
+            s = max(0.1, self.marker_radius * 2.0)
+            size = [s, s, s]
+        else:
+            size = [float(v) for v in size]
+        return quat, size
 
     # ------------------------------------------------------------------
     def _save_overlay(self, rgb_u8, kept, f_idx):
@@ -318,9 +455,11 @@ class ObjectTracker:
             cls_id, cls_name = (tr.majority_cls() if self.class_agnostic
                                 else (tr.cls_id, tr.cls_name))
             x, y, z = (float(v) for v in tr.fused_position())
+            quat, size = self._obj_geom(tr)
             objs.append({
                 'object_id': int(tr.tid), 'class': cls_name, 'cls_id': int(cls_id),
                 'conf': float(tr.conf), 'n_hits': int(tr.n_hits), 'xyz': [x, y, z],
+                'quat': quat, 'size': size,
             })
         objs.sort(key=lambda o: (-o['n_hits'], -o['conf']))
         return objs
@@ -335,9 +474,11 @@ class ObjectTracker:
                 continue
             cls_id, cls_name = (tr.majority_cls() if self.class_agnostic
                                 else (tr.cls_id, tr.cls_name))
+            quat, size = self._obj_geom(tr)
             objects.append({
                 'class': cls_name, 'cls_id': cls_id, 'conf': tr.conf,
                 'n_hits': tr.n_hits, 'xyz': tr.fused_position(), 'tid': tr.tid,
+                'quat': quat, 'size': size,
             })
         objects.sort(key=lambda o: (-o['n_hits'], -o['conf']))
         for i, o in enumerate(objects):
@@ -383,11 +524,16 @@ class ObjectTracker:
 
     def _write_csv(self, objects, path):
         with open(path, 'w') as f:
-            f.write("object_id,class,cls_id,conf,n_detections,x,y,z\n")
+            f.write("object_id,class,cls_id,conf,n_detections,x,y,z,"
+                    "qw,qx,qy,qz,sx,sy,sz\n")
             for o in objects:
                 x, y, z = o['xyz']
+                qw, qx, qy, qz = o['quat']
+                sx, sy, sz = o['size']
                 f.write(f"{o['object_id']},{o['class']},{o['cls_id']},"
-                        f"{o['conf']:.4f},{o['n_hits']},{x:.6f},{y:.6f},{z:.6f}\n")
+                        f"{o['conf']:.4f},{o['n_hits']},{x:.6f},{y:.6f},{z:.6f},"
+                        f"{qw:.6f},{qx:.6f},{qy:.6f},{qz:.6f},"
+                        f"{sx:.6f},{sy:.6f},{sz:.6f}\n")
         print(f"[object_tracker] objects_droid.csv -> {path}")
 
     def _write_ply(self, objects, path):
@@ -501,10 +647,17 @@ if __name__ == "__main__":
     box = (cx - 20, cy - 20, cx + 20, cy + 20)
     for _ in range(3):
         trk.update([_D(box, 2, 'car', 0.9)], depth, c2w, intr, f_idx=0)
+    snap = trk.snapshot()
+    assert len(snap) == 1, snap
+    assert len(snap[0]['quat']) == 4 and len(snap[0]['size']) == 3, snap[0]
     objs = trk.finalize()
     assert len(objs) == 1 and objs[0]['class'] == 'car', objs
     assert np.allclose(objs[0]['xyz'], [0, 0, 5], atol=1e-3), objs[0]['xyz']
+    assert len(objs[0]['quat']) == 4 and len(objs[0]['size']) == 3, objs[0]
+    # planar patch -> ~zero vertical extent (clamped) + a unit quaternion
+    assert abs(float(np.linalg.norm(objs[0]['quat'])) - 1.0) < 1e-6, objs[0]['quat']
 
-    print("[object_tracker smoketest] all axis + fusion checks passed.")
+    print("[object_tracker smoketest] all axis + fusion + pose/size checks passed.")
     print(f"  centre={p_mid}  right={p_right}  down={p_down}")
     print(f"  fused car @ {objs[0]['xyz']}  (n_hits={objs[0]['n_hits']})")
+    print(f"  quat={objs[0]['quat']}  size={objs[0]['size']}")

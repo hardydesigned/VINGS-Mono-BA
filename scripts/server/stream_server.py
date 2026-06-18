@@ -177,7 +177,11 @@ class SplatStreamServer:
     # (Handshake normal weiterlaufen lassen). Loest die "you cannot access a
     # WebSocket server directly with a browser"-Meldung beim Direktaufruf.
     _CONTENT_TYPES = {".html": "text/html; charset=utf-8",
-                      ".js": "text/javascript", ".css": "text/css"}
+                      ".js": "text/javascript", ".css": "text/css",
+                      ".glb": "model/gltf-binary", ".gltf": "model/gltf+json",
+                      ".bin": "application/octet-stream",
+                      ".json": "application/json",
+                      ".png": "image/png", ".jpg": "image/jpeg"}
 
     async def _process_request(self, path, request_headers):
         upgrade = ""
@@ -188,13 +192,22 @@ class SplatStreamServer:
         if upgrade == "websocket":
             return None  # echte WS-Verbindung: Handshake fortsetzen
 
-        # statische Datei ausliefern (whitelist, kein Path-Traversal)
+        # statische Datei ausliefern: top-level Dateien ODER eine Ebene unter
+        # models/ (fuer glTF-Assets der 3D-Objekt-Marker). Kein Path-Traversal.
         name = (path.split("?")[0].lstrip("/") or "viewer.html")
         if name in (".", ""):
             name = "viewer.html"
-        if "/" in name or "\\" in name or name.startswith("."):
+        parts = name.split("/")
+        traversal = ("\\" in name or name.startswith("/") or ".." in parts
+                     or any(p.startswith(".") for p in parts))
+        nested = len(parts) > 2 or (len(parts) == 2 and parts[0] != "models")
+        if traversal or nested:
             return (http.HTTPStatus.FORBIDDEN, [], b"forbidden")
-        fpath = os.path.join(self._static_dir, name)
+        fpath = os.path.join(self._static_dir, *parts)
+        # autoritativer Traversal-Guard: aufgeloester Pfad muss in static/ liegen
+        root = os.path.realpath(self._static_dir)
+        if not os.path.realpath(fpath).startswith(root + os.sep):
+            return (http.HTTPStatus.FORBIDDEN, [], b"forbidden")
         if not os.path.isfile(fpath):
             return (http.HTTPStatus.NOT_FOUND, [],
                     f"not found: {name}".encode())
@@ -265,6 +278,7 @@ class SplatStreamServer:
 # standalone smoke test
 # ---------------------------------------------------------------------------
 def _smoketest():
+    import math
     import time
     import numpy as np
     from splat_encode import _to_splat_bytes, _pad_scale
@@ -296,7 +310,10 @@ def _smoketest():
                       "data": fake_chunk(8000, [kf * 0.5, 0.5, 2.0], jitter=0.1)})
             srv.push({"type": "objects", "epoch": 0, "objects": [
                 {"object_id": 0, "class": "car", "cls_id": 2, "conf": 0.9,
-                 "n_hits": 5, "xyz": [kf * 0.5, 0.0, 2.0]}]})
+                 "n_hits": 5, "xyz": [kf * 0.5, 0.0, 2.0],
+                 # slowly rotating about world up (Z); car-ish extents (m)
+                 "quat": [math.cos(kf * 0.15), 0.0, 0.0, math.sin(kf * 0.15)],
+                 "size": [4.2, 1.8, 1.5]}]})
             print(f"[smoketest] pushed kf={kf}")
             kf += 1
             time.sleep(2.0)

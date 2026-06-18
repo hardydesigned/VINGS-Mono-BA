@@ -56,6 +56,7 @@
     <button id="labels" class="on">labels</button>
     <button id="grid" class="on">grid</button>
     <button id="up">Z-up</button>
+    <button id="models" class="on">models</button>
   </div>
   <button id="refit">⤢ frame scene</button>
   <div class="hint">drag = orbit · scroll = zoom · right-drag = pan<br/>URL override: <code>viewer.html#ws://host:port</code></div>
@@ -70,6 +71,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 THREE.ColorManagement.enabled = false;   // pass photometric colours through untouched
 
@@ -309,8 +311,43 @@ function rebuildAll() {  // on mode toggle: rebuild GPU objects from kept raw da
 // ===========================================================================
 // object markers
 // ===========================================================================
-const markerGeo = new THREE.SphereGeometry(1, 12, 10);
+// Per-class glTF models. Paths are served by stream_server.py from static/models/.
+// Class names arrive in the `objects` message (o.class). Missing class -> box.
+// Optional: a static/models/registry.json (fetched below) overrides these.
+const MODEL_REGISTRY = { car: 'models/car.glb', truck: 'models/car.glb',
+                        bus: 'models/car.glb' };
+fetch('models/registry.json').then(r => r.ok ? r.json() : null)
+  .then(j => { if (j) Object.assign(MODEL_REGISTRY, j); }).catch(() => {});
+
+const _gltf = new GLTFLoader();
+const _modelCache = new Map();   // class -> Promise<{scene, base:Vector3} | null>
+function loadModel(cls) {
+  const url = MODEL_REGISTRY[cls];
+  if (!url) return Promise.resolve(null);
+  if (!_modelCache.has(cls)) {
+    _modelCache.set(cls, new Promise((res) => {
+      _gltf.load(url, (g) => {
+        const s = g.scene;
+        const sz = new THREE.Vector3(); new THREE.Box3().setFromObject(s).getSize(sz);
+        sz.set(Math.max(sz.x, 1e-3), Math.max(sz.y, 1e-3), Math.max(sz.z, 1e-3));
+        res({ scene: s, base: sz });   // base = model's own extent (for unit scaling)
+      }, undefined, () => res(null));   // load error -> null -> box fallback
+    }));
+  }
+  return _modelCache.get(cls);
+}
+
+const boxGeo = new THREE.BoxGeometry(1, 1, 1);
 function classColor(id) { const h = (id*47) % 360; _c.setHSL(h/360, 0.7, 0.6); return _c.clone(); }
+function quatWXYZtoThree(q) {   // backend (w,x,y,z) about world up -> three (x,y,z,w)
+  if (!q || q.length !== 4) return new THREE.Quaternion(0, 0, 0, 1);
+  return new THREE.Quaternion(q[1], q[2], q[3], q[0]);
+}
+function boxFallback(size, col) {   // oriented wireframe box scaled to extents
+  const m = new THREE.Mesh(boxGeo, new THREE.MeshBasicMaterial({ color: col, wireframe: true, toneMapped: false }));
+  m.scale.set(size[0], size[1], size[2]);
+  return m;
+}
 function labelSprite(text, color) {
   const cv = document.createElement('canvas'); cv.width = 256; cv.height = 64;
   const ctx = cv.getContext('2d');
@@ -322,18 +359,40 @@ function labelSprite(text, color) {
   sp.scale.set(0.9, 0.225, 1); sp.center.set(0, 0); return sp;
 }
 let showLabels = true;
+let showModels = true;
+let lastObjs = [];
+let _objSeq = 0;                 // monotonic guard: drop stale async model adds
 function setObjects(objs) {
+  lastObjs = objs;
+  const seq = ++_objSeq;
   objectGroup.clear();
   const r = markerSize();
   for (const o of objs) {
     const col = classColor(o.cls_id ?? 0);
-    const m = new THREE.Mesh(markerGeo, new THREE.MeshBasicMaterial({ color: col, wireframe: true, toneMapped: false }));
-    m.position.set(o.xyz[0], o.xyz[1], o.xyz[2]); m.scale.setScalar(r);
-    objectGroup.add(m);
-    if (showLabels) {
-      const lab = labelSprite(`${o.class} ${(o.conf ?? 0).toFixed(2)}`, col);
-      lab.position.set(o.xyz[0]+r, o.xyz[1], o.xyz[2]+r); objectGroup.add(lab);
-    }
+    const q = quatWXYZtoThree(o.quat);
+    // size = [long, lateral, vertical] (object frame); box local x=long aligns
+    // with the yaw heading. Fall back to a small isotropic cube.
+    const size = (o.size && o.size.length === 3) ? o.size : [r, r, r];
+    const place = (obj) => {
+      obj.position.set(o.xyz[0], o.xyz[1], o.xyz[2]); obj.quaternion.copy(q);
+      objectGroup.add(obj);
+      if (showLabels) {
+        const lab = labelSprite(`${o.class} ${(o.conf ?? 0).toFixed(2)}`, col);
+        lab.position.set(o.xyz[0], o.xyz[1], o.xyz[2] + 0.5 * size[2] + r);
+        objectGroup.add(lab);
+      }
+    };
+    if (showModels && MODEL_REGISTRY[o.class]) {
+      loadModel(o.class).then((m) => {
+        if (seq !== _objSeq) return;            // a newer setObjects ran -> drop
+        if (m) {
+          const obj = m.scene.clone(true);      // NOTE: per-asset forward axis may
+          obj.scale.set(size[0]/m.base.x,       // need a fixed yaw offset baked in
+                        size[1]/m.base.y, size[2]/m.base.z);
+          place(obj);
+        } else { place(boxFallback(size, col)); }
+      });
+    } else { place(boxFallback(size, col)); }
   }
   nObjects = objs.length;
 }
@@ -429,7 +488,8 @@ document.getElementById('size').oninput = (e) => {
   if (renderMode === 'disks') rebuildAll();                       // disks need rebuild
 };
 document.getElementById('opacity').oninput = (e) => { splatUniforms.uOpacity.value = parseFloat(e.target.value); };
-document.getElementById('labels').onclick = (e) => { showLabels = !showLabels; e.target.classList.toggle('on', showLabels); };
+document.getElementById('labels').onclick = (e) => { showLabels = !showLabels; e.target.classList.toggle('on', showLabels); setObjects(lastObjs); };
+document.getElementById('models').onclick = (e) => { showModels = !showModels; e.target.classList.toggle('on', showModels); setObjects(lastObjs); };
 document.getElementById('grid').onclick = (e) => { grid.visible = !grid.visible; axes.visible = grid.visible; e.target.classList.toggle('on', grid.visible); };
 document.getElementById('up').onclick = (e) => {
   const z = camera.up.z > 0.5;

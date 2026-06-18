@@ -228,6 +228,11 @@ class Runner:
             mapper_device = cfg.get('device', {}).get('mapper', 'cuda')
             self.object_detector = make_object_detector(cfg, mapper_device)
             self.object_tracker = ObjectTracker(cfg, cfg['output']['save_dir'])
+        # Detection runs on every Nth *tracker* keyframe, decoupled from the
+        # FrameSelector/mapper decision (do_map filters mapper KFs hard, so tying
+        # detection to it loses most objects). Default 3. NOT coupled to
+        # mapper_kf_skip. See docs/OBJECT_DETECTION.md.
+        self.object_detect_stride = max(1, int(cfg.get('object_detect_stride', 3)))
 
         # Live-Streaming der Gaussians (.splat) + Object-Marker zu einem Web-
         # Frontend ueber WebSocket. Gated ueber cfg['stream']['enabled'] (Default
@@ -751,6 +756,62 @@ class Runner:
                     do_map = bool(accept)
                 else:
                     do_map = (mapper_kf_skip <= 1) or ((n_keyframes - 1) % mapper_kf_skip == 0)
+                # Online object detection + 3D-localisation. Runs on every Nth
+                # tracker keyframe (object_detect_stride), DECOUPLED from do_map --
+                # the FrameSelector filters mapper KFs hard, so tying detection to
+                # it loses most objects. On non-mapped KFs viz_out['depths'] is the
+                # raw DROID-BA depth (the Metric3D swap is mapper-only), which is
+                # exactly what object_tracker.unproject expects (DROID frame); the
+                # ext-pose override above already applies here too. Streamed objects
+                # carry oriented pose (quat) + size so the frontend draws 3D models.
+                run_detect = (self.object_detector is not None
+                              and 'images' in viz_out
+                              and ((n_keyframes - 1) % self.object_detect_stride == 0))
+                if run_detect:
+                    try:
+                        with self.timer.time('detect'):
+                            f_idx = int(viz_out['viz_out_idx_to_f_idx'][-1])
+                            # Detect on the FULL-RES original frame -- the
+                            # 240x288 viz_out image is far too small for
+                            # aerial objects. Geometry is scaled back to the
+                            # depth resolution inside the tracker (det_hw).
+                            det_rgb = None
+                            try:
+                                import cv2 as _cv2
+                                fp = self.dataset.rgbinfo_dict['filepath'][f_idx]
+                                bgr = _cv2.imread(fp)
+                                if bgr is not None:
+                                    det_rgb = np.ascontiguousarray(bgr[..., ::-1])  # BGR->RGB
+                            except Exception:
+                                det_rgb = None
+                            if det_rgb is None:  # fallback: low-res viz image
+                                img = viz_out['images'][-1].detach().cpu().numpy()
+                                det_rgb = (np.clip(img, 0.0, 1.0) * 255.0).astype(np.uint8)
+                            dets = self.object_detector.detect(det_rgb)
+                            depth_np = viz_out['depths'][-1, :, :, 0].detach().cpu().numpy()
+                            pose_c2w = viz_out['poses'][-1].detach().cpu().numpy()
+                            # True time of this keyframe's frame: the
+                            # camstamp (real Unix epoch, enables GPS/RTK
+                            # correlation later), not rgbinfo['timestamp']
+                            # which is just the frame index.
+                            try:
+                                _cts = getattr(self.dataset, '_cam_t_sec', None)
+                                if _cts is not None and f_idx < len(_cts):
+                                    kf_t_sec = float(_cts[f_idx])
+                                else:
+                                    kf_t_sec = float(self.dataset.rgbinfo_dict['timestamp'][f_idx])
+                            except Exception:
+                                kf_t_sec = float(data_packet.get('t_sec', f_idx))
+                            self.object_tracker.update(
+                                dets, depth_np, pose_c2w, viz_out['intrinsic'],
+                                f_idx, rgb_u8=det_rgb, det_hw=det_rgb.shape[:2],
+                                t_sec=kf_t_sec)
+                            if self.stream_server is not None:
+                                self.stream_server.push({
+                                    'type': 'objects', 'epoch': self._stream_epoch,
+                                    'objects': self.object_tracker.snapshot()})
+                    except Exception as _e:
+                        print(f"[detect] keyframe skipped: {_e}")
                 if do_map:
                     n_mapped += 1
                     # Snapshot der Sub-Phase-Counts: nur Inkremente dieses Calls anzeigen.
@@ -788,55 +849,6 @@ class Runner:
                                 self.dynamic_model.get_anns_raw(viz_out['images'][i])
                                 for i in range(viz_out['images'].shape[0])
                             ]
-                    # Online object detection + 3D-localisation on the newest KF.
-                    # Uses the same depth/pose/intrinsic the mapper sees, so the
-                    # fused object points land on the map PLY (see object_tracker
-                    # coordinate-convention note). Best-effort: never fail the run.
-                    if self.object_detector is not None and 'images' in viz_out:
-                        try:
-                            with self.timer.time('detect'):
-                                f_idx = int(viz_out['viz_out_idx_to_f_idx'][-1])
-                                # Detect on the FULL-RES original frame -- the
-                                # 240x288 viz_out image is far too small for
-                                # aerial objects. Geometry is scaled back to the
-                                # depth resolution inside the tracker (det_hw).
-                                det_rgb = None
-                                try:
-                                    import cv2 as _cv2
-                                    fp = self.dataset.rgbinfo_dict['filepath'][f_idx]
-                                    bgr = _cv2.imread(fp)
-                                    if bgr is not None:
-                                        det_rgb = np.ascontiguousarray(bgr[..., ::-1])  # BGR->RGB
-                                except Exception:
-                                    det_rgb = None
-                                if det_rgb is None:  # fallback: low-res viz image
-                                    img = viz_out['images'][-1].detach().cpu().numpy()
-                                    det_rgb = (np.clip(img, 0.0, 1.0) * 255.0).astype(np.uint8)
-                                dets = self.object_detector.detect(det_rgb)
-                                depth_np = viz_out['depths'][-1, :, :, 0].detach().cpu().numpy()
-                                pose_c2w = viz_out['poses'][-1].detach().cpu().numpy()
-                                # True time of this keyframe's frame: the
-                                # camstamp (real Unix epoch, enables GPS/RTK
-                                # correlation later), not rgbinfo['timestamp']
-                                # which is just the frame index.
-                                try:
-                                    _cts = getattr(self.dataset, '_cam_t_sec', None)
-                                    if _cts is not None and f_idx < len(_cts):
-                                        kf_t_sec = float(_cts[f_idx])
-                                    else:
-                                        kf_t_sec = float(self.dataset.rgbinfo_dict['timestamp'][f_idx])
-                                except Exception:
-                                    kf_t_sec = float(data_packet.get('t_sec', f_idx))
-                                self.object_tracker.update(
-                                    dets, depth_np, pose_c2w, viz_out['intrinsic'],
-                                    f_idx, rgb_u8=det_rgb, det_hw=det_rgb.shape[:2],
-                                    t_sec=kf_t_sec)
-                                if self.stream_server is not None:
-                                    self.stream_server.push({
-                                        'type': 'objects', 'epoch': self._stream_epoch,
-                                        'objects': self.object_tracker.snapshot()})
-                        except Exception as _e:
-                            print(f"[detect] keyframe skipped: {_e}")
                     with self.timer.time('map.total'):
                         new_viz_out = self.mapper.run(viz_out, True)
                     t_map = self.timer.last('map.total')

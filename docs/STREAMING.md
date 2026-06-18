@@ -128,8 +128,30 @@ Header: `{"type": ..., "epoch": int, "kf_id"?: int, "n": int}` mit `type` in
 | `append_frozen` (binary) | Splats des KF zur frozen-Wolke **hinzufügen** |
 | `replace_active` (binary) | active-Wolke **komplett ersetzen** |
 | `replace_all` (binary) | (Fallback ohne StorageManager) ganze Szene ersetzen |
-| `objects` (text) | Marker-Liste ersetzen: `[{object_id, class, cls_id, conf, n_hits, xyz:[x,y,z]}]` |
+| `objects` (text) | Marker-Liste ersetzen: `[{object_id, class, cls_id, conf, n_hits, xyz:[x,y,z], quat:[w,x,y,z], size:[sx,sy,sz]}]` |
 | `resync` (text) | frozen+active **leeren**, `currentEpoch = epoch` setzen |
+
+**Objekt-Orientierung + Größe (für 3D-Modelle):** Jedes Objekt trägt zusätzlich zu
+`xyz` jetzt `quat:[w,x,y,z]` (Rotation um die Welt-Hoch-Achse, DROID ist Z-up;
+`(w,x,y,z)`-Konvention wie die `.splat`-Quaternionen) und `size:[long, lateral,
+vertical]` (metrische Extents im gauge-freien DROID-Frame). Beide kommen aus einer
+PCA über die entprojizierte Tiefen-Punktwolke der Detektions-Box
+(`object_tracker.estimate_pose_size`). **180°-Yaw-Ambiguität:** eine PCA-Hauptachse
+ist vorzeichenlos → die Heading ist auf `[0, π)` kanonisiert; vorne/hinten ist aus
+Geometrie allein nicht bestimmbar. Bei zu wenigen Tiefenpixeln (`min_pca_px`) oder
+inkohärenter Orientierung über die Sichtungen → Identitäts-Quaternion + isotrope
+Fallback-Größe (keine falsche Konfidenz).
+
+**3D-Modell-Modus im Frontend:** `viewer.html` rendert jedes Objekt als **echtes
+glTF-Modell pro Klasse** (`MODEL_REGISTRY`, via `GLTFLoader`), an `xyz` positioniert,
+per `quat` orientiert und per `size` skaliert. Fehlt für eine Klasse ein Modell
+(oder lädt es nicht), fällt der Viewer auf eine **orientierte, per-Achse-skalierte
+Wireframe-Box** zurück — gleiche Pose/Größe, nur eben eine Box. Toggle „models"
+schaltet Modelle ↔ Box-Marker. Die `.glb`-Assets liegen in
+`scripts/server/static/models/` und werden vom Stream-Server über `…/models/<name>.glb`
+ausgeliefert (der Static-Server erlaubt genau dieses eine `models/`-Unterverzeichnis,
+mit realpath-Traversal-Guard). Klassen-Mapping ohne Code-Change überschreibbar via
+`static/models/registry.json`. Details + CC0-Quellen: `scripts/server/static/models/README.md`.
 
 **`epoch`-Gating:** Bei Loop-Closure (`use_loop`) werden frozen Gaussians global
 verschoben → der Server schickt `resync` mit erhöhter `epoch` und re-streamt

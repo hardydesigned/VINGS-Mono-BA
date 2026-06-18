@@ -84,6 +84,7 @@ stream:
 
 # --- Online object detection + 3D-localisation ------------------------------
 detect_objects: true
+object_detect_stride: 3        # detect on every 3rd tracker-KF (decoupled from mapper)
 
 object_detector:
   kind: yolo
@@ -98,6 +99,8 @@ object_detector:
   box_shrink: 0.6
   depth_percentile: 30.0
   min_valid_px: 3
+  min_pca_px: 20             # min valid depth px in a box for yaw/size PCA
+  size_percentile: 95.0      # robust 95/5 extent spread for the 3D size
   min_depth: 0.2
   max_depth: 150.0
 

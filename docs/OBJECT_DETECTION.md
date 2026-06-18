@@ -26,11 +26,14 @@ ist nur ein Sim3-Transform und wird unten erklärt.
 
 ```yaml
 detect_objects: true          # Master-Gate
+object_detect_stride: 3       # auf jedem N-ten *Tracker*-KF detektieren (Default 3)
 object_detector:
   kind: yolo                  # yolo | rtdetr | none
   model: yolov8n
   classes: [2, 5, 7]          # COCO car/bus/truck; null = alle
   device: cpu                 # VRAM-schonend
+  min_pca_px: 30              # min. gültige Tiefenpixel pro Box für Yaw/Größe-PCA
+  size_percentile: 95.0       # robuste Extent-Spanne (95/5) für die 3D-Größe
 object_tracker:
   assoc_radius: 0.05          # DROID-Frame-Einheiten (kein Meter!)
   min_hits: 3
@@ -39,6 +42,28 @@ object_output:
   markers_ply: true
   overlay_video: true
 ```
+
+### Detektions-Takt: jeder N-te Tracker-KF (entkoppelt vom Mapper)
+`object_detect_stride` (Default 3) steuert, auf **jedem N-ten Tracker-Keyframe**
+detektiert wird — **bewusst entkoppelt** vom FrameSelector/Mapper. Grund: der
+FrameSelector filtert die *gemappten* KFs hart (das ist der Sinn der BA), sodass
+eine an `do_map` gekoppelte Detektion die meisten Objekte verlöre. Auf
+nicht-gemappten KFs nutzt die Lokalisierung die rohe DROID-BA-Tiefe (der
+Metric3D-Swap ist mapper-only) — genau die Konvention, die `unproject_center`
+erwartet, also landen die Marker weiter im selben Frame wie die Map. **Kosten:**
+mehr YOLO/RT-DETR-Pässe als früher → `object_detect_stride` bei langen Läufen
+höher setzen (5–10). Der Block ist best-effort (`try/except`), bricht den Run nie.
+
+### Orientierung + Größe (für gestreamte 3D-Modelle)
+Pro Box schätzt `estimate_pose_size` aus der entprojizierten Tiefen-Punktwolke per
+PCA einen **Yaw** (Rotation um die Welt-Hoch-Achse, auf `[0, π)` kanonisiert —
+180°-Ambiguität bleibt, vorne/hinten ist geometrisch nicht bestimmbar) und eine
+**3D-Größe** `[long, lateral, vertical]` (robuste 95/5-Extents). Über die Sichtungen
+fusioniert `_Track`: Yaw via Doppelwinkel-Zirkularmittel (conf-gewichtet, Kohärenz-
+Schwelle → sonst Identität), Größe via Achsen-Median. `snapshot()` liefert daraus
+`quat:[w,x,y,z]` + `size`, die der Live-Stream ans Frontend gibt (siehe
+`docs/STREAMING.md`, „3D-Modell-Modus"). `objects_droid.csv` trägt die zusätzlichen
+Spalten `qw,qx,qy,qz,sx,sy,sz`.
 
 Beispiel-Config: `configs/local/object_detect/interval1_objects.yaml`.
 Lauf: `python scripts/run_experiment.py configs/local/object_detect/interval1_objects.yaml`
@@ -63,9 +88,12 @@ Run-Ende:
   → ObjectTracker.finalize(save_dir) → CSV + PLY + Video
 ```
 
-Eingehängt in `scripts/run.py` direkt **nach** dem Segment-Block und **vor**
-`mapper.run()` (gleiche Stelle, an der schon segmentiert wird — dort liegen
-`images`, `depths`, `poses`, `intrinsic` für den neuesten KF vor).
+Eingehängt in `scripts/run.py` auf der **Tracker-KF-Ebene** (nach der
+`do_map`-Entscheidung, **vor** `if do_map:`), gated über `object_detect_stride`
+— also **unabhängig** davon, ob der Mapper auf diesen KF läuft. `images`, `depths`,
+`poses`, `intrinsic` liegen auf jedem Tracker-KF vor (Pose-Override greift ebenfalls
+schon hier). Die Segmentierung fürs Dynamic-Masking bleibt davon getrennt **im**
+`if do_map:`-Block (nur Mapper-Loss).
 
 Module (Registry-Factory wie bei Selektoren/Segmentierung):
 
