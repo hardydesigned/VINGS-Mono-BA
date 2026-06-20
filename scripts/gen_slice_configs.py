@@ -54,6 +54,39 @@ DATASET_BASE = {
         "frame_comment": "agz (agz_0_10000)",
         "fair_eval": {"enabled": True, "eval_stride": 10},
     },
+    # MARS-LVIG / UAVScenes scenes prepared via scripts/prepare_marslvig.py into
+    # the amtown03 layout (images_all 1224x1024 + metadata/{camstamp_all.txt,
+    # rtk.csv, dji_poses_all_w2c.txt}). Same fair_eval block as amtown03.
+    "AMvalley03": {
+        "template": REPO / "configs/local/AMvalley03/base_template.yaml",
+        "frame_comment": "AMvalley03 (MARS-LVIG)",
+        "fair_eval": {
+            "enabled": True,
+            "eval_stride": 10,
+            "gt_poses_file": "dji_poses_all_w2c.txt",
+            "save_renders": True,
+        },
+    },
+    "HKisland03": {
+        "template": REPO / "configs/local/HKisland03/base_template.yaml",
+        "frame_comment": "HKisland03 (MARS-LVIG)",
+        "fair_eval": {
+            "enabled": True,
+            "eval_stride": 10,
+            "gt_poses_file": "dji_poses_all_w2c.txt",
+            "save_renders": True,
+        },
+    },
+    "HKairport03": {
+        "template": REPO / "configs/local/HKairport03/base_template.yaml",
+        "frame_comment": "HKairport03 (MARS-LVIG)",
+        "fair_eval": {
+            "enabled": True,
+            "eval_stride": 10,
+            "gt_poses_file": "dji_poses_all_w2c.txt",
+            "save_renders": True,
+        },
+    },
 }
 
 

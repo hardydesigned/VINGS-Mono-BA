@@ -52,6 +52,11 @@ VRAM_IDLE_THRESHOLD_MIB="${VRAM_IDLE_THRESHOLD_MIB:-800}"
 VRAM_WAIT_MAX_SEC="${VRAM_WAIT_MAX_SEC:-90}"
 RAM_FREE_MIN_GB="${RAM_FREE_MIN_GB:-2.0}"
 SLEEP_BETWEEN="${SLEEP_BETWEEN:-15}"
+# CLEANUP_RUNS=1 deletes each run's output subdir right after its CSV row is
+# logged (the CSV lives in output/ and is kept). Off by default so existing
+# sweeps keep their run artifacts; the multi-dataset wrapper turns it on to
+# stay within disk limits over ~500 runs.
+CLEANUP_RUNS="${CLEANUP_RUNS:-0}"
 
 mkdir -p "$(dirname "$CSV")"
 
@@ -419,6 +424,17 @@ for entry in "${RUNS[@]}"; do
     --exit-code    "$rc" \
     --status       "$STATUS" || \
     echo "[sweep] WARNING: log_sweep_row.py failed for $VARIANT" >&2
+
+  # Optional per-run cleanup: drop the output subdir(s) this run created (the
+  # CSV row is already written above). Only removes dirs absent in the
+  # before-snapshot, so concurrent/previous runs are never touched.
+  if (( CLEANUP_RUNS )) && [[ -d "$SAVE" ]]; then
+    while IFS= read -r newdir; do
+      [[ -n "$newdir" ]] && rm -rf "$SAVE/$newdir"
+    done < <(comm -13 <(sort "$KB_FILE") \
+                      <(find "$SAVE" -maxdepth 1 -mindepth 1 -type d -printf '%f\n' | sort))
+  fi
+
   rm -f "$KB_FILE"
 
   case "$STATUS" in

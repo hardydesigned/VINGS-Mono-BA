@@ -244,6 +244,7 @@ class Runner:
         self.stream_cfg = (cfg.get('stream') or {})
         self._streamed_kf_ids: set = set()
         self._stream_epoch = 0
+        self._geo = None              # LiveGeoReferencer (GPS-anchored map projection)
         if self.stream_cfg.get('enabled', False):
             try:
                 from server.stream_server import SplatStreamServer
@@ -252,6 +253,11 @@ class Runner:
                     port=int(self.stream_cfg.get('port', 8765)),
                     max_queue=int(self.stream_cfg.get('max_queue', 16)))
                 self.stream_server.start()
+                # Live geo-referencing: project the gauge-free DROID map onto real
+                # satellite imagery using the flight GPS (default on when a GPS CSV
+                # is configured; disable with stream.geo: false).
+                if self.stream_cfg.get('geo', True):
+                    self._init_geo_referencer()
             except Exception as _e:
                 print(f"[stream] disabled (init failed): {_e}")
                 self.stream_server = None
@@ -524,6 +530,49 @@ class Runner:
         except Exception as e:
             print(f"profiling.json write failed: {e}")
 
+    def _init_geo_referencer(self):
+        """Set up the GPS-anchored live map projection (best-effort)."""
+        try:
+            gps_csv = (self.cfg.get('dataset') or {}).get('gps_csv')
+            if not gps_csv or not os.path.isfile(gps_csv):
+                print("[geo] no gps_csv -> map projection off (raw DROID frame)")
+                return
+            lat_col = int(self.cfg['dataset'].get('gps_lat_col', 1))
+            lon_col = int(self.cfg['dataset'].get('gps_lon_col', 2))
+            row0 = np.loadtxt(gps_csv, comments='#')[0]
+            from server.geo_frame import LiveGeoReferencer
+            static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                      'server', 'static')
+            self._geo = LiveGeoReferencer(
+                gps_lat0=float(row0[lat_col]), gps_lon0=float(row0[lon_col]),
+                static_dir=static_dir,
+                min_kfs=int(self.stream_cfg.get('geo_min_kfs', 10)),
+                min_span_m=float(self.stream_cfg.get('geo_min_span_m', 40.0)),
+                zoom=int(self.stream_cfg.get('geo_zoom', 18)))
+            print("[geo] live map projection armed (GPS-anchored)")
+        except Exception as _e:
+            print(f"[geo] init failed: {_e}")
+            self._geo = None
+
+    def _geo_add_keyframe(self, viz_out, data_packet):
+        """Feed one keyframe's DROID pose + GPS-ENU to the geo-referencer, then
+        push the refreshed DROID->three matrix (+satellite) to the frontend."""
+        if self._geo is None or self.stream_server is None:
+            return
+        try:
+            xyz_enu = data_packet.get('xyz_enu')
+            if xyz_enu is None:
+                return
+            pose = viz_out['poses'][-1].detach().cpu().numpy()   # (4,4) c2w
+            C_droid = pose[:3, 3]
+            fwd_droid = pose[:3, 2]                               # camera +z = look dir
+            self._geo.add_keyframe(C_droid, fwd_droid, np.asarray(xyz_enu, np.float64))
+            msg = self._geo.geo_message(self._stream_epoch)
+            if msg is not None:
+                self.stream_server.push(msg)
+        except Exception as _e:
+            print(f"[geo] keyframe push skipped: {_e}")
+
     def _stream_push_gaussians(self, idx):
         """Push the current Gaussian state to the WebSocket frontend (best-effort).
 
@@ -760,6 +809,9 @@ class Runner:
             if viz_out is not None and (self.cfg['mode'] in ['vo', 'vo_nerfslam'] or self.tracker.video.imu_enabled):
                 kf_flag = 'Y'
                 n_keyframes += 1
+                # Live GPS-anchored map projection: feed this KF's DROID pose +
+                # GPS-ENU and refresh the DROID->three matrix on the frontend.
+                self._geo_add_keyframe(viz_out, data_packet)
                 # Stash the camera intrinsic the mapper sees, for post-run
                 # fair-eval rendering (same {fu,fv,cu,cv,H,W} render() expects).
                 if 'intrinsic' in viz_out:

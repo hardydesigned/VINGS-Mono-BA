@@ -188,3 +188,41 @@ und rufen nur `queue.put_nowait`-basierte Methoden. Der `.splat`-Encode läuft i
 Run-Thread (wenige ms für ≤200k active, nur alle `every_kf` KFs). Der Server ist
 ein daemon-Thread → ein SIGKILL durch den VRAM-Watchdog lässt den Prozess nicht
 hängen. Ein toter/langsamer Client kann den Mapper nie stallen (drop-oldest).
+
+## GPS-verankerte Karten-Projektion (Map-Mode, 2026-06-18)
+
+Wenn ein `dataset.gps_csv` konfiguriert ist, projiziert der Viewer die gauge-freie
+DROID-Map **live auf echte Satellitenbilder** (Esri World Imagery) — derselbe Fix
+wie in `od-experiments`. Standard an (`stream.geo: false` schaltet ab).
+
+**Producer** (`scripts/server/geo_frame.py`, `LiveGeoReferencer`): sammelt pro
+Tracker-KF DROID-Kamerazentrum+Blickrichtung und GPS-ENU (`data_packet['xyz_enu']`),
+baut daraus eine Sim3 DROID→ENU (kein Umeyama — Flug ist eine fast gerade GPS-Linie
+und damit rotations-degeneriert; stattdessen `up = -mean(cam-forward)`,
+`heading = DROID-Sehne → GPS-Sehne`, `scale = GPS/DROID-Längs-Span`,
+Zentroid-Match; **rechtshändige Basis `right = fwd × up`** — `up × fwd` spiegelt die
+ganze Szene). Daraus wird die 4×4 DROID→three-Matrix (`M = A·Sim3`, `A = ENU→three`)
+und per `geo`-Message ans Frontend geschickt. Ein Hintergrund-Thread lädt die
+Satelliten-Kacheln für die Trajektorien-Bbox und **re-fetcht, sobald der Flug über
+die abgedeckte Fläche hinauswächst** (sonst deckt die Karte nur den Flugbeginn ab).
+
+**Frontend** (`viewer.html`, Map-Mode): wendet `M` als Matrix auf die Splat-Gruppe
+an (Cloud georeferenziert „for free"), legt die Satelliten-Ebene auf die tile-
+alignte ENU-Extent, cullt SLAM-Floater per Clipping-Box (Satelliten-Footprint +
+vertikales Band um den Boden-Modus `groundY`) und platziert Objekte als **aufrechte
+per-Klasse-glTF-Modelle in realen Fahrzeug-Maßen** (Position = `M·xyz` auf den Boden
+gepinnt, Heading aus der geo-rotierten Objekt-Orientierung) plus Ring+Beam-Marker.
+
+`geo`-Message + Objekte liegen im Backlog (late-joining Clients), und werden VOR
+dem schweren Frozen-Blob gesendet, damit Karte+Marker auch bei Verbindungsabbruch da
+sind. Three.js ist nach `static/vendor/` vendored (offline-fähig, kein unpkg-CDN).
+
+**End-to-End-Test ohne SLAM:** `scripts/server/replay_run.py` spielt einen fertigen
+Run (PLY + tracker_raw_c2w + rtk.csv + objects_droid.csv) durch den Streaming-Pfad.
+Mit `--shot OUT.png` rendert es headless (Playwright, swiftshader; `ulimit -s 1024`,
+siehe `od-experiments`) und screenshotet; `VIEW=top|closeup_obl|objN` steuert die
+Kamera, `--max-splats N` drosselt für den langsamen Headless-Client (echte Browser
+schaffen 260k+).
+
+Config: `stream.geo` (bool, default true), `stream.geo_min_kfs`, `stream.geo_min_span_m`,
+`stream.geo_zoom`.

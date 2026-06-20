@@ -66,6 +66,7 @@
   </div>
   <div class="row">
     <button id="camtoggle" class="on">camera frame</button>
+    <button id="sat" class="on">satellite</button>
   </div>
   <div class="row"><label>obj rotX <span id="rotxval">0°</span></label>
     <input id="objrotx" type="range" min="-180" max="180" step="5" value="0" /></div>
@@ -84,8 +85,8 @@
 
 <script type="importmap">
 { "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/addons/"
 } }
 </script>
 <script type="module">
@@ -102,6 +103,7 @@ const app = document.getElementById('app');
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setClearColor(0x000000, 0);     // transparent -> CSS gradient shows as sky
+renderer.localClippingEnabled = true;    // map mode clips floaters to a ground box
 app.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -128,8 +130,19 @@ scene.add(axes);
 
 const frozenGroup = new THREE.Group();    // accumulating reconstruction
 const activeGroup = new THREE.Group();    // the currently-optimised set
-const objectGroup = new THREE.Group();    // detected-object markers
-scene.add(frozenGroup, activeGroup, objectGroup);
+const objectGroup = new THREE.Group();    // detected-object markers (placed in world)
+// worldGroup carries the DROID->three geo matrix (set from the `geo` stream msg).
+// Splats live in DROID coords; parenting them under this matrix georeferences the
+// whole cloud for free. Objects are placed explicitly in three-world (ground-pinned).
+const worldGroup = new THREE.Group();
+worldGroup.matrixAutoUpdate = false;      // identity until a geo matrix arrives
+worldGroup.add(frozenGroup, activeGroup);
+scene.add(worldGroup, objectGroup);
+
+// satellite ground plane + geo state ---------------------------------------
+let geoM = null;                 // THREE.Matrix4 | null  (DROID -> three world)
+let mapMode = false, groundY = 0, satMesh = null, _satInfo = null, _satGen = -1, showSat = true;
+const _texLoader = new THREE.TextureLoader();
 
 // ===========================================================================
 // shared materials / geometry
@@ -272,7 +285,7 @@ function decodeSplat(buf, n) {
 }
 
 function buildDisk(raw) {
-  const kSize = sizeFactor();
+  const kSize = sizeFactor() * (mapMode ? 0.5 : 1);   // disks are world-scaled in map mode
   const mesh = new THREE.InstancedMesh(planeGeo, diskMaterial, raw.n);
   mesh.frustumCulled = false;
   for (let i = 0; i < raw.n; i++) {
@@ -374,6 +387,7 @@ function addFrozen(raw) {
   frozenBlocks.push({ raw, obj }); growBBox(raw);
   setObjCount(obj, 0);
   _frozenReveal.push({ obj, n: raw.n, shown: 0 });   // grow KF by KF, in order
+  if (mapMode && geoM && (frozenBlocks.length % 4 === 0)) updateGroundY();  // refine ground
   if (!didAutoFit) { didAutoFit = true; refit(); }
 }
 function replaceActive(raw) {
@@ -445,7 +459,8 @@ function loadModel(cls) {
         const L = unit(iL), U = unit(iU), W = new THREE.Vector3().crossVectors(U, L);
         const align = new THREE.Quaternion().setFromRotationMatrix(
           new THREE.Matrix4().makeBasis(L, W, U)).invert();
-        res({ scene: s, align, dims: { len: ex[iL], wid: ex[iW], hgt: ex[iU] }, center: ctr });
+        res({ scene: s, align, laxis: L, waxis: W, uaxis: U,
+              dims: { len: ex[iL], wid: ex[iW], hgt: ex[iU] }, center: ctr });
       }, undefined, () => res(null));   // load error -> null -> box fallback
     }));
   }
@@ -480,11 +495,19 @@ let showModels = true;
 // rotZ is the heading flip. Read the values off the sliders to bake per-class.
 let objRot = { x: 0, y: 0, z: 0 };
 let lastObjs = [];
+let _objWorldPos = [];           // map-mode world positions (for closeups)
 let _objSeq = 0;                 // monotonic guard: drop stale async model adds
 function setObjects(objs) {
   lastObjs = objs;
   const seq = ++_objSeq;
   objectGroup.clear();
+  // map mode: upright per-class models on the satellite ground (geo-referenced)
+  if (mapMode && geoM) {
+    _objWorldPos.length = 0;
+    for (const o of objs) { if (o && o.xyz) placeObjectMap(o, seq); }
+    nObjects = objs.length;
+    return;
+  }
   const r = markerSize();
   for (const o of objs) {
     const col = classColor(o.cls_id ?? 0);
@@ -537,6 +560,186 @@ function markerSize() {
   if (!haveData) return 0.15;
   const d = new THREE.Vector3(); bbox.getSize(d);
   return Math.max(0.05, d.length() * 0.012);
+}
+
+// ===========================================================================
+// geo-referencing: project the DROID map onto satellite imagery (map mode)
+// ===========================================================================
+// real-world vehicle dims (metres): [length(forward), width, height]
+const VEH = { car:   { len: 4.6,  wid: 1.9, hgt: 1.6 },
+              van:   { len: 5.4,  wid: 2.0, hgt: 2.2 },
+              truck: { len: 7.5,  wid: 2.6, hgt: 3.0 },
+              bus:   { len: 11.0, wid: 2.8, hgt: 3.3 } };
+
+function onGeo(msg) {
+  if (Array.isArray(msg.M) && msg.M.length === 16) {
+    geoM = new THREE.Matrix4().fromArray(msg.M);
+    worldGroup.matrix.copy(geoM);
+    worldGroup.matrixWorldNeedsUpdate = true;
+    if (!mapMode) enterMapMode();
+    updateGroundY();
+    setObjects(lastObjs);                 // re-place markers in the new frame
+  }
+  if (msg.sat) setupSatellite(msg.sat);
+}
+
+function enterMapMode() {
+  mapMode = true;
+  camera.up.set(0, 1, 0);                  // three-world is Y-up (ENU up -> +Y)
+  grid.visible = false; axes.visible = false;
+  document.getElementById('grid').classList.remove('on');
+  refit();
+}
+
+// median Y of the georeferenced frozen splats = ground level for the satellite
+// plane and the object pinning. Sampled cheaply across all frozen chunks.
+function updateGroundY() {
+  if (!geoM) return;
+  const ys = [];
+  const v = new THREE.Vector3();
+  const blocks = frozenBlocks.length ? frozenBlocks : (activeBlock ? [activeBlock] : []);
+  for (const b of blocks) {
+    const r = b.raw, step = Math.max(1, (r.n / 400) | 0);
+    for (let i = 0; i < r.n; i += step) {
+      v.set(r.centers[i*3], r.centers[i*3+1], r.centers[i*3+2]).applyMatrix4(geoM);
+      ys.push(v.y);
+    }
+  }
+  if (ys.length < 8) return;
+  // ground = MODE of the Y distribution (dominant surface), robust to floaters
+  // above and below which a median would be skewed by.
+  ys.sort((a, b) => a - b);
+  const lo = ys[(ys.length * 0.02) | 0], hi = ys[(ys.length * 0.98) | 0];
+  const nb = 40, bw = Math.max((hi - lo) / nb, 0.5), hist = new Array(nb).fill(0);
+  for (const y of ys) { const k = Math.min(nb - 1, Math.max(0, ((y - lo) / bw) | 0)); hist[k]++; }
+  let bm = 0; for (let i = 1; i < nb; i++) if (hist[i] > hist[bm]) bm = i;
+  groundY = lo + (bm + 0.5) * bw;
+  if (satMesh) satMesh.position.y = groundY - 0.1;
+  updateClipPlanes();
+}
+
+// map-mode clip box (satellite footprint + vertical band) culls SLAM floaters
+const mapClip = [];   // 6 THREE.Plane, inward normals
+function updateClipPlanes() {
+  if (!_satInfo) return;
+  const s = _satInfo, yLo = groundY - 22, yHi = groundY + 45;
+  const planes = [
+    new THREE.Plane(new THREE.Vector3( 1, 0, 0), -s.e_w),
+    new THREE.Plane(new THREE.Vector3(-1, 0, 0),  s.e_e),
+    new THREE.Plane(new THREE.Vector3( 0, 0, 1),  s.n_n),
+    new THREE.Plane(new THREE.Vector3( 0, 0,-1), -s.n_s),
+    new THREE.Plane(new THREE.Vector3( 0, 1, 0), -yLo),
+    new THREE.Plane(new THREE.Vector3( 0,-1, 0),  yHi),
+  ];
+  mapClip.length = 0; mapClip.push(...planes);
+  diskMaterial.clippingPlanes = mapClip;
+  splatMaterial.clippingPlanes = mapClip;
+  diskMaterial.needsUpdate = true;
+}
+
+function setupSatellite(sat) {
+  const gen = sat.gen ?? 0;
+  if (gen === _satGen) { _satInfo = sat; return; }   // unchanged -> no reload
+  _satGen = gen; _satInfo = sat;
+  const w = sat.e_e - sat.e_w, d = sat.n_n - sat.n_s;     // east, north spans (m)
+  _texLoader.load(sat.url + '?t=' + gen, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    if (satMesh) { scene.remove(satMesh); satMesh.geometry.dispose(); satMesh.material.dispose(); }
+    const geo = new THREE.PlaneGeometry(w, d);
+    const mat = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false, depthWrite: true });
+    satMesh = new THREE.Mesh(geo, mat);
+    satMesh.rotation.x = -Math.PI / 2;       // lie flat (faces +Y)
+    satMesh.rotation.z = Math.PI;            // image-north -> -Z (ENU north)
+    satMesh.position.set((sat.e_w + sat.e_e) / 2, groundY - 0.1, -(sat.n_n + sat.n_s) / 2);
+    satMesh.renderOrder = -1;
+    satMesh.visible = showSat;
+    scene.add(satMesh);
+    updateClipPlanes();
+    if (!didAutoFit || mapMode) refit();
+  });
+}
+
+// world-space extent for framing in map mode. The satellite footprint is the
+// clean region of interest; SLAM floaters would blow up a cloud-derived bbox, so
+// frame the satellite (falling back to a robust cloud bbox only if no sat yet).
+function worldBBox() {
+  const bb = new THREE.Box3();
+  if (_satInfo) {
+    bb.expandByPoint(new THREE.Vector3(_satInfo.e_w, groundY - 5, -_satInfo.n_n));
+    bb.expandByPoint(new THREE.Vector3(_satInfo.e_e, groundY + 5, -_satInfo.n_s));
+    return bb;
+  }
+  // no satellite yet: robust cloud bbox (drop the floater tails per axis)
+  if (geoM && frozenBlocks.length) {
+    const xs = [], ys = [], zs = [], v = new THREE.Vector3();
+    for (const b of frozenBlocks) {
+      const r = b.raw, step = Math.max(1, (r.n / 600) | 0);
+      for (let i = 0; i < r.n; i += step) {
+        v.set(r.centers[i*3], r.centers[i*3+1], r.centers[i*3+2]).applyMatrix4(geoM);
+        xs.push(v.x); ys.push(v.y); zs.push(v.z);
+      }
+    }
+    const pct = (a, p) => { a.sort((m, n) => m - n); return a[(a.length * p) | 0]; };
+    bb.expandByPoint(new THREE.Vector3(pct(xs, 0.02), pct(ys, 0.05), pct(zs, 0.02)));
+    bb.expandByPoint(new THREE.Vector3(pct(xs, 0.98), pct(ys, 0.95), pct(zs, 0.98)));
+  }
+  return bb;
+}
+
+// place one object as an upright per-class glTF model on the satellite ground,
+// pinned to groundY and oriented by the geo-transformed heading.
+function placeObjectMap(o, seq) {
+  const cls = o.class || 'car';
+  const spec = VEH[cls] || VEH.car;
+  const col = classColor(o.cls_id ?? 0);
+  // world position = geoM * droid xyz, pinned to ground
+  const pos = new THREE.Vector3(o.xyz[0], o.xyz[1], o.xyz[2]).applyMatrix4(geoM);
+  pos.y = groundY;
+  _objWorldPos.push(pos.clone());
+  // world heading from the (geo-rotated) object orientation
+  const Rgeo = new THREE.Quaternion().setFromRotationMatrix(
+    new THREE.Matrix4().extractRotation(geoM));
+  const qWorld = Rgeo.clone().multiply(quatWXYZtoThree(o.quat));
+  const fwd = new THREE.Vector3(1, 0, 0).applyQuaternion(qWorld);
+  fwd.y = 0; if (fwd.lengthSq() < 1e-6) fwd.set(1, 0, 0); fwd.normalize();
+  const up = new THREE.Vector3(0, 1, 0);
+  const wid = new THREE.Vector3().crossVectors(up, fwd);   // right-handed [fwd,wid,up]
+  // ground ring + vertical beam (visible at full-scene zoom)
+  const ring = new THREE.Mesh(new THREE.RingGeometry(spec.len * 0.55, spec.len * 0.72, 28),
+    new THREE.MeshBasicMaterial({ color: col, side: THREE.DoubleSide, transparent: true, opacity: 0.95, toneMapped: false }));
+  ring.rotation.x = -Math.PI / 2; ring.position.set(pos.x, groundY + 0.15, pos.z);
+  objectGroup.add(ring);
+  const beamH = 14;
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, beamH, 6),
+    new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.5, toneMapped: false }));
+  beam.position.set(pos.x, groundY + beamH / 2, pos.z); objectGroup.add(beam);
+
+  const placeBox = () => {
+    const m = new THREE.Mesh(boxGeo, new THREE.MeshBasicMaterial({ color: col, wireframe: true, toneMapped: false }));
+    m.scale.set(spec.len, spec.hgt, spec.wid);
+    m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(fwd, up, wid));
+    m.position.set(pos.x, groundY + spec.hgt / 2, pos.z); objectGroup.add(m);
+  };
+  if (showModels && MODEL_REGISTRY[cls]) {
+    loadModel(cls).then((m) => {
+      if (seq !== _objSeq) return;
+      if (!m) { placeBox(); return; }
+      const inner = m.scene.clone(true); inner.position.sub(m.center);
+      const grp = new THREE.Group(); grp.add(inner);
+      grp.scale.setScalar(spec.len / m.dims.len);     // uniform: fit real length
+      // model local axes (len/width/up) -> world (heading/width/up)
+      const modelB = new THREE.Matrix4().makeBasis(m.laxis, m.waxis, m.uaxis);
+      const worldB = new THREE.Matrix4().makeBasis(fwd, wid, up);
+      grp.quaternion.setFromRotationMatrix(worldB.multiply(modelB.transpose()));
+      grp.position.set(pos.x, groundY + spec.hgt / 2, pos.z);
+      objectGroup.add(grp);
+    });
+  } else { placeBox(); }
+  if (showLabels) {
+    const lab = labelSprite(`${cls} ${(o.conf ?? 0).toFixed(2)}`, col);
+    lab.position.set(pos.x, groundY + spec.hgt + 2, pos.z);
+    objectGroup.add(lab);
+  }
 }
 
 // ===========================================================================
@@ -600,6 +803,7 @@ function onText(str) {
   const msg = JSON.parse(str);
   if (msg.type === 'resync') { currentEpoch = msg.epoch; clearAll(); nFrozen = nActive = 0; bbox.makeEmpty(); didAutoFit = false; updateHud('— resync —'); }
   else if (msg.type === 'objects') { if (msg.epoch < currentEpoch) return; setObjects(msg.objects || []); updateHud(); }
+  else if (msg.type === 'geo') { if (msg.epoch < currentEpoch) return; onGeo(msg); updateHud(); }
   else if (msg.type === 'frame') { if (msg.epoch < currentEpoch) return; onFrame(msg); }
 }
 
@@ -631,6 +835,55 @@ function updateHud(extra = '') {
     (revealPending() ? `\n<span class="dot ok"></span> streaming <b>${revealPending()}</b>` : '') +
     (extra ? `\n${extra}` : '');
 }
+// force a near-top-down camera (validation screenshots; interactive stays oblique)
+window.__topView = () => {
+  const bb = (mapMode && geoM) ? worldBBox() : bbox;
+  if (bb.isEmpty()) return;
+  const c = new THREE.Vector3(), sz = new THREE.Vector3();
+  bb.getCenter(c); bb.getSize(sz);
+  const r = Math.max(Math.hypot(sz.x, sz.z) * 0.62, 5);
+  controls.target.copy(c);
+  camera.position.set(c.x, c.y + r * 2.2, c.z + 0.001);
+  camera.near = r / 200; camera.far = r * 200; camera.updateProjectionMatrix();
+  controls.update();
+};
+// zoom hard onto a single detected object (validates model size/orientation)
+window.__zoomObj = (i) => {
+  if (!_objWorldPos.length) return;
+  const p = _objWorldPos[Math.min(i | 0, _objWorldPos.length - 1)];
+  controls.target.copy(p);
+  camera.position.set(p.x + 8, p.y + 12, p.z + 14);
+  camera.near = 0.05; camera.far = 4000; camera.updateProjectionMatrix();
+  controls.update();
+};
+// frame the detected-object cluster closely (validation of placement/size)
+window.__closeup = (obl) => {
+  const bb = new THREE.Box3().setFromObject(objectGroup);
+  if (bb.isEmpty()) return;
+  const c = new THREE.Vector3(), sz = new THREE.Vector3();
+  bb.getCenter(c); bb.getSize(sz);
+  const r = Math.max(Math.hypot(sz.x, sz.z) * 0.6, 12);
+  controls.target.copy(c);
+  const dir = obl ? new THREE.Vector3(0.25, 0.9, 0.5).normalize()
+                  : new THREE.Vector3(0.02, 1, 0.12).normalize();
+  camera.position.copy(c).addScaledVector(dir, r * 1.6);
+  camera.near = r / 200; camera.far = r * 200; camera.updateProjectionMatrix();
+  controls.update();
+};
+window.__satVisible = () => (satMesh ? satMesh.visible : null);
+// map-mode debug hook for headless validation
+window.__dbg = () => {
+  const r = (x) => Math.round(x);
+  let cloud = null;
+  if (geoM && frozenBlocks.length) {
+    const bb = worldBBox();
+    cloud = { x: [r(bb.min.x), r(bb.max.x)], z: [r(bb.min.z), r(bb.max.z)], y: [r(bb.min.y), r(bb.max.y)] };
+  }
+  const sat = _satInfo ? { x: [r(_satInfo.e_w), r(_satInfo.e_e)], z: [r(-_satInfo.n_n), r(-_satInfo.n_s)] } : null;
+  return { mapMode, hasGeoM: !!geoM, groundY: r(groundY), nObjects, nFrozen,
+           lastObjs: lastObjs.length, objChildren: objectGroup.children.length,
+           hasSat: !!satMesh, cloudXZ: cloud, satXZ: sat };
+};
 // tiny debug hook (instance counts actually rendered) for smoke tests
 window.__reveal = () => ({
   pending: revealPending(),
@@ -666,6 +919,10 @@ document.getElementById('camtoggle').onclick = (e) => {
   camEnabled = !camEnabled; e.target.classList.toggle('on', camEnabled);
   camCard.classList.toggle('off', !camEnabled || !_haveFrame);
 };
+document.getElementById('sat').onclick = (e) => {
+  showSat = !showSat; e.target.classList.toggle('on', showSat);
+  if (satMesh) satMesh.visible = showSat;
+};
 function _bindRot(id, axis, label) {
   document.getElementById(id).oninput = (e) => {
     objRot[axis] = parseFloat(e.target.value);
@@ -680,6 +937,21 @@ document.getElementById('reconnect').onclick = connect;
 document.getElementById('url').onkeydown = (e) => { if (e.key === 'Enter') connect(); };
 
 function refit() {
+  // map mode: frame the georeferenced world (satellite + transformed cloud),
+  // looking down from a slightly oblique angle (Y-up).
+  if (mapMode && geoM) {
+    const bb = worldBBox();
+    if (bb.isEmpty()) return;
+    const c = new THREE.Vector3(), sz = new THREE.Vector3();
+    bb.getCenter(c); bb.getSize(sz);
+    const r = Math.max(sz.length() * 0.6, 5.0);
+    controls.target.copy(c);
+    const dir = new THREE.Vector3(0.05, 1.0, 0.35).normalize();   // mostly top-down
+    camera.position.copy(c).addScaledVector(dir, r * 1.4);
+    camera.near = r / 200; camera.far = r * 200; camera.updateProjectionMatrix();
+    controls.update();
+    return;
+  }
   if (!haveData || bbox.isEmpty()) return;
   const c = new THREE.Vector3(), sz = new THREE.Vector3();
   bbox.getCenter(c); bbox.getSize(sz);

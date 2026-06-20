@@ -45,7 +45,7 @@ except Exception as _e:  # pragma: no cover - import guard
 
 
 # message types that may be dropped under backpressure (latest wins / idempotent)
-_DROPPABLE = {"replace_active", "replace_all", "objects"}
+_DROPPABLE = {"replace_active", "replace_all", "objects", "geo"}
 
 
 def _frame(payload: dict):
@@ -66,9 +66,9 @@ def _frame(payload: dict):
         msg = struct.pack("<I", len(hb)) + hb + data
         kind = "frozen" if t == "append_frozen" else "active"
         return msg, (t in _DROPPABLE), kind
-    else:  # objects / resync -> text frame
+    else:  # objects / geo / resync / frame -> text frame
         msg = json.dumps({k: v for k, v in payload.items() if k != "data"})
-        kind = "objects" if t == "objects" else ("resync" if t == "resync" else None)
+        kind = {"objects": "objects", "resync": "resync", "geo": "geo"}.get(t)
         return msg, (t in _DROPPABLE), kind
 
 
@@ -97,6 +97,7 @@ class SplatStreamServer:
         self._frozen_backlog: list = []   # list[bytes]   (append_frozen messages)
         self._last_active = None          # bytes | None
         self._last_objects = None         # str | None
+        self._last_geo = None             # str | None  (DROID->three matrix + satellite)
 
     # ------------------------------------------------------------------ lifecycle
     def start(self):
@@ -132,11 +133,14 @@ class SplatStreamServer:
                 self._last_active = msg
             elif kind == "objects":
                 self._last_objects = msg
+            elif kind == "geo":
+                self._last_geo = msg
             elif kind == "resync":
                 # frozen set invalidated (loop closure / new epoch) -> drop backlog
                 self._frozen_backlog.clear()
                 self._last_active = None
                 self._last_objects = None
+                self._last_geo = None
 
         # enqueue for broadcast
         try:
@@ -205,7 +209,8 @@ class SplatStreamServer:
         parts = name.split("/")
         traversal = ("\\" in name or name.startswith("/") or ".." in parts
                      or any(p.startswith(".") for p in parts))
-        nested = len(parts) > 2 or (len(parts) == 2 and parts[0] != "models")
+        # allow top-level files + the models/ and vendor/ subtrees (any depth)
+        nested = (len(parts) > 1 and parts[0] not in ("models", "vendor"))
         if traversal or nested:
             return (http.HTTPStatus.FORBIDDEN, [], b"forbidden")
         fpath = os.path.join(self._static_dir, *parts)
@@ -244,12 +249,21 @@ class SplatStreamServer:
             with self._lock:
                 backlog = list(self._frozen_backlog)
                 last_active, last_objects = self._last_active, self._last_objects
-            for m in backlog:
-                await ws.send(m)
-            if last_active is not None:
-                await ws.send(last_active)
-            if last_objects is not None:
-                await ws.send(last_objects)
+                last_geo = self._last_geo
+            # Send the lightweight, critical state FIRST (geo frame, objects,
+            # active set) so a client that drops mid-replay still has the map +
+            # markers; the heavy frozen blob streams last and resumes on reconnect.
+            try:
+                if last_geo is not None:
+                    await ws.send(last_geo)
+                if last_objects is not None:
+                    await ws.send(last_objects)
+                if last_active is not None:
+                    await ws.send(last_active)
+                for m in backlog:
+                    await ws.send(m)
+            except Exception as _be:
+                print(f"[stream] backlog send aborted after partial replay: {_be}")
             # we don't consume client input (yet); just hold the connection
             async for _ in ws:
                 pass
