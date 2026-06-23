@@ -53,7 +53,7 @@ training_args:
   num_keyframe: 16
 use_dynamic: true
 use_loop: false
-use_metric: true
+use_metric: false
 use_pose_refine: false
 seed_video_with_ext_pose: false
 use_sky: false
