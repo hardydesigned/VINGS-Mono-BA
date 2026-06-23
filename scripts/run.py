@@ -229,23 +229,31 @@ class Runner:
             self.object_detector = make_object_detector(cfg, mapper_device)
             self.object_tracker = ObjectTracker(cfg, cfg['output']['save_dir'])
 
-        # Live-Streaming der Gaussians (.splat) + Object-Marker zu einem Web-
-        # Frontend ueber WebSocket. Gated ueber cfg['stream']['enabled'] (Default
-        # aus). Der Server laeuft in einem daemon-Thread mit drop-oldest-Queue,
-        # damit der Run-Loop NIE auf Netzwerk-I/O blockiert. Delta-Strategie:
-        # frozen (StorageManager, append-only via _globalkf_id) + active (Mapper-
-        # GPU, jedes Mal full-replace). Siehe scripts/server/stream_server.py.
+        # Live-Streaming der Gaussians + Object-Marker zu einem Web-Frontend.
+        # Gated ueber cfg['stream']['enabled'] (Default aus). Backend ist viser
+        # (scripts/server/viser_stream.py): viser bringt eigenen WebSocket-Server
+        # + WebGL-Frontend mit; wir fuettern pro KF-Gruppe eine Punktwolke (rounded
+        # points, adaptive Weltgroesse) und es rendert/aktualisiert in-place. Loest
+        # Lag/Stall des alten .splat-over-WebSocket-Stacks und sieht besser aus.
+        # Delta-Strategie unveraendert: frozen (StorageManager, append-only via
+        # _globalkf_id, einmalig) + active (Mapper-GPU, jeden Zyklus neu).
         self.stream_server = None
         self.stream_cfg = (cfg.get('stream') or {})
-        self._streamed_kf_ids: set = set()
+        # kf_id -> n_points last sent as frozen. NOT a permanent "sent once" set:
+        # the StorageManager shuttles groups GPU<->CPU by camera distance, so a
+        # kf_id can leave and return. We re-send when it's new or its point count
+        # changed, and forget ids no longer in storage (so they re-send on return).
+        self._frozen_sig: dict = {}
         self._stream_epoch = 0
         if self.stream_cfg.get('enabled', False):
             try:
-                from server.stream_server import SplatStreamServer
-                self.stream_server = SplatStreamServer(
+                from server.viser_stream import ViserStreamServer
+                self.stream_server = ViserStreamServer(
                     host=self.stream_cfg.get('host', '0.0.0.0'),
                     port=int(self.stream_cfg.get('port', 8765)),
-                    max_queue=int(self.stream_cfg.get('max_queue', 16)))
+                    point_shape=self.stream_cfg.get('point_shape', 'rounded'),
+                    min_opacity=float(self.stream_cfg.get('min_opacity', 0.0)),
+                    render_mode=self.stream_cfg.get('render_mode', 'gaussians'))
                 self.stream_server.start()
             except Exception as _e:
                 print(f"[stream] disabled (init failed): {_e}")
@@ -520,45 +528,80 @@ class Runner:
             print(f"profiling.json write failed: {e}")
 
     def _stream_push_gaussians(self, idx):
-        """Push the current Gaussian state to the WebSocket frontend (best-effort).
+        """Push the current Gaussian state to the viser viewer (best-effort).
 
         Delta strategy keyed on `_globalkf_id` (stable per Gaussian, survives
-        prune): newly-frozen KF groups on the StorageManager CPU side are sent
-        once as `append_frozen`; the small, still-optimised Mapper GPU set is
-        always re-sent in full as `replace_active`. Without a StorageManager
-        everything is "active" -> a single `replace_all` snapshot.
+        prune): newly-frozen KF groups on the StorageManager CPU side are pushed
+        once (`frozen=True`); the still-optimised Mapper GPU groups are re-pushed
+        every cycle and viser updates the matching point cloud in-place. Each
+        group is sent as raw (xyz, rgb) -- viser renders rounded, world-space
+        sized points (see viser_stream.py).
         """
         if self.stream_server is None:
             return
         try:
             import torch
-            from server.splat_encode import (encode_splat_from_mapper,
-                                              encode_splat_from_storage)
+            from server.splat_encode import (attrs_from_mapper_kf,
+                                              attrs_from_storage)
+            min_op = float(self.stream_cfg.get('min_opacity', 0.0))
             eps = float(self.stream_cfg.get('flat_scale_eps', 1e-3))
             max_active = int(self.stream_cfg.get('max_active_splats', 200000))
             sm = self.storage_manager if self.use_storage_manager else None
+            mapper = self.mapper
 
-            if sm is not None and sm._xyz.shape[0] > 0:
-                kf_ids = sm._globalkf_id
-                present = set(int(k) for k in torch.unique(kf_ids).tolist())
-                for kid in sorted(present - self._streamed_kf_ids):
-                    blob = encode_splat_from_storage(sm, kf_ids == kid, eps)
-                    if blob:
-                        self.stream_server.push({
-                            'type': 'append_frozen', 'epoch': self._stream_epoch,
-                            'kf_id': kid, 'data': blob})
-                    self._streamed_kf_ids.add(kid)
-                active = encode_splat_from_mapper(self.mapper, max_active, eps)
+            _n_frozen_new = 0; _n_active = 0; _n_pts = 0  # stream diagnostics
+
+            # Which groups are live on the GPU right now (being optimised) vs.
+            # offloaded to CPU storage (parked, by camera distance).
+            mapper_ids = (set(int(k) for k in torch.unique(mapper._globalkf_id).tolist())
+                          if mapper._globalkf_id.numel() > 0 else set())
+            storage_ids = (set(int(k) for k in torch.unique(sm._globalkf_id).tolist())
+                           if (sm is not None and sm._xyz.shape[0] > 0) else set())
+
+            def _push(kid, attrs, frozen):
+                xyz, rgb, scale, quat, opacity = attrs
                 self.stream_server.push({
-                    'type': 'replace_active', 'epoch': self._stream_epoch,
-                    'data': active})
-            else:
-                allblob = encode_splat_from_mapper(self.mapper, max_active, eps)
-                self.stream_server.push({
-                    'type': 'replace_all', 'epoch': self._stream_epoch,
-                    'data': allblob})
+                    'type': 'kf', 'kf_id': kid, 'frozen': frozen,
+                    'xyz': xyz, 'rgb': rgb, 'scale': scale,
+                    'quat': quat, 'opacity': opacity})
+                return len(xyz)
+
+            # 1. Active groups (GPU): re-push EVERY cycle -> viser in-place update.
+            if mapper_ids:
+                max_per_kf = max(1, max_active // len(mapper_ids))
+                for kid in sorted(mapper_ids):
+                    a = attrs_from_mapper_kf(mapper, kid, max_per_kf, min_op, eps)
+                    if a is not None:
+                        _n_pts += _push(kid, a, False); _n_active += 1
+
+            # 2. Frozen groups (CPU storage, not currently on GPU): push when new
+            #    or when their point count changed; skip if unchanged.
+            frozen_ids = storage_ids - mapper_ids
+            new_sig = {}
+            for kid in sorted(frozen_ids):
+                mask = sm._globalkf_id == kid
+                n = int(mask.sum())
+                new_sig[kid] = n
+                if self._frozen_sig.get(kid) == n:
+                    continue                                   # unchanged -> skip
+                a = attrs_from_storage(sm, mask, None, min_op, eps)
+                if a is not None:
+                    _n_pts += _push(kid, a, True); _n_frozen_new += 1
+            self._frozen_sig = new_sig   # forget ids no longer in storage
+
+            # Diagnostic: shows whether NEW data is pushed each cycle. Gate behind
+            # stream.debug so it's silent unless you ask for it.
+            if self.stream_cfg.get('debug', False):
+                n_clients = len(getattr(self.stream_server, '_clients', ()) or ())
+                print(f"[stream] idx={idx} gpu_active={len(mapper_ids)} "
+                      f"cpu_frozen={len(frozen_ids)} pushed_active={_n_active} "
+                      f"pushed_frozen={_n_frozen_new} points={_n_pts} "
+                      f"clients={n_clients}", flush=True)
         except Exception as _e:
+            import traceback
             print(f"[stream] gaussian push skipped: {_e}")
+            if self.stream_cfg.get('debug', False):
+                traceback.print_exc()
 
     def run(self):
         # Load imu data.
@@ -793,32 +836,70 @@ class Runner:
                     # fused object points land on the map PLY (see object_tracker
                     # coordinate-convention note). Best-effort: never fail the run.
                     if self.object_detector is not None and 'images' in viz_out:
+                        # ── Step 1: build detection image ──────────────────────────
+                        f_idx = int(viz_out['viz_out_idx_to_f_idx'][-1])
+                        det_rgb = None
+                        try:
+                            import cv2 as _cv2
+                            fp = self.dataset.rgbinfo_dict['filepath'][f_idx]
+                            bgr = _cv2.imread(fp)
+                            if bgr is not None:
+                                det_rgb = np.ascontiguousarray(bgr[..., ::-1])
+                        except Exception:
+                            det_rgb = None
+                        if det_rgb is None:
+                            _img = viz_out['images'][-1].detach().cpu().numpy()
+                            det_rgb = (np.clip(_img, 0.0, 1.0) * 255.0).astype(np.uint8)
+
+                        # ── Step 2: detect (best-effort; empty list on failure) ────
+                        dets = []
                         try:
                             with self.timer.time('detect'):
-                                f_idx = int(viz_out['viz_out_idx_to_f_idx'][-1])
-                                # Detect on the FULL-RES original frame -- the
-                                # 240x288 viz_out image is far too small for
-                                # aerial objects. Geometry is scaled back to the
-                                # depth resolution inside the tracker (det_hw).
-                                det_rgb = None
-                                try:
-                                    import cv2 as _cv2
-                                    fp = self.dataset.rgbinfo_dict['filepath'][f_idx]
-                                    bgr = _cv2.imread(fp)
-                                    if bgr is not None:
-                                        det_rgb = np.ascontiguousarray(bgr[..., ::-1])  # BGR->RGB
-                                except Exception:
-                                    det_rgb = None
-                                if det_rgb is None:  # fallback: low-res viz image
-                                    img = viz_out['images'][-1].detach().cpu().numpy()
-                                    det_rgb = (np.clip(img, 0.0, 1.0) * 255.0).astype(np.uint8)
                                 dets = self.object_detector.detect(det_rgb)
+                        except Exception as _e:
+                            print(f"[detect] keyframe skipped: {_e}")
+
+                        # ── Step 3: stream camera frame + boxes (always) ───────────
+                        if self.stream_server is not None:
+                            try:
+                                import cv2 as _cv2d, base64 as _b64d
+                                _h, _w = det_rgb.shape[:2]
+                                _mw = 640
+                                if _w > _mw:
+                                    _sx = _mw / _w; _sy = _sx
+                                    _fr = _cv2d.resize(det_rgb[..., ::-1],
+                                                       (_mw, int(_h * _sx)))
+                                else:
+                                    _sx = _sy = 1.0
+                                    _fr = det_rgb[..., ::-1]
+                                _ok, _buf = _cv2d.imencode(
+                                    '.jpg', _fr, [_cv2d.IMWRITE_JPEG_QUALITY, 75])
+                                if _ok:
+                                    self.stream_server.push({
+                                        'type': 'detections',
+                                        'epoch': self._stream_epoch,
+                                        'frame_b64': _b64d.b64encode(
+                                            _buf.tobytes()).decode('ascii'),
+                                        'boxes': [
+                                            {'cls_name': d.cls_name,
+                                             'cls_id': d.cls_id,
+                                             'conf': float(d.conf),
+                                             'bbox_xyxy': [
+                                                 float(d.bbox_xyxy[0] * _sx),
+                                                 float(d.bbox_xyxy[1] * _sy),
+                                                 float(d.bbox_xyxy[2] * _sx),
+                                                 float(d.bbox_xyxy[3] * _sy)]}
+                                            for d in dets
+                                        ]
+                                    })
+                            except Exception:
+                                pass
+
+                        # ── Step 4: 3D localisation + tracker update ───────────────
+                        if dets:
+                            try:
                                 depth_np = viz_out['depths'][-1, :, :, 0].detach().cpu().numpy()
                                 pose_c2w = viz_out['poses'][-1].detach().cpu().numpy()
-                                # True time of this keyframe's frame: the
-                                # camstamp (real Unix epoch, enables GPS/RTK
-                                # correlation later), not rgbinfo['timestamp']
-                                # which is just the frame index.
                                 try:
                                     _cts = getattr(self.dataset, '_cam_t_sec', None)
                                     if _cts is not None and f_idx < len(_cts):
@@ -831,12 +912,14 @@ class Runner:
                                     dets, depth_np, pose_c2w, viz_out['intrinsic'],
                                     f_idx, rgb_u8=det_rgb, det_hw=det_rgb.shape[:2],
                                     t_sec=kf_t_sec)
-                                if self.stream_server is not None:
-                                    self.stream_server.push({
-                                        'type': 'objects', 'epoch': self._stream_epoch,
-                                        'objects': self.object_tracker.snapshot()})
-                        except Exception as _e:
-                            print(f"[detect] keyframe skipped: {_e}")
+                            except Exception as _e:
+                                print(f"[detect] tracker update failed: {_e}")
+
+                        # ── Step 5: stream fused object markers ───────────────────
+                        if self.stream_server is not None:
+                            self.stream_server.push({
+                                'type': 'objects', 'epoch': self._stream_epoch,
+                                'objects': self.object_tracker.snapshot()})
                     with self.timer.time('map.total'):
                         new_viz_out = self.mapper.run(viz_out, True)
                     t_map = self.timer.last('map.total')
@@ -857,7 +940,7 @@ class Runner:
                         # Push re-streamt das gesamte frozen-Set neu.
                         if self.stream_server is not None:
                             self._stream_epoch += 1
-                            self._streamed_kf_ids.clear()
+                            self._frozen_sig.clear()
                             self.stream_server.push({'type': 'resync',
                                                      'epoch': self._stream_epoch})
 

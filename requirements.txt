@@ -35,3 +35,4 @@ onnxruntime-gpu==1.18.1
 psutil
 # Segmentation backend (FastSAM via ultralytics; SAM3-swappable)
 ultralytics==8.4.60
+websockets-15.0.1

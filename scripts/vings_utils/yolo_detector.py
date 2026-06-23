@@ -23,11 +23,13 @@ import torch
 
 try:  # repo runs scripts/ on sys.path; support both layouts.
     from vings_utils.detector_base import (
-        ObjectDetectorBase, Detection, boxes_to_detections, to_uint8_rgb)
+        ObjectDetectorBase, Detection, boxes_to_detections, obb_to_detections,
+        to_uint8_rgb)
     from vings_utils.detector_factory import register_detector
 except ImportError:  # pragma: no cover - standalone execution
     from detector_base import (
-        ObjectDetectorBase, Detection, boxes_to_detections, to_uint8_rgb)
+        ObjectDetectorBase, Detection, boxes_to_detections, obb_to_detections,
+        to_uint8_rgb)
     from detector_factory import register_detector
 
 
@@ -100,7 +102,11 @@ class YoloDetector(ObjectDetectorBase):
         )
         if not results:
             return []
-        return boxes_to_detections(results[0].boxes, results[0].names)
+        r = results[0]
+        # OBB models (yolo11n-obb, yolov8n-obb) populate r.obb instead of r.boxes.
+        if r.obb is not None and len(r.obb) > 0:
+            return obb_to_detections(r.obb, r.names)
+        return boxes_to_detections(r.boxes, r.names)
 
 
 # =============================================================================

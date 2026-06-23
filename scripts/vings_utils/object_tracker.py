@@ -101,6 +101,26 @@ def sample_box_depth(depth: np.ndarray, bbox_xyxy, box_shrink: float,
     return float(np.percentile(valid, depth_percentile))
 
 
+def sample_point_depth(depth: np.ndarray, col: float, row: float,
+                       min_d: float = 0.2, max_d: float = 1000.0,
+                       patch: int = 5) -> float | None:
+    """Robust scalar depth for a single pixel (col, row) using a small patch.
+
+    Used to get per-corner depths for OBB back-projection.  Returns None when
+    no valid pixels are found in the patch (caller should fall back to box-center
+    depth).
+    """
+    H, W = depth.shape
+    half = patch // 2
+    r0 = max(0, int(row) - half); r1 = min(H, int(row) + half + 1)
+    c0 = max(0, int(col) - half); c1 = min(W, int(col) + half + 1)
+    if r1 <= r0 or c1 <= c0:
+        return None
+    patch_d = depth[r0:r1, c0:c1].reshape(-1)
+    valid = patch_d[np.isfinite(patch_d) & (patch_d > min_d) & (patch_d < max_d)]
+    return float(np.median(valid)) if valid.size > 0 else None
+
+
 def _weighted_median(vals: np.ndarray, weights: np.ndarray) -> float:
     order = np.argsort(vals)
     v, w = vals[order], weights[order]
@@ -122,6 +142,7 @@ class _Track:
     confs: list = field(default_factory=list)
     cls_ids: list = field(default_factory=list)  # for class-agnostic majority vote
     _sum: np.ndarray = field(default_factory=lambda: np.zeros(3))
+    _last_footprint: object = field(default=None)  # (4,3) ndarray from most-recent OBB KF
 
     def add(self, p: np.ndarray, conf: float, cls_id: int, cls_name: str):
         if not self.confs or conf > max(self.confs):  # keep most-confident label
@@ -179,6 +200,7 @@ class ObjectTracker:
         self.min_hits = int(trk.get('min_hits', 3))
         self.class_agnostic = bool(trk.get('class_agnostic', False))
         self.marker_radius = float(trk.get('marker_radius', self.assoc_radius))
+        self.box_height = float(trk.get('box_height', self.marker_radius * 2.0))
 
         # output toggles
         self.want_csv = bool(out.get('csv', True))
@@ -247,6 +269,18 @@ class ObjectTracker:
                 rw = 0.5 * (box_d[1] + box_d[3])
                 p = unproject_center(col, rw, z, intrinsic, c2w)
                 tr = self._associate(p, d.conf, d.cls_id, d.cls_name)
+                # OBB footprint: back-project all 4 corners to DROID world
+                if getattr(d, 'corners_px', None) is not None:
+                    corners_3d = []
+                    for cx_px, cy_px in d.corners_px:
+                        cz = sample_point_depth(depth, cx_px * sx, cy_px * sy,
+                                                self.min_depth, self.max_depth)
+                        if cz is None:
+                            cz = z
+                        corners_3d.append(unproject_center(
+                            cx_px * sx, cy_px * sy, cz, intrinsic, c2w))
+                    if len(corners_3d) == 4:
+                        tr._last_footprint = np.array(corners_3d, dtype=np.float64)
                 row.update(depth=float(z), wx=float(p[0]), wy=float(p[1]),
                            wz=float(p[2]), tid=tr.tid)
                 kept.append((d, z))
@@ -318,9 +352,13 @@ class ObjectTracker:
             cls_id, cls_name = (tr.majority_cls() if self.class_agnostic
                                 else (tr.cls_id, tr.cls_name))
             x, y, z = (float(v) for v in tr.fused_position())
+            fp = tr._last_footprint   # (4,3) ndarray or None
+            corners_3d = ([[float(fp[i, k]) for k in range(3)] for i in range(4)]
+                          if fp is not None else None)
             objs.append({
                 'object_id': int(tr.tid), 'class': cls_name, 'cls_id': int(cls_id),
                 'conf': float(tr.conf), 'n_hits': int(tr.n_hits), 'xyz': [x, y, z],
+                'corners_3d': corners_3d, 'box_height': float(self.box_height),
             })
         objs.sort(key=lambda o: (-o['n_hits'], -o['conf']))
         return objs

@@ -88,16 +88,55 @@ class Detection:
     `bbox_xyxy` is in pixel coordinates of the input frame, OpenCV convention
     (x = column, y = row) -- the same order ultralytics returns and the same
     order `object_tracker` feeds into back-projection.
+
+    `corners_px` is set by OBB detectors (yolo*-obb) and holds the four
+    oriented-box corner points [[x0,y0], [x1,y1], [x2,y2], [x3,y3]] in pixel
+    space.  It is None for standard AABB detectors.
     """
     bbox_xyxy: tuple[float, float, float, float]  # (x1, y1, x2, y2)
     cls_id: int
     cls_name: str
     conf: float
+    corners_px: list | None = None  # 4×2 OBB corners, or None for AABB detectors
 
     @property
     def center(self) -> tuple[float, float]:
         x1, y1, x2, y2 = self.bbox_xyxy
         return 0.5 * (x1 + x2), 0.5 * (y1 + y2)  # (cx_col, cy_row)
+
+
+def obb_to_detections(obb, names=None) -> list[Detection]:
+    """Convert an ultralytics `Results.obb` object to a list[Detection].
+
+    OBB models (yolo11n-obb, yolov8n-obb) return oriented bounding boxes.
+    We convert each rotated box to its axis-aligned envelope so that the
+    rest of the object-tracker pipeline (which works in pixel xyxy) stays
+    unchanged.
+    """
+    if obb is None or len(obb) == 0:
+        return []
+    # xyxyxyxy: (N, 4, 2) corner points in pixel space
+    corners = obb.xyxyxyxy.detach().cpu().numpy()  # (N, 4, 2)
+    cls = obb.cls.detach().cpu().numpy().astype(int)
+    conf = obb.conf.detach().cpu().numpy()
+
+    def _name(c: int) -> str:
+        if names is not None:
+            n = names.get(c) if isinstance(names, dict) else (
+                names[c] if 0 <= c < len(names) else None)
+            if n is not None:
+                return n
+        return COCO_CLASSES[c] if 0 <= c < len(COCO_CLASSES) else str(c)
+
+    out: list[Detection] = []
+    for pts, c, p in zip(corners, cls, conf):
+        x1, y1 = pts[:, 0].min(), pts[:, 1].min()
+        x2, y2 = pts[:, 0].max(), pts[:, 1].max()
+        corners_px = pts.tolist()  # [[x0,y0], [x1,y1], [x2,y2], [x3,y3]]
+        out.append(Detection((float(x1), float(y1), float(x2), float(y2)),
+                             int(c), _name(int(c)), float(p),
+                             corners_px=corners_px))
+    return out
 
 
 def boxes_to_detections(boxes, names=None) -> list[Detection]:

@@ -3,9 +3,9 @@
 adc_args:
   accum_thresh: 0.98
 dataset:
-  camstamp_file: /home/philipp/Dokumente/datasets/amtown03/metadata/camstamp_all.txt
+  camstamp_file: /root/datasets/amtown03/metadata/camstamp_all.txt
   gps_alt_col: 3
-  gps_csv: /home/philipp/Dokumente/datasets/amtown03/metadata/rtk.csv
+  gps_csv: /root/datasets/amtown03/metadata/rtk.csv
   gps_lat_col: 1
   gps_lon_col: 2
   gps_t_col: 0
@@ -14,7 +14,7 @@ dataset:
   max_frames: 1000
   module: datasets.generic_vo
   rgb_strip: 1
-  root: /home/philipp/Dokumente/datasets/amtown03/
+  root: /root/datasets/amtown03/
   start_frame: 3100
 debug_mode: false
 device:
@@ -25,9 +25,9 @@ frame_selector:
 mapper_kf_skip: 1
 ply_checkpoint_every_kf: 50
 frontend:
-  active_window: 12
+  active_window: 16
   beta: 0.3
-  buffer: 80
+  buffer: 128
   c2i: None
   far_threshold: 0.02
   filter_thresh: 2.4
@@ -36,13 +36,13 @@ frontend:
   frontend_thresh: 16.0
   frontend_window: 5
   image_size:
-  - 240
-  - 288
+  - 480
+  - 576
   inac_range: 3
   keyframe_thresh: 0.0
   mask_threshold: -1.0
   max_factors: 48
-  save_buffer_size: 1300
+  save_buffer_size: 2000
   upsample: false
   show_plot: false
   skip_edge:
@@ -51,7 +51,7 @@ frontend:
   - -6
   translation_threshold: 0.5
   warm_up: 8
-  weight: /home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+  weight: /root/VINGS-Mono-BA/ckpts/droid.pth
 intrinsic:
   H: 1024
   W: 1224
@@ -67,12 +67,12 @@ middleware:
   max_depth: 1000
 mode: vo
 output:
-  save_dir: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/exp_amtown03_s3100_200f_stream/
+  save_dir: /root/VINGS-Mono-BA/output/exp_amtown03_s3100_200f_stream/
 storage_manager:
   cpu_prune_opacity_threshold: 0.1
   distance_threshold: 3.0
 training_args:
-  iters: 50
+  iters: 200
   loss_weights:
     rgb_loss: 1.0
     depth_loss: 0.5
@@ -85,8 +85,8 @@ training_args:
     _rotation_lr: 0.001
     _scaling_lr: 0.001
     _xyz_lr: 0.0001
-  num_keyframe: 8
-use_dynamic: false
+  num_keyframe: 16
+use_dynamic: true
 use_loop: false
 use_metric: false
 use_pose_refine: false
@@ -122,12 +122,55 @@ vis:
     - 1
   pose_scale: 1.0
 
+# --- Dynamic object masking (FastSAM) ----------------------------------------
+segmentation:
+  kind: fastsam
+  model: FastSAM-x
+  ckpt_path: /root/VINGS-Mono-BA/ckpts/FastSAM-x.pt
+  device: cuda
+
 # --- Live-Streaming zum Web-Frontend ----------------------------------------
 stream:
   enabled: true
   host: 0.0.0.0
   port: 8765
   every_kf: 1
-  max_active_splats: 200000
+  max_active_splats: 200000   # je Zyklus neu gesendete aktive Gruppen; 1M=~32MB/Zyklus
+                              # -> endlose Latenz. 200k=~6MB/Zyklus. Siehe stream_server.py.
   max_queue: 16
   flat_scale_eps: 0.001
+
+# --- Online object detection + 3D-localisation (YOLO OBB) -------------------
+# yolo26-obb: orientierte Bounding-Boxes, gut fuer Nadir-Luftbild.
+# Gewicht ckpts/yolo26-obb.pt ablegen (kein Auto-Download).
+detect_objects: true
+
+object_detector:
+  kind: yolo
+  model: yolo26n-obb
+  ckpt_path: /root/VINGS-Mono-BA/ckpts/yolo26n-obb.pt
+  conf: 0.20
+  iou: 0.7
+  imgsz: 1280
+  device: cuda
+  classes: null              # null = alle DOTA-Klassen
+  max_det: 100
+  box_shrink: 0.6
+  depth_percentile: 30.0
+  min_valid_px: 3
+  min_depth: 0.2
+  max_depth: 150.0
+
+object_tracker:
+  assoc_radius: 3.0
+  min_hits: 2
+  class_agnostic: false
+  marker_radius: 1.5
+  box_height: 3.0           # extrusion height for 3D OBB boxes in DROID world units
+
+object_output:
+  csv: true
+  markers_ply: true
+  overlay_video: true
+  overlay_fps: 10
+  detections_csv: true

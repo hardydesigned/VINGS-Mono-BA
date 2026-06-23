@@ -104,6 +104,24 @@ def _to_splat_bytes(xyz, scale3, rgb01, alpha01, quat_wxyz,
 # ---------------------------------------------------------------------------
 # source adapters
 # ---------------------------------------------------------------------------
+def encode_splat_from_mapper_kf(mapper, kf_id: int, max_n: int | None = None,
+                                flat_scale_eps: float = 1e-3) -> bytes:
+    """Encode Gaussians for one KF group (kf_id) from the live GPU mapper.
+
+    Returns b"" when no Gaussians belong to that kf_id.
+    """
+    import torch
+    mask = mapper._globalkf_id == kf_id
+    if not mask.any():
+        return b""
+    xyz  = mapper.get_property('_xyz')[mask].detach().cpu().numpy()
+    sc2  = mapper.get_property('_scaling')[mask].detach().cpu().numpy()
+    rgb  = mapper.get_property('_rgb')[mask].detach().cpu().numpy()
+    op   = mapper.get_property('_opacity')[mask].detach().cpu().numpy()
+    quat = mapper.get_property('_rotation')[mask].detach().cpu().numpy()
+    return _to_splat_bytes(xyz, _pad_scale(sc2, flat_scale_eps), rgb, op, quat, max_n=max_n)
+
+
 def encode_splat_from_mapper(mapper, max_n: int | None = None,
                              flat_scale_eps: float = 1e-3) -> bytes:
     """Encode the live GPU mapper set. Uses activated ``get_property`` values."""
@@ -129,9 +147,123 @@ def encode_splat_from_storage(sm, mask, flat_scale_eps: float = 1e-3) -> bytes:
 
     if sm._xyz.shape[0] == 0 or int(mask.sum()) == 0:
         return b""
-    xyz = sm._xyz[mask].float().numpy()
-    sc2 = torch.exp(sm._scaling[mask].float()).numpy()
-    rgb = sm._rgb[mask].float().numpy()
-    op = torch.sigmoid(sm._opacity[mask].float()).numpy()
-    quat = torch.nn.functional.normalize(sm._rotation[mask].float(), dim=-1).numpy()
+    xyz = sm._xyz[mask].detach().float().numpy()
+    sc2 = torch.exp(sm._scaling[mask].detach().float()).numpy()
+    rgb = sm._rgb[mask].detach().float().numpy()
+    op = torch.sigmoid(sm._opacity[mask].detach().float()).numpy()
+    quat = torch.nn.functional.normalize(sm._rotation[mask].detach().float(), dim=-1).numpy()
     return _to_splat_bytes(xyz, _pad_scale(sc2, flat_scale_eps), rgb, op, quat)
+
+
+# ---------------------------------------------------------------------------
+# point-cloud adapters (for the viser viewer: raw xyz + rgb, no .splat packing)
+# ---------------------------------------------------------------------------
+def _filter_points(xyz, rgb01, op01, scale2, max_n, min_opacity):
+    """Drop near-transparent floaters, cap to max_n (keep biggest), pack rgb u8.
+
+    Returns (xyz float32 (M,3), rgb uint8 (M,3)) or None if nothing survives.
+    """
+    op = op01.reshape(-1)
+    finite = (np.isfinite(xyz).all(1) & np.isfinite(scale2).all(1)
+              & np.isfinite(rgb01).all(1) & np.isfinite(op))
+    keep = finite & (op >= float(min_opacity))
+    xyz, rgb01, scale2 = xyz[keep], rgb01[keep], scale2[keep]
+    n = xyz.shape[0]
+    if n == 0:
+        return None
+    if max_n is not None and n > max_n:
+        # keep the largest disks (area proxy) -> less pop-in, like the .splat path
+        area = scale2.prod(axis=1)
+        idx = np.sort(np.argpartition(area, -max_n)[-max_n:])
+        xyz, rgb01 = xyz[idx], rgb01[idx]
+    rgb_u8 = np.clip(np.asarray(rgb01) * 255.0, 0, 255).astype(np.uint8)
+    return np.ascontiguousarray(xyz, dtype=np.float32), np.ascontiguousarray(rgb_u8)
+
+
+def _filter_attrs(xyz, rgb01, op01, scale2, quat, max_n, min_opacity, flat_scale_eps):
+    """Floater-filter + max_n cap, returns full per-Gaussian attrs for viser.
+
+    Returns (xyz f32 (M,3), rgb u8 (M,3), scale3 f32 (M,3), quat f32 (M,4) wxyz,
+    opacity f32 (M,1)) or None. ``scale3`` has the 2DGS flat third axis padded in.
+    """
+    op = np.asarray(op01, dtype=np.float32).reshape(-1)
+    # CRITICAL: drop non-finite Gaussians. 2DGS positions/scales can go NaN/Inf
+    # during optimisation; a single NaN in the gaussian buffer crashes the WASM
+    # splat sorter in the browser ("memory access out of bounds") and the WHOLE
+    # scene blanks. Filter here so the viewer never sees a NaN.
+    finite = (np.isfinite(xyz).all(1) & np.isfinite(scale2).all(1)
+              & np.isfinite(quat).all(1) & np.isfinite(rgb01).all(1)
+              & np.isfinite(op))
+    keep = finite & (op >= float(min_opacity))
+    xyz, rgb01, scale2, quat, op = (xyz[keep], rgb01[keep], scale2[keep],
+                                    quat[keep], op[keep])
+    n = xyz.shape[0]
+    if n == 0:
+        return None
+    if max_n is not None and n > max_n:
+        area = scale2.prod(axis=1)
+        idx = np.sort(np.argpartition(area, -max_n)[-max_n:])
+        xyz, rgb01, scale2, quat, op = (xyz[idx], rgb01[idx], scale2[idx],
+                                        quat[idx], op[idx])
+    scale3 = _pad_scale(scale2, flat_scale_eps)
+    return (np.ascontiguousarray(xyz, np.float32),
+            np.clip(np.asarray(rgb01) * 255.0, 0, 255).astype(np.uint8),
+            np.ascontiguousarray(scale3, np.float32),
+            np.ascontiguousarray(quat, np.float32),
+            np.ascontiguousarray(op.reshape(-1, 1), np.float32))
+
+
+def attrs_from_mapper_kf(mapper, kf_id: int, max_n=None, min_opacity: float = 0.0,
+                         flat_scale_eps: float = 1e-3):
+    """Full attrs (xyz, rgb, scale3, quat, opacity) for one live mapper KF group."""
+    mask = mapper._globalkf_id == kf_id
+    if not mask.any():
+        return None
+    xyz = mapper.get_property('_xyz')[mask].detach().cpu().numpy()
+    sc2 = mapper.get_property('_scaling')[mask].detach().cpu().numpy()
+    rgb = mapper.get_property('_rgb')[mask].detach().cpu().numpy()
+    op = mapper.get_property('_opacity')[mask].detach().cpu().numpy()
+    quat = mapper.get_property('_rotation')[mask].detach().cpu().numpy()
+    return _filter_attrs(xyz, rgb, op, sc2, quat, max_n, min_opacity, flat_scale_eps)
+
+
+def attrs_from_storage(sm, mask, max_n=None, min_opacity: float = 0.0,
+                       flat_scale_eps: float = 1e-3):
+    """Full attrs for a CPU StorageManager subset. Raw -> activate, detached."""
+    import torch
+    if sm._xyz.shape[0] == 0 or int(mask.sum()) == 0:
+        return None
+    xyz = sm._xyz[mask].detach().float().numpy()
+    sc2 = torch.exp(sm._scaling[mask].detach().float()).numpy()
+    rgb = sm._rgb[mask].detach().float().numpy()
+    op = torch.sigmoid(sm._opacity[mask].detach().float()).numpy()
+    quat = torch.nn.functional.normalize(sm._rotation[mask].detach().float(), dim=-1).numpy()
+    return _filter_attrs(xyz, rgb, op, sc2, quat, max_n, min_opacity, flat_scale_eps)
+
+
+def points_from_mapper_kf(mapper, kf_id: int, max_n=None, min_opacity: float = 0.0):
+    """(xyz, rgb_u8) for one live GPU mapper KF group, or None."""
+    mask = mapper._globalkf_id == kf_id
+    if not mask.any():
+        return None
+    xyz = mapper.get_property('_xyz')[mask].detach().cpu().numpy()
+    sc2 = mapper.get_property('_scaling')[mask].detach().cpu().numpy()
+    rgb = mapper.get_property('_rgb')[mask].detach().cpu().numpy()
+    op = mapper.get_property('_opacity')[mask].detach().cpu().numpy()
+    return _filter_points(xyz, rgb, op, sc2, max_n, min_opacity)
+
+
+def points_from_storage(sm, mask, max_n=None, min_opacity: float = 0.0):
+    """(xyz, rgb_u8) for a CPU StorageManager subset, or None. Raw -> activate."""
+    import torch
+    if sm._xyz.shape[0] == 0 or int(mask.sum()) == 0:
+        return None
+    # StorageManager tensors inherit requires_grad from the mapper (gpu2cpu does
+    # `concat(.., mapper._xyz[..].cpu().half())` and .cpu()/.half() keep the grad),
+    # so detach before numpy() -- otherwise every frozen push raises and the map
+    # never grows past the active GPU window.
+    xyz = sm._xyz[mask].detach().float().numpy()
+    sc2 = torch.exp(sm._scaling[mask].detach().float()).numpy()
+    rgb = sm._rgb[mask].detach().float().numpy()
+    op = torch.sigmoid(sm._opacity[mask].detach().float()).numpy()
+    return _filter_points(xyz, rgb, op, sc2, max_n, min_opacity)

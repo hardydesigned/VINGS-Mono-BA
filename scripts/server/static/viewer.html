@@ -35,10 +35,19 @@
   .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e0564b; }
   .dot.ok { background: #4bd07a; }
   .hint { opacity: .5; font-size: 11px; }
+  #det-panel { bottom: 10px; right: 10px; width: 320px; padding: 8px; display: none; }
+  #det-panel h2 { font-size: 11px; margin: 0 0 6px; color: var(--acc); }
+  #det-canvas { width: 100%; height: auto; display: block; border-radius: 4px; background: #0a0c12; }
+  #det-count { font-size: 11px; opacity: .7; margin-top: 4px; }
 </style>
 </head>
 <body>
 <div id="app"></div>
+<div id="det-panel" class="panel">
+  <h2>detections · camera frame</h2>
+  <canvas id="det-canvas"></canvas>
+  <div id="det-count">—</div>
+</div>
 <div id="hud" class="panel">connecting…</div>
 <div id="ctrl" class="panel">
   <h1>VINGS · live map</h1>
@@ -58,6 +67,7 @@
     <button id="up">Z-up</button>
   </div>
   <button id="refit">⤢ frame scene</button>
+  <button id="det-toggle">📷 detections</button>
   <div class="hint">drag = orbit · scroll = zoom · right-drag = pan<br/>URL override: <code>viewer.html#ws://host:port</code></div>
 </div>
 
@@ -97,10 +107,13 @@ scene.add(grid);
 const axes = new THREE.AxesHelper(1.5);
 scene.add(axes);
 
-const frozenGroup = new THREE.Group();    // accumulating reconstruction
-const activeGroup = new THREE.Group();    // the currently-optimised set
+const splatGroup  = new THREE.Group();    // all KF-group meshes (frozen + active)
 const objectGroup = new THREE.Group();    // detected-object markers
-scene.add(frozenGroup, activeGroup, objectGroup);
+scene.add(splatGroup, objectGroup);
+
+// kf_id (int) -> {obj: Mesh|LineSegments, raw: decoded, n: int, frozen: bool}
+// Each KF group is updated in-place; frozen groups are never re-sent.
+const kfGroups = new Map();
 
 // ===========================================================================
 // shared materials / geometry
@@ -119,7 +132,7 @@ const diskMaterial = new THREE.MeshBasicMaterial({
   alphaMap: discTex, alphaTest: 0.35, side: THREE.DoubleSide,
   transparent: false, depthWrite: true, toneMapped: false });
 
-// --- EWA gaussian-splat shader (additive, order-independent: no depth sort) ---
+// --- EWA gaussian-splat shader (correct alpha compositing, back-to-front sorted) ---
 const splatUniforms = {
   uViewport: { value: new THREE.Vector2(1, 1) },
   uFocal:    { value: new THREE.Vector2(1, 1) },
@@ -190,25 +203,89 @@ const splatFrag = `
     if (A > 4.0) discard;
     float alpha = exp(-A) * vColor.a * uOpacity;
     if (alpha < 0.003) discard;
-    gl_FragColor = vec4(vColor.rgb * alpha, alpha);   // premultiplied
+    gl_FragColor = vec4(vColor.rgb, alpha);   // standard (non-premultiplied) alpha
   }`;
 function makeSplatMaterial() {
   return new THREE.ShaderMaterial({
     uniforms: splatUniforms, vertexShader: splatVert, fragmentShader: splatFrag,
     transparent: true, depthTest: true, depthWrite: false,
-    blending: THREE.CustomBlending, blendEquation: THREE.AddEquation,
-    blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor });
+    blending: THREE.NormalBlending });   // SrcAlpha / OneMinusSrcAlpha — correct compositing
 }
 const splatMaterial = makeSplatMaterial();
 const CORNERS = new Float32Array([-2,-2, 2,-2, 2,2, -2,2]);
 const QUAD_IDX = new Uint16Array([0,1,2, 0,2,3]);
 
 // ===========================================================================
-// data model: raw decoded blocks (mode-agnostic) + their GPU object
+// depth sort helpers
+// ===========================================================================
+
+// Reusable depth buffer (grows if needed, never shrinks).
+let _depthBuf = new Float32Array(256 * 1024);
+// Pre-allocated index buffer — we use a regular Array to allow .sort() with comparator.
+// For 1M splats this takes ~40 ms; the sort is debounced so it runs at most ~3x/s.
+
+function _sortBlock(mesh, viewMatrix) {
+  const sd = mesh.userData.sortData;
+  if (!sd) return;
+  const { raw, sBuf, attrs } = sd;
+  const n = raw.n;
+  if (n < 2) return;
+
+  // Camera-space Z = z-row of view matrix (column-major Three.js layout).
+  // Row 2: elements[2], [6], [10], [14].
+  const e = viewMatrix.elements;
+  const m0 = e[2], m1 = e[6], m2 = e[10], m3 = e[14];
+
+  // Ensure depth buffer capacity.
+  if (_depthBuf.length < n) _depthBuf = new Float32Array(n * 1.5 | 0);
+  for (let i = 0; i < n; i++) {
+    const j = i * 3;
+    _depthBuf[i] = m0*raw.centers[j] + m1*raw.centers[j+1] + m2*raw.centers[j+2] + m3;
+  }
+
+  // Build sorted index array. Ascending = farthest first (most-negative cam-z).
+  const idx = new Array(n);
+  for (let i = 0; i < n; i++) idx[i] = i;
+  idx.sort((a, b) => _depthBuf[a] - _depthBuf[b]);
+
+  // Reorder attribute buffers in-place using the sorted index.
+  const { centers: c, scales: s, quats: q, colors: col } = raw;
+  for (let i = 0; i < n; i++) {
+    const src = idx[i];
+    const i3 = i*3, s3 = src*3, i4 = i*4, s4 = src*4;
+    sBuf.centers[i3]   = c[s3];   sBuf.centers[i3+1] = c[s3+1]; sBuf.centers[i3+2] = c[s3+2];
+    sBuf.scales[i3]    = s[s3];   sBuf.scales[i3+1]  = s[s3+1];  sBuf.scales[i3+2]  = s[s3+2];
+    sBuf.quats[i4]     = q[s4];   sBuf.quats[i4+1]   = q[s4+1];  sBuf.quats[i4+2]   = q[s4+2];  sBuf.quats[i4+3]  = q[s4+3];
+    sBuf.colors[i4]    = col[s4]; sBuf.colors[i4+1]  = col[s4+1]; sBuf.colors[i4+2]  = col[s4+2]; sBuf.colors[i4+3] = col[s4+3];
+  }
+  for (const a of attrs) a.needsUpdate = true;
+}
+
+// Debounced full re-sort: triggered on camera movement, runs 300 ms after the
+// last movement event.  The active block also gets sorted immediately when new
+// data arrives (see replaceActive) so live-stream quality is always up-to-date.
+let _sortTimer = null;
+const _lastSortDir = new THREE.Vector3(0, 0, -1);
+const SORT_COS_THRESH = 0.9998; // ~1.3 ° change triggers a re-sort
+
+function _scheduleSort() {
+  clearTimeout(_sortTimer);
+  _sortTimer = setTimeout(_doSortAll, 300);
+}
+
+function _doSortAll() {
+  if (renderMode !== 'splats') return;
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+  if (dir.dot(_lastSortDir) > SORT_COS_THRESH) return; // barely moved
+  _lastSortDir.copy(dir);
+  const vm = camera.matrixWorldInverse;
+  for (const [, g] of kfGroups) if (g.obj) _sortBlock(g.obj, vm);
+}
+
+// ===========================================================================
+// data model: KF-group map (mode-agnostic) + GPU objects
 // ===========================================================================
 let renderMode = 'disks';
-const frozenBlocks = [];   // [{raw, obj}]
-let activeBlock = null;    // {raw, obj} | null
 const bbox = new THREE.Box3();
 let haveData = false, didAutoFit = false;
 
@@ -257,16 +334,29 @@ function buildDisk(raw) {
 }
 
 function buildSplat(raw) {
+  // Sortable copies of the attribute arrays — the sort reorders these in-place
+  // while raw.* holds the original unsorted data for re-sorting from a new view.
+  const sBuf = {
+    centers: raw.centers.slice(),
+    scales:  raw.scales.slice(),
+    quats:   raw.quats.slice(),
+    colors:  raw.colors.slice(),
+  };
   const g = new THREE.InstancedBufferGeometry();
   g.setAttribute('corner', new THREE.BufferAttribute(CORNERS, 2));
   g.setIndex(new THREE.BufferAttribute(QUAD_IDX, 1));
-  g.setAttribute('iCenter', new THREE.InstancedBufferAttribute(raw.centers, 3));
-  g.setAttribute('iScale',  new THREE.InstancedBufferAttribute(raw.scales, 3));
-  g.setAttribute('iQuat',   new THREE.InstancedBufferAttribute(raw.quats, 4));
-  g.setAttribute('iColor',  new THREE.InstancedBufferAttribute(raw.colors, 4));
+  const aC   = new THREE.InstancedBufferAttribute(sBuf.centers, 3);
+  const aS   = new THREE.InstancedBufferAttribute(sBuf.scales,  3);
+  const aQ   = new THREE.InstancedBufferAttribute(sBuf.quats,   4);
+  const aCol = new THREE.InstancedBufferAttribute(sBuf.colors,  4);
+  g.setAttribute('iCenter', aC);
+  g.setAttribute('iScale',  aS);
+  g.setAttribute('iQuat',   aQ);
+  g.setAttribute('iColor',  aCol);
   g.instanceCount = raw.n;
   const mesh = new THREE.Mesh(g, splatMaterial);
   mesh.frustumCulled = false;
+  mesh.userData.sortData = { raw, sBuf, attrs: [aC, aS, aQ, aCol] };
   return mesh;
 }
 
@@ -286,24 +376,39 @@ function growBBox(raw) {
   haveData = true;
 }
 
-// ---- stream message handlers ----------------------------------------------
-function addFrozen(raw) {
-  const obj = buildObj(raw); frozenGroup.add(obj);
-  frozenBlocks.push({ raw, obj }); growBBox(raw);
+// ---- KF-group stream message handlers ------------------------------------
+// One entry per KF group; keyed by kf_id (integer).
+// Frozen groups receive append_frozen and are never updated again.
+// Active groups receive update_kf every stream cycle until frozen.
+
+function _addOrUpdateKfGroup(kf_id, raw, frozen) {
+  const old = kfGroups.get(kf_id);
+  if (old) { splatGroup.remove(old.obj); disposeObj(old.obj); }
+  const obj = buildObj(raw);
+  if (renderMode === 'splats') _sortBlock(obj, camera.matrixWorldInverse);
+  splatGroup.add(obj);
+  kfGroups.set(kf_id, { obj, raw, n: raw.n, frozen });
+  growBBox(raw);
   if (!didAutoFit) { didAutoFit = true; refit(); }
 }
-function replaceActive(raw) {
-  if (activeBlock) { activeGroup.remove(activeBlock.obj); disposeObj(activeBlock.obj); }
-  const obj = buildObj(raw); activeGroup.add(obj); activeBlock = { raw, obj }; growBBox(raw);
-}
+
+function addFrozen(kf_id, raw) { _addOrUpdateKfGroup(kf_id, raw, true); }
+function updateKf(kf_id, raw)  { _addOrUpdateKfGroup(kf_id, raw, false); }
+
 function clearAll() {
-  for (const b of frozenBlocks) { frozenGroup.remove(b.obj); disposeObj(b.obj); }
-  frozenBlocks.length = 0;
-  if (activeBlock) { activeGroup.remove(activeBlock.obj); disposeObj(activeBlock.obj); activeBlock = null; }
+  for (const [, g] of kfGroups) { splatGroup.remove(g.obj); disposeObj(g.obj); }
+  kfGroups.clear();
+  bbox.makeEmpty(); haveData = false; didAutoFit = false;
 }
-function rebuildAll() {  // on mode toggle: rebuild GPU objects from kept raw data
-  for (const b of frozenBlocks) { frozenGroup.remove(b.obj); disposeObj(b.obj); b.obj = buildObj(b.raw); frozenGroup.add(b.obj); }
-  if (activeBlock) { activeGroup.remove(activeBlock.obj); disposeObj(activeBlock.obj); activeBlock.obj = buildObj(activeBlock.raw); activeGroup.add(activeBlock.obj); }
+
+function rebuildAll() {  // on mode toggle: rebuild GPU objects from cached raw data
+  const vm = camera.matrixWorldInverse;
+  for (const [kf_id, g] of kfGroups) {
+    splatGroup.remove(g.obj); disposeObj(g.obj);
+    g.obj = buildObj(g.raw);
+    if (renderMode === 'splats') _sortBlock(g.obj, vm);
+    splatGroup.add(g.obj);
+  }
 }
 
 // ===========================================================================
@@ -321,18 +426,50 @@ function labelSprite(text, color) {
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, toneMapped: false }));
   sp.scale.set(0.9, 0.225, 1); sp.center.set(0, 0); return sp;
 }
+function makeBox3D(corners3d, height, color) {
+  // 8 vertices: base corners 0-3, top corners 4-7 (extruded in +Z = DROID up)
+  const verts = new Float32Array(8 * 3);
+  for (let i = 0; i < 4; i++) {
+    const [x, y, z] = corners3d[i];
+    verts[i*3]       = x; verts[i*3+1]       = y; verts[i*3+2]       = z;
+    verts[(i+4)*3]   = x; verts[(i+4)*3+1]   = y; verts[(i+4)*3+2]   = z + height;
+  }
+  // 12 edges as index pairs for LineSegments
+  const idx = new Uint16Array([
+    0,1, 1,2, 2,3, 3,0,   // base ring
+    4,5, 5,6, 6,7, 7,4,   // top ring
+    0,4, 1,5, 2,6, 3,7    // vertical pillars
+  ]);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+  geo.setIndex(new THREE.BufferAttribute(idx, 1));
+  return new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color, toneMapped: false }));
+}
+
 let showLabels = true;
 function setObjects(objs) {
   objectGroup.clear();
   const r = markerSize();
   for (const o of objs) {
     const col = classColor(o.cls_id ?? 0);
-    const m = new THREE.Mesh(markerGeo, new THREE.MeshBasicMaterial({ color: col, wireframe: true, toneMapped: false }));
-    m.position.set(o.xyz[0], o.xyz[1], o.xyz[2]); m.scale.setScalar(r);
-    objectGroup.add(m);
-    if (showLabels) {
-      const lab = labelSprite(`${o.class} ${(o.conf ?? 0).toFixed(2)}`, col);
-      lab.position.set(o.xyz[0]+r, o.xyz[1], o.xyz[2]+r); objectGroup.add(lab);
+    if (o.corners_3d && o.corners_3d.length === 4) {
+      // OBB detector: draw 3D wireframe box from back-projected footprint
+      const bh = o.box_height ?? (r * 2);
+      objectGroup.add(makeBox3D(o.corners_3d, bh, col));
+      if (showLabels) {
+        const lab = labelSprite(`${o.class} ${(o.conf ?? 0).toFixed(2)}`, col);
+        lab.position.set(o.xyz[0], o.xyz[1], o.xyz[2] + bh + r * 0.5);
+        objectGroup.add(lab);
+      }
+    } else {
+      // AABB fallback: sphere marker
+      const m = new THREE.Mesh(markerGeo, new THREE.MeshBasicMaterial({ color: col, wireframe: true, toneMapped: false }));
+      m.position.set(o.xyz[0], o.xyz[1], o.xyz[2]); m.scale.setScalar(r);
+      objectGroup.add(m);
+      if (showLabels) {
+        const lab = labelSprite(`${o.class} ${(o.conf ?? 0).toFixed(2)}`, col);
+        lab.position.set(o.xyz[0]+r, o.xyz[1], o.xyz[2]+r); objectGroup.add(lab);
+      }
     }
   }
   nObjects = objs.length;
@@ -347,7 +484,13 @@ function markerSize() {
 // WebSocket
 // ===========================================================================
 let ws = null, currentEpoch = 0, reconnectT = null, backoff = 500;
-let nFrozen = 0, nActive = 0, nObjects = 0, connected = false;
+let nObjects = 0, connected = false;
+
+function _kfCounts() {
+  let nF = 0, nA = 0;
+  for (const [, g] of kfGroups) { if (g.frozen) nF += g.n; else nA += g.n; }
+  return { nF, nA };
+}
 
 // Default: connect to the SAME origin the page was served from (the stream
 // server serves this HTML on its own port). Scheme follows page: https->wss.
@@ -387,17 +530,80 @@ function onBinary(buf) {
   const header = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, hlen)));
   if (header.epoch < currentEpoch) return;            // stale (pre-resync)
   const raw = decodeSplat(buf.slice(4 + hlen), header.n);
-  if (header.type === 'append_frozen') { addFrozen(raw); nFrozen += header.n; }
-  else if (header.type === 'replace_active') { replaceActive(raw); nActive = header.n; }
-  else if (header.type === 'replace_all') {
-    clearAll(); nFrozen = 0; replaceActive(raw); nActive = header.n;
+  const kf_id = header.kf_id ?? -1;
+  if (header.type === 'append_frozen') {
+    addFrozen(kf_id, raw);
+  } else if (header.type === 'update_kf') {
+    updateKf(kf_id, raw);
+  } else if (header.type === 'replace_active') {
+    // Legacy fallback: treat the whole active set as one group with kf_id = -999
+    updateKf(-999, raw);
+  } else if (header.type === 'replace_all') {
+    clearAll(); updateKf(-1, raw);
   }
   updateHud();
 }
+// ===========================================================================
+// detection PiP panel
+// ===========================================================================
+const detPanel = document.getElementById('det-panel');
+const detCanvas = document.getElementById('det-canvas');
+const detCount = document.getElementById('det-count');
+const detCtx = detCanvas.getContext('2d');
+let detPanelVisible = false;
+let _pendingDet = null;   // latest detections message, rendered lazily after image load
+
+function _clsColor(id) {
+  const h = (id * 47) % 360;
+  return `hsl(${h}, 80%, 60%)`;
+}
+
+function _renderDetections(msg) {
+  const { frame_b64, boxes } = msg;
+  const img = new Image();
+  img.onload = () => {
+    detCanvas.width  = img.naturalWidth;
+    detCanvas.height = img.naturalHeight;
+    detCtx.drawImage(img, 0, 0);
+    detCtx.font = 'bold 13px ui-monospace, monospace';
+    for (const b of (boxes || [])) {
+      const [x1, y1, x2, y2] = b.bbox_xyxy;
+      const col = _clsColor(b.cls_id ?? 0);
+      detCtx.strokeStyle = col;
+      detCtx.lineWidth = 2;
+      detCtx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+      const label = `${b.cls_name} ${b.conf.toFixed(2)}`;
+      const tw = detCtx.measureText(label).width;
+      detCtx.fillStyle = 'rgba(0,0,0,0.55)';
+      detCtx.fillRect(x1, y1 - 18, tw + 6, 18);
+      detCtx.fillStyle = col;
+      detCtx.fillText(label, x1 + 3, y1 - 4);
+    }
+    detCount.textContent = `${(boxes || []).length} detection${(boxes||[]).length !== 1 ? 's' : ''}`;
+  };
+  img.src = 'data:image/jpeg;base64,' + frame_b64;
+}
+
+document.getElementById('det-toggle').onclick = (e) => {
+  detPanelVisible = !detPanelVisible;
+  detPanel.style.display = detPanelVisible ? 'block' : 'none';
+  e.target.classList.toggle('on', detPanelVisible);
+  // Render pending frame if panel just became visible
+  if (detPanelVisible && _pendingDet) { _renderDetections(_pendingDet); _pendingDet = null; }
+};
+
 function onText(str) {
   const msg = JSON.parse(str);
-  if (msg.type === 'resync') { currentEpoch = msg.epoch; clearAll(); nFrozen = nActive = 0; bbox.makeEmpty(); didAutoFit = false; updateHud('— resync —'); }
-  else if (msg.type === 'objects') { if (msg.epoch < currentEpoch) return; setObjects(msg.objects || []); updateHud(); }
+  if (msg.type === 'resync') {
+    currentEpoch = msg.epoch; clearAll(); updateHud('— resync —');
+  } else if (msg.type === 'objects') {
+    if (msg.epoch < currentEpoch) return;
+    setObjects(msg.objects || []); updateHud();
+  } else if (msg.type === 'detections') {
+    if (msg.epoch < currentEpoch) return;
+    if (detPanelVisible) _renderDetections(msg);
+    else _pendingDet = msg;   // defer until panel opens
+  }
 }
 
 // ===========================================================================
@@ -406,12 +612,15 @@ function onText(str) {
 const hud = document.getElementById('hud');
 let fps = 0, _ft = performance.now(), _fc = 0;
 function updateHud(extra = '') {
+  const { nF, nA } = _kfCounts();
+  const nKfF = [...kfGroups.values()].filter(g => g.frozen).length;
+  const nKfA = kfGroups.size - nKfF;
   const dot = connected ? '<span class="dot ok"></span>' : '<span class="dot"></span>';
   hud.innerHTML =
     `${dot} ${connected ? 'live' : 'offline'}   <b>${renderMode}</b>\n` +
     `epoch    <b>${currentEpoch}</b>\n` +
-    `frozen   <b>${nFrozen.toLocaleString()}</b> splats\n` +
-    `active   <b>${nActive.toLocaleString()}</b> splats\n` +
+    `frozen   <b>${nF.toLocaleString()}</b>  (${nKfF} kfs)\n` +
+    `active   <b>${nA.toLocaleString()}</b>  (${nKfA} kfs)\n` +
     `objects  <b>${nObjects}</b>\n` +
     `fps      <b>${fps}</b>` + (extra ? `\n${extra}` : '');
 }
@@ -440,6 +649,9 @@ document.getElementById('up').onclick = (e) => {
 document.getElementById('refit').onclick = refit;
 document.getElementById('reconnect').onclick = connect;
 document.getElementById('url').onkeydown = (e) => { if (e.key === 'Enter') connect(); };
+
+// Trigger debounced re-sort when the user moves the camera.
+controls.addEventListener('change', _scheduleSort);
 
 function refit() {
   if (!haveData || bbox.isEmpty()) return;
