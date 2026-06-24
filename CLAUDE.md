@@ -289,6 +289,7 @@ Beispiel-Configs: `configs/local/{frameselector,nurbs_lvi,mm3dgs,game_kfs,adapti
 | `docs/SEGMENTATION_BACKEND.md` | Dynamic-Object-Masking: swappable Segmentation-Backend (`kind: fastsam`/`sam2` live, `sam3` Code-da-Weights-gated), `use_dynamic: true` + `segmentation.kind`; SAM segmentiert pro KF, high-Error-Segmente raus aus dem Loss; Factory `segmentation_factory.py` |
 | `docs/OBJECT_DETECTION.md` | Objekterkennung + Online-3D-Lokalisierung: `detect_objects: true` + `object_detector.kind` (`yolo`/`rtdetr`, swappable via `detector_factory.py`); pro gemapptem KF Box→Tiefe→DROID-Welt, Fusion zu Objekt-Tracks; Output `objects_droid.csv`/`object_markers_droid.ply`/`object_overlay.mp4`; Metrik/GPS später via `sim3_unwarp` |
 | `docs/STREAMING.md` | Live-Streaming von Gaussians (`.splat`) + Objekt-Markern zu einem Web-Frontend während des Runs via WebSocket: `stream.enabled: true`; frozen/active-Delta (StorageManager append-only vs Mapper full-replace, Key `_globalkf_id`); non-blocking daemon-Thread; `scripts/server/{stream_server,splat_encode}.py` + three.js-Frontend `static/viewer.html` (3D-Karte, Disks/Splats-Toggle, OD-Marker; `test_viewer.html` = Smoketest); braucht `pip install websockets` |
+| `docs/DEPTH_MODELS.md` | Config-schaltbares Tiefenmodell (`depth_model.kind`/`variant`/`checkpoint`, Registry-Factory `metric/depth_factory.py`, Default `metric3d` v2-S) + `scale_align`: `false`=Metric3D ersetzt DROID-Tiefe (alt), `true`=nur metrische Skala `s=median(m_d/d_droid)` auf scharfe DROID-Struktur; `metric_cov`-Wirkung (`weight=1/cov`); Beispiel `configs/local/depth_model/` |
 | `HOW_TO_RUN.md` | Run-Anleitung |
 | `COMMANDS.md` | nützliche Aufrufe |
 | `README.md` | Originale Repo-README (vorgelagertes Projekt) |
@@ -332,7 +333,12 @@ Detailliert in `docs/SESSION_NOTES_2026_05_20.md`. Pro Thema separate Docs.
 1. **`use_metric: false` bei Aerial-Nadir-Szenen** ist ein +2-3 dB PSNR-Hebel.
    Metric3D auf flachem Boden gibt noisy Tiefen → falsche Gaussian-Platzierung.
    DroidNet-Tiefe aus dem internen BA reicht (TartanAir-trainiert = passende Domäne).
-   Siehe `docs/RUN_CONFIG_PATTERNS.md`.
+   Siehe `docs/RUN_CONFIG_PATTERNS.md`. **Mittelweg (seit 2026-06-24):**
+   `scale_align: true` behält die scharfe DROID-Struktur und übernimmt nur die
+   *metrische Skala* von Metric3D (`s = median(m_d/d_droid)`) — relevant wenn man
+   metrisch bleiben will, aber das Single-Image-Tiefenrauschen stört. Modell selbst
+   ist jetzt per `depth_model.{kind,variant,checkpoint}` config-schaltbar (v2-S→v2-L
+   ohne Code-Change). Siehe `docs/DEPTH_MODELS.md`.
 
 2. **`scripts/dynamic/dynamic_utils.py` ist jetzt LIVE** (seit 2026-06-05).
    `use_dynamic: true` + `segmentation.kind: fastsam` segmentiert jeden KF mit

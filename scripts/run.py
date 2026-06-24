@@ -25,6 +25,7 @@ from storage.storage_manage import StorageManager
 from loop.loop_model import LoopModel
 from eval.fair_eval import run_fair_eval
 from metric.metric_model import Metric_Model
+from metric.depth_factory import make_depth_model
 import time
 import json
 import statistics
@@ -154,7 +155,7 @@ class Runner:
         # damit der use_metric_for_mapper-Injektionspfad (viz_out-depth-Override) laeuft.
         self.metric_predictor = None
         if 'use_metric' in cfg.keys() and cfg['use_metric'] and not cfg['dataset'].get('lidar_dir'):
-            self.metric_predictor = Metric_Model(cfg)
+            self.metric_predictor = make_depth_model(cfg)
         # Cache Metric3D depths indexed by cam-timestamp so the mapper can
         # consume the direct metric prior instead of DROID-DBA's noisy output.
         # Enable via cfg['use_metric_for_mapper'] (default true if use_metric).
@@ -253,7 +254,9 @@ class Runner:
                     port=int(self.stream_cfg.get('port', 8765)),
                     point_shape=self.stream_cfg.get('point_shape', 'rounded'),
                     min_opacity=float(self.stream_cfg.get('min_opacity', 0.0)),
-                    render_mode=self.stream_cfg.get('render_mode', 'gaussians'))
+                    render_mode=self.stream_cfg.get('render_mode', 'gaussians'),
+                    max_total_splats=int(self.stream_cfg.get('max_total_splats', 500_000)),
+                    splat_bucket=int(self.stream_cfg.get('splat_bucket', 50_000)))
                 self.stream_server.start()
             except Exception as _e:
                 print(f"[stream] disabled (init failed): {_e}")
@@ -815,8 +818,31 @@ class Runner:
                                 if m_d.shape[:2] == viz_out['depths'].shape[1:3]:
                                     img_i = viz_out['images'][i]
                                     sky_mask = (img_i.sum(dim=-1) == 0)
-                                    viz_out['depths'][i, :, :, 0] = torch.where(sky_mask, torch.zeros_like(m_d), m_d)
-                                    if 'depths_cov' in viz_out:
+                                    _wrote = True
+                                    if self.cfg.get('scale_align', False):
+                                        # scale_align: keep DROID's (multi-view,
+                                        # sharp) structure, only borrow the metric
+                                        # scale s = median(m_d / d_droid) over valid
+                                        # pixels. Aerial-Nadir: Metric3D is noisy on
+                                        # flat ground, DROID is not -> structure DROID,
+                                        # scale Metric3D. Sky stays at 0.
+                                        d_droid = viz_out['depths'][i, :, :, 0]
+                                        min_d = float(self.cfg.get('scale_align_min_depth', 0.2))
+                                        valid = (~sky_mask) & (m_d > min_d) & (d_droid > min_d)
+                                        if int(valid.sum()) >= 100:
+                                            s = torch.median(m_d[valid] / d_droid[valid])
+                                            viz_out['depths'][i, :, :, 0] = torch.where(
+                                                sky_mask, torch.zeros_like(d_droid), d_droid * s)
+                                        else:
+                                            # too few valid pixels -> skip re-scale,
+                                            # leave DROID depth (and its cov) untouched.
+                                            _wrote = False
+                                    else:
+                                        # Replace path (default): overwrite DROID depth
+                                        # with the direct Metric3D prior, sky kept at 0.
+                                        viz_out['depths'][i, :, :, 0] = torch.where(
+                                            sky_mask, torch.zeros_like(m_d), m_d)
+                                    if _wrote and 'depths_cov' in viz_out:
                                         # weighted_l1 in get_loss uses weight=1/cov.
                                         # 0.01 -> weight 100 dominiert RGB-Loss.
                                         # cfg['metric_cov'] (Default 1.0) -> weight ~1.

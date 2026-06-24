@@ -25,9 +25,14 @@ class Metric_Model:
         Metric3D
         '''
         import os
-        ckpt_path = 'ckpts/metric_depth_vit_small_800k.pth'
+        # variant + checkpoint are config-switchable via cfg['depth_model'].
+        # Defaults reproduce the historic hardcoded values (v2-S / small ckpt),
+        # so configs without a depth_model block run unchanged.
+        dm = cfg.get('depth_model') or {}
+        model_name = dm.get('variant', 'v2-S')                          # v2-S | v2-L | v2-g
+        ckpt_path = dm.get('checkpoint', 'ckpts/metric_depth_vit_small_800k.pth')
         # self.predictor = Metric(checkpoint='/data/wuke/workspace/droid_metric/weights/metric_depth_vit_small_800k.pth', model_name='v2-S')
-        self.predictor = Metric(checkpoint=ckpt_path, model_name='v2-S')
+        self.predictor = Metric(checkpoint=ckpt_path, model_name=model_name)
         if u_scale is None:
             # u_scale, v_scale = self.cfg['frontend']['image_size'][0]/self.cfg['intrinsic']['H'], self.cfg['frontend']['image_size'][1]/self.cfg['intrinsic']['W']
             u_scale, v_scale = 1.0, 1.0

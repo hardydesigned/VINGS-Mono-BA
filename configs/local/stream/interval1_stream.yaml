@@ -5,12 +5,16 @@ dataset:
   image_ext: '*.jpg'
   camstamp_file: /root/datasets/interval1_CAM_LIDAR/interval1_AMtown03/vings/camstamp.txt
   ext_poses_file: /root/datasets/interval1_CAM_LIDAR/interval1_AMtown03/vings/poses_w2c.txt
-  lidar_dir: /root/datasets/interval1_CAM_LIDAR/interval1_AMtown03/interval1_LIDAR
-  lidar_sign_u: -1.0
-  lidar_sign_v: -1.0
+  # LiDAR-Tiefe deaktiviert, damit Metric3D laeuft: bei gesetztem lidar_dir wird das
+  # Metric-Modell gar nicht geladen (run.py: ... and not cfg['dataset'].get('lidar_dir'))
+  # und der scale_align-Injection-Pfad bliebe inert. Zum Zurueckschalten auf LiDAR-Tiefe
+  # diese drei Zeilen wieder aktivieren und use_metric: false setzen.
+  # lidar_dir: /root/datasets/interval1_CAM_LIDAR/interval1_AMtown03/interval1_LIDAR
+  # lidar_sign_u: -1.0
+  # lidar_sign_v: -1.0
   module: datasets.generic_vo
   start_frame: 3000
-  max_frames: 600
+  max_frames: 200
   rgb_strip: 1
 debug_mode: false
 device: {mapper: 'cuda:0', tracker: 'cuda:0'}
@@ -42,7 +46,7 @@ frontend:
   weight: /root/VINGS-Mono-BA/ckpts/droid.pth
 intrinsic: {H: 2048, W: 2448, bg: 0, cu: 1174.0, cv: 1049.9, fu: 1469.5, fv: 1469.5,
   resolution_scale: 1.0}
-middleware: {cov_times: 1000, max_cov: 3000.0, max_depth: 1000}
+middleware: {cov_times: 1000, max_cov: 3000.0, max_depth: 100}
 mode: vo
 output: {save_dir: /root/VINGS-Mono-BA/output/exp_interval1_stream/}
 storage_manager: {cpu_prune_opacity_threshold: 0.5, distance_threshold: 3.0}
@@ -66,6 +70,22 @@ vis:
   pose_scale: 1.0
 fair_eval: {enabled: false}
 use_metric_for_mapper: true
+
+# --- Tiefenmodell (config-schaltbar) + scale_align, siehe docs/DEPTH_MODELS.md ---
+# Metric3D liefert die Tiefe (LiDAR oben deaktiviert). scale_align: true behaelt die
+# scharfe DROID-BA-Struktur und uebernimmt nur die metrische Skala s=median(m_d/d_droid)
+# -- relevant fuer Aerial-Nadir, wo Single-Image-Metric-Tiefe auf flachem Boden rauscht.
+depth_model:
+  kind: metric3d          # Registry-Key (metric/depth_factory.py)
+  variant: v2-L           # v2-S | v2-L | v2-g. ACHTUNG: das v2-S-Config in diesem
+                          # metric3d-Checkout hat einen 48-Kanal-RAFT-Decoder und passt
+                          # NICHT zum small-Checkpoint (128 Kanaele) -> Shape-Mismatch.
+                          # v2-L laedt sauber zum large-Checkpoint. Fuer v2-S erst das
+                          # small-Config (dino_vit_small_reg.dpt_raft.py) fixen.
+  checkpoint: ckpts/metric_depth_vit_large_800k.pth
+metric_cov: 1.0           # Prior-Vertrauen (weight = 1/cov). Kleiner = haerter.
+scale_align: true         # false = Replace (Metric3D ersetzt DROID) | true = nur Skala
+scale_align_min_depth: 0.2  # Gueltigkeits-Untergrenze fuers Skalen-Median (m)
 
 # --- Dynamic object masking (FastSAM) ----------------------------------------
 segmentation:

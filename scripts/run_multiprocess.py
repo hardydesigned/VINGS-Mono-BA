@@ -21,6 +21,7 @@ import time
 import gc
 
 from metric.metric_model import Metric_Model
+from metric.depth_factory import make_depth_model
 
     
 def tracking(cfg, tracker2mapper_queue):
@@ -32,7 +33,7 @@ def tracking(cfg, tracker2mapper_queue):
     tracker.frontend.all_stamp = dataset.preload_camtimestamp()
     
     if 'use_metric' in cfg.keys() and cfg['use_metric']:
-        metric_predictor = Metric_Model(cfg)   
+        metric_predictor = make_depth_model(cfg)   
         
         
     idx = 0

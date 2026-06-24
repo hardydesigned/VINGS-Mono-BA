@@ -21,6 +21,7 @@ import open3d as o3d
 from lietorch import SE3
 from gaussian.vis_utils import check_pcd_with_poses
 from metric.metric_model import Metric_Model
+from metric.depth_factory import make_depth_model
 
 class Runner:
     def __init__(self, cfg):
@@ -29,7 +30,7 @@ class Runner:
         cfg['frontend']['c2i'] = self.dataset.c2i # (4, 4), ndarray
         self.tracker = DBAFusion(cfg)
         if 'use_metric' in cfg.keys() and cfg['use_metric']:
-            self.metric_predictor = Metric_Model(cfg)
+            self.metric_predictor = make_depth_model(cfg)
             
             
     def run(self):

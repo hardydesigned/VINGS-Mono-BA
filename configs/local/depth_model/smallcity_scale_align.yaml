@@ -1,0 +1,119 @@
+# Beispiel: config-schaltbares Tiefenmodell + scale_align.
+# Basis = configs/hierarchical/smallcity.yaml, ergaenzt um den depth_model-Block
+# und scale_align. Siehe docs/DEPTH_MODELS.md.
+#
+#   depth_model.variant: v2-L  -> groessere Metric3D-Backbone (Checkpoint muss in
+#                                 ckpts/ liegen; v2-S laeuft ohne Block weiter).
+#   scale_align: true          -> DROID-Struktur behalten, nur metrische Skala
+#                                 (s = median(m_d / d_droid)) von Metric3D uebernehmen.
+
+use_wandb: False
+use_sky: False
+use_dynamic: False
+use_pose_refine: False
+use_metric: True
+use_metric_for_mapper: True
+debug_mode: False
+
+# --- NEU: Tiefenmodell-Auswahl ---------------------------------------------
+depth_model:
+  kind: metric3d          # Registry-Key (metric/depth_factory.py); aktuell einziges Backend
+  variant: v2-L           # v2-S | v2-L | v2-g  (Backbone-Groesse)
+  checkpoint: ckpts/metric_depth_vit_large_800k.pth
+
+metric_cov: 1.0           # Prior-Vertrauen (weight = 1/cov). Kleiner = haerter.
+scale_align: true         # false = Replace (alt) | true = nur Skala auf DROID
+scale_align_min_depth: 0.2  # Gueltigkeits-Untergrenze fuers Skalen-Median (m)
+# ---------------------------------------------------------------------------
+
+mode: 'vo' # 'vo' or 'vio'
+
+
+device:
+  tracker: 'cuda:0'
+  mapper: 'cuda:0'
+
+dataset:
+  root: /data/wuke/DATA/2024/Hierarchical3DGS/small_city/
+  module: datasets.hierarchical
+  rgb_strip: 1
+
+middleware:
+  cov_times: 1000
+  max_cov: 3e3
+  max_depth: 35
+
+output:
+  save_dir: /data/wuke/workspace/September/VINGS-Mono/output/
+
+# 707.0912 707.0912 601.8873 183.1104
+intrinsic: # H, W, intrinsic就用原始的哈
+  H: 690
+  W: 1024
+  fu: 487.09015156
+  fv: 486.9700816
+  cu: 345. # cy
+  cv: 512. # cx
+  resolution_scale: 1.0
+  bg: 0
+
+
+frontend:
+  weight: /data/wuke/workspace/VINGS-Mono/ckpts/droid.pth
+  image_size: [344, 616]
+  buffer: 80
+  filter_thresh: 2.4
+  c2i: None
+  warm_up: 8
+  beta: 0.3
+  frontend_nms: 1
+  keyframe_thresh: 4.0
+  frontend_window: 5
+  frontend_thresh: 16.0
+  frontend_radius: 2
+  active_window: 12
+  max_factors: 48
+  far_threshold: 0.02
+  inac_range: 3
+  mask_threshold: -1.0
+  skip_edge: [-4,-5,-6]
+  translation_threshold: 0.5
+  show_plot: False
+
+adc_args:
+  accum_thresh: 0.98
+training_args:
+  num_keyframe: 8
+  iters: 50
+  lr: # Copy form 2DGS.
+    _xyz_lr: 0.0001
+    _rgb_lr: 0.0005
+    _opacity_lr: 0.05
+    _scaling_lr: 0.001
+    _rotation_lr: 0.001
+  loss_weights:
+    rgb_loss: 1.0
+    depth_loss: 1.0
+    alpha_loss: 1.0
+    normal_loss: 0.1
+    dist_loss: 0.0
+
+use_vis: False
+vis:
+  bev_w2c: [[ 9.86264675e-01,  7.99505779e-02,  1.44533373e-01, -5.73378037e+01],
+       [ 2.78057407e-02,  7.82189932e-01, -6.22419273e-01, 3.97714933e+01],
+       [-1.62815330e-01,  6.17889000e-01,  7.69223214e-01, 14.49326822e+01],
+       [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00, 1.00000000e+00]]
+  bev_intrinsic_dict:
+    H: 758
+    W: 1372
+    fu: 656.44725606860459
+    fv: 656.44725606860459
+    cu: 378.5 # cy
+    cv: 685.5 # cx
+  pose_scale: 1.0
+
+
+use_storage_manager: False
+storage_manager:
+  distance_threshold: 30.0
