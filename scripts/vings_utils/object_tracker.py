@@ -69,6 +69,29 @@ def unproject_center(col: float, row: float, z: float,
     return (np.asarray(c2w, dtype=np.float64) @ p_cam)[:3]
 
 
+def obb_yaw_world(angle_img: float, col: float, row: float, z: float,
+                  intr: dict, c2w: np.ndarray, up_axis: int = 2,
+                  eps_px: float = 5.0):
+    """World-frame yaw (rad, mod pi) from an OBB long-axis *image-plane* angle.
+
+    Unprojects the box centre and a point stepped `eps_px` along the image-plane
+    long axis at the **same depth**, then takes the heading of the resulting
+    world-space delta on the horizontal plane. Using the full unprojection (not a
+    nadir shortcut) keeps it correct under oblique views -- the camera tilt rides
+    in via `c2w`. Returns None when the axis projects ~vertical (no yaw). This
+    replaces the depth-PCA yaw and is independent of how dense the box depth is.
+    """
+    d_col, d_row = np.cos(angle_img), np.sin(angle_img)
+    p0 = unproject_center(col, row, z, intr, c2w)
+    p1 = unproject_center(col + eps_px * d_col, row + eps_px * d_row, z, intr, c2w)
+    delta = np.asarray(p1) - np.asarray(p0)
+    horiz = [i for i in range(3) if i != up_axis]
+    a_h = np.array([delta[horiz[0]], delta[horiz[1]]])
+    if np.linalg.norm(a_h) < 1e-9:
+        return None
+    return float(np.arctan2(a_h[1], a_h[0])) % np.pi
+
+
 def sample_box_depth(depth: np.ndarray, bbox_xyxy, box_shrink: float,
                      depth_percentile: float, min_d: float, max_d: float,
                      min_valid_px: int) -> float | None:
@@ -367,6 +390,12 @@ class ObjectTracker:
                     depth, box_d, self.box_shrink, intrinsic, c2w,
                     self.min_depth, self.max_depth, self.min_pca_px,
                     size_percentile=self.size_percentile)
+                # OBB detectors (YOLO26-OBB) carry an appearance-based heading;
+                # prefer it over the depth-PCA yaw (tied to sparse aerial depth).
+                if getattr(d, "angle", None) is not None:
+                    yaw_obb = obb_yaw_world(d.angle, col, rw, z, intrinsic, c2w)
+                    if yaw_obb is not None:
+                        yaw = yaw_obb
                 tr = self._associate(p, d.conf, d.cls_id, d.cls_name, yaw, size)
                 row.update(depth=float(z), wx=float(p[0]), wy=float(p[1]),
                            wz=float(p[2]), tid=tr.tid)

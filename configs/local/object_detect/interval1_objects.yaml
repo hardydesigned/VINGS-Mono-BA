@@ -78,17 +78,17 @@ detect_objects: true
 
 object_detector:
   kind: yolo                 # yolo | rtdetr | none (austauschbar per Factory)
-  model: yolov8n             # frei: yolov8n/s/m/l/x bzw. rtdetr-l/x
-  ckpt_path: ckpts/yolov8n.pt   # fehlt -> ultralytics auto-download
-                             # ACHTUNG: COCO-YOLO ist auf Nadir-Aerial schwach
-                             # (Objekte winzig, falsche Klassen). Fuer echte
-                             # Aerial-Detektion ckpt_path auf VisDrone/DOTA-
-                             # trainierte yolo-.pt zeigen lassen (drop-in).
+  model: yolo26n-obb         # YOLO26-OBB (DOTA-v1): orientierte Boxen -> echtes
+  ckpt_path: ckpts/yolo26n-obb.pt   # Heading pro Objekt, fehlt -> auto-download
+                             # OBB ist auf Nadir-Aerial die richtige Wahl: die
+                             # Box-Rotation liefert die Fahrzeug-Achse, die der
+                             # object_tracker zum Welt-Yaw macht (statt Depth-PCA).
+                             # Fuer axis-aligned: model: yolov8s-visdrone (drop-in).
   conf: 0.20                 # Aerial: niedriger; Bodendaten: 0.35
   iou: 0.7
   imgsz: 1280                # Aerial: hoch (winzige Objekte); sonst 640
   device: cpu                # VRAM-schonend; cuda:0 wenn GPU frei
-  classes: [2, 5, 7]         # COCO car/bus/truck; null = alle 80
+  classes: [9, 10]           # DOTA-v1 large/small vehicle; null = alle 15
   max_det: 100
   # Tiefen-Sampling pro Box
   box_shrink: 0.6            # zentrales Fenster (gegen Hintergrund am Rand)

@@ -15,6 +15,18 @@ Because the high-level `ultralytics.SAM("sam3*.pt")` wrapper only exposes SAM3's
 `SAM3SemanticPredictor` directly (it is exported from `ultralytics.models.sam`).
 
 ----------------------------------------------------------------------------
+ENV REQUIREMENTS (verified working 2026-06-20 with ckpts/sam3.1_multiplex.pt)
+----------------------------------------------------------------------------
+* Checkpoint: place a SAM3 .pt at `ckpt_path` (default
+  `ckpts/sam3.1_multiplex.pt`). Weights are gated (see below) -- no auto-download.
+* timm >= 0.9 (the env shipped 0.6.7; `pip install --no-deps timm==0.9.16`
+  gives SAM3 its `timm.layers` while keeping the old `timm.models.layers` /
+  `timm.models.registry` shims that metric3d still imports).
+* torch >= 2.1 APIs (`torch.nn.attention`, `torch.compiler`) are back-ported by
+  `_ensure_torch_compat_shims()` so the env stays on torch 2.0.1+cu118 (required
+  by the DROID / 2DGS CUDA extensions). No torch upgrade needed.
+
+----------------------------------------------------------------------------
 WEIGHTS ARE GATED -- this backend cannot self-download (verified 2026-06-05)
 ----------------------------------------------------------------------------
 SAM3 weights are NOT in the ultralytics asset index (unlike sam2.1_*.pt), so
@@ -60,14 +72,71 @@ except ImportError:  # pragma: no cover - standalone execution
     from segmentation_factory import register_segmentation
 
 
+def _ensure_torch_compat_shims() -> None:
+    """Back-port the torch >= 2.1 APIs that ultralytics' SAM3 build assumes.
+
+    The vings env is pinned to torch 2.0.1+cu118 because the DROID and 2DGS CUDA
+    extensions are compiled against it (upgrading torch would rebuild/break the
+    whole tracking+mapping stack), but the SAM3 image model touches two symbols
+    that only exist in torch >= 2.1. Both have safe 2.0 equivalents:
+
+      * `torch.nn.attention.{SDPBackend, sdpa_kernel}` -- one context manager
+        selecting the SDPA kernel -> `torch.backends.cuda.sdp_kernel`.
+      * `torch.compiler.is_dynamo_compiling()` -- queried in the decoder; in
+        eager mode (we never `torch.compile` SAM3) the answer is simply False.
+
+    On torch >= 2.1 each branch is a no-op (the real module already exists).
+    """
+    import sys
+    import types
+    from contextlib import contextmanager
+    from enum import Enum
+
+    # --- torch.nn.attention ---------------------------------------------------
+    if not hasattr(torch.nn, "attention") and "torch.nn.attention" not in sys.modules:
+        from torch.backends.cuda import sdp_kernel
+
+        class SDPBackend(Enum):
+            MATH = 0
+            FLASH_ATTENTION = 1
+            EFFICIENT_ATTENTION = 2
+            CUDNN_ATTENTION = 3
+
+        @contextmanager
+        def sdpa_kernel(backends):
+            if not isinstance(backends, (list, tuple)):
+                backends = [backends]
+            sel = set(backends)
+            with sdp_kernel(
+                enable_flash=SDPBackend.FLASH_ATTENTION in sel,
+                enable_math=SDPBackend.MATH in sel,
+                enable_mem_efficient=SDPBackend.EFFICIENT_ATTENTION in sel,
+            ):
+                yield
+
+        shim = types.ModuleType("torch.nn.attention")
+        shim.SDPBackend = SDPBackend
+        shim.sdpa_kernel = sdpa_kernel
+        sys.modules["torch.nn.attention"] = shim
+        torch.nn.attention = shim
+
+    # --- torch.compiler -------------------------------------------------------
+    if not hasattr(torch, "compiler"):
+        comp = types.ModuleType("torch.compiler")
+        comp.is_dynamo_compiling = lambda: False  # eager mode: never compiling
+        comp.is_compiling = lambda: False
+        sys.modules["torch.compiler"] = comp
+        torch.compiler = comp
+
+
 # Default movable-object concepts for dynamic-object masking on street scenes.
 _DEFAULT_CLASSES = ["car", "truck", "bus", "person", "bicycle", "motorcycle"]
 
 
 @dataclass
 class Sam3Config:
-    model: str = "sam3"
-    ckpt_path: str = "ckpts/sam3.pt"
+    model: str = "sam3.1_multiplex"
+    ckpt_path: str = "ckpts/sam3.1_multiplex.pt"
     classes: List[str] = field(default_factory=lambda: list(_DEFAULT_CLASSES))
     conf: float = 0.4
     iou: float = 0.9
@@ -104,6 +173,7 @@ class Sam3Backend(SegmentationBackend):
 
     def _ensure_model(self):
         if self._predictor is None:
+            _ensure_torch_compat_shims()  # torch<2.1 compat (see helper)
             # Text-grounded SAM3 -> SAM3SemanticPredictor (the high-level SAM(...)
             # wrapper only exposes the interactive point/box predictor).
             from ultralytics.models.sam import SAM3SemanticPredictor
@@ -118,6 +188,9 @@ class Sam3Backend(SegmentationBackend):
                     iou=self.cfg.iou,
                     device=self.device,
                     verbose=False,
+                    save=False,      # no per-KF disk writes (disk-full guard)
+                    save_txt=False,
+                    save_crop=False,
                 )
             )
             # Concepts to segment (the candidate dynamics).

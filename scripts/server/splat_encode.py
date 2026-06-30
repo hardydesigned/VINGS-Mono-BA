@@ -50,14 +50,21 @@ def _pad_scale(scale2: np.ndarray, flat_scale_eps: float = 1e-3) -> np.ndarray:
     return np.concatenate([scale2, third[:, None]], axis=1).astype(np.float32)
 
 
-def _select_indices(scale3: np.ndarray, max_n: int) -> np.ndarray:
-    """Keep the ``max_n`` largest splats (by volume proxy) to limit bandwidth.
+def _select_indices(scale3: np.ndarray, alpha01: np.ndarray, max_n: int) -> np.ndarray:
+    """Keep the ``max_n`` most *visually contributing* splats to limit bandwidth.
 
-    Prioritising big splats over a plain stride reduces pop-in on the viewer.
+    The old metric was ``scale3.prod`` (3D volume), but the third axis is the
+    synthetic ``flat_scale_eps`` thickness -- it carries no information and makes
+    the score ~ ``area * eps * min_axis``, i.e. a distorted area proxy. A 2D
+    disk's screen contribution is ``opacity * disk_area``, so we rank by exactly
+    that: the two *real* 2DGS axes (``scale3[:, :2]``) times the splat's opacity.
+    Near-transparent or pinpoint splats (which add nothing once composited) get
+    dropped first, so the capped set keeps the surfaces you actually see.
     """
-    vol = scale3.prod(axis=1)
+    area = scale3[:, 0] * scale3[:, 1]                 # real 2DGS disk area
+    score = area * np.clip(alpha01.reshape(-1), 0.0, 1.0)
     # argpartition is O(N); take the top-max_n then sort those for stable order.
-    idx = np.argpartition(vol, -max_n)[-max_n:]
+    idx = np.argpartition(score, -max_n)[-max_n:]
     return np.sort(idx)
 
 
@@ -81,7 +88,7 @@ def _to_splat_bytes(xyz, scale3, rgb01, alpha01, quat_wxyz,
 
     n = xyz.shape[0]
     if max_n is not None and n > max_n:
-        idx = _select_indices(scale3, max_n)
+        idx = _select_indices(scale3, alpha01, max_n)
         xyz, scale3 = xyz[idx], scale3[idx]
         rgb01, alpha01, quat_wxyz = rgb01[idx], alpha01[idx], quat_wxyz[idx]
         n = max_n
@@ -105,13 +112,27 @@ def _to_splat_bytes(xyz, scale3, rgb01, alpha01, quat_wxyz,
 # source adapters
 # ---------------------------------------------------------------------------
 def encode_splat_from_mapper(mapper, max_n: int | None = None,
-                             flat_scale_eps: float = 1e-3) -> bytes:
-    """Encode the live GPU mapper set. Uses activated ``get_property`` values."""
-    xyz = mapper.get_property('_xyz').detach().cpu().numpy()
-    sc2 = mapper.get_property('_scaling').detach().cpu().numpy()        # exp() applied
-    rgb = mapper.get_property('_rgb').detach().cpu().numpy()
-    op = mapper.get_property('_opacity').detach().cpu().numpy()         # sigmoid() applied
-    quat = mapper.get_property('_rotation').detach().cpu().numpy()      # normalized
+                             flat_scale_eps: float = 1e-3, mask=None) -> bytes:
+    """Encode the live GPU mapper set. Uses activated ``get_property`` values.
+
+    ``mask`` (optional, a boolean tensor/array over the mapper's gaussians) selects
+    a subset -- used by the per-KF-group active *delta* push so only the gaussians
+    of one ``_globalkf_id`` group are serialized. Masking happens on-device before
+    the host copy to keep the per-group encode cheap.
+    """
+    xyz = mapper.get_property('_xyz').detach()
+    sc2 = mapper.get_property('_scaling').detach()        # exp() applied
+    rgb = mapper.get_property('_rgb').detach()
+    op = mapper.get_property('_opacity').detach()          # sigmoid() applied
+    quat = mapper.get_property('_rotation').detach()       # normalized
+    if mask is not None:
+        import torch
+        if not torch.is_tensor(mask):
+            mask = torch.as_tensor(mask, device=xyz.device)
+        mask = mask.reshape(-1).bool()
+        xyz, sc2, rgb, op, quat = xyz[mask], sc2[mask], rgb[mask], op[mask], quat[mask]
+    xyz = xyz.cpu().numpy(); sc2 = sc2.cpu().numpy(); rgb = rgb.cpu().numpy()
+    op = op.cpu().numpy(); quat = quat.cpu().numpy()
     if xyz.shape[0] == 0:
         return b""
     return _to_splat_bytes(xyz, _pad_scale(sc2, flat_scale_eps), rgb, op, quat,

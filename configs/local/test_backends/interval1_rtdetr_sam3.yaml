@@ -1,0 +1,162 @@
+# ==========================================================================
+# Kombi-Test 4/4: RT-DETR (OD) + SAM3 (Seg, text-grounded) + Live-Streaming
+#   detect_objects + use_dynamic + stream.enabled -> alle drei Subsysteme an.
+# Run:  conda run -n vings python scripts/run_experiment.py \
+#         configs/local/test_backends/interval1_rtdetr_sam3.yaml
+#   Viewer: http://localhost:8765
+# Output: output/test_rtdetr_sam3/ + Live-Stream
+# HINWEISE:
+#   * rtdetr-l: COCO, kein OBB, auf Aerial schwach -> wenige Detektionen.
+#     rtdetr-l.pt fehlt -> auto-download.
+#   * VRAM: SAM3 (3.5 GB) + Mapper auf cuda:0 (Detektor cpu). 8-GB-Host eng ->
+#     imgsz 512 + kurzer Slice. Bei OOM imgsz/max_frames senken.
+# ==========================================================================
+adc_args: {accum_thresh: 0.98}
+dataset:
+  root: /home/philipp/Dokumente/datasets/interval1_AMtown03
+  image_dir: interval1_CAM
+  image_ext: '*.jpg'
+  camstamp_file: /home/philipp/Dokumente/datasets/interval1_AMtown03/vings/camstamp.txt
+  ext_poses_file: /home/philipp/Dokumente/datasets/interval1_AMtown03/vings/poses_w2c.txt
+  lidar_dir: /home/philipp/Dokumente/datasets/interval1_AMtown03/interval1_LIDAR
+  lidar_sign_u: -1.0
+  lidar_sign_v: -1.0
+  module: datasets.generic_vo
+  start_frame: 300
+  max_frames: 400
+  rgb_strip: 1
+debug_mode: false
+device: {mapper: 'cuda:0', tracker: 'cuda:0'}
+frame_selector: 
+  kind: two_gate_v2
+  pose_d_min_m: 0.2
+  visual_change_max_ssim: 0.985
+  ssim_resize: 80
+  enable_ssim_veto: true
+  covis_thresh: 0.85
+  n_samples_covis: 2048
+  min_depth: 0.2
+  max_depth: 35.0
+  enable_b3: true
+  alpha: 0.3
+  dino_model: dinov2_vits14
+  dino_image_size: 224
+  dino_device: cuda
+  dino_max_kfs: 10
+  theta0: 0.15
+  theta_init: 0.2
+  window_size: 30
+  sensitivity: 0.5
+  decay: 0.85
+  min_spacing: 3
+  max_per_window: 2
+  rate_window: 30
+  force_after: 100
+mapper_kf_skip: 1
+ply_checkpoint_every_kf: 50
+frontend:
+  active_window: 12
+  beta: 0.3
+  buffer: 80
+  c2i: None
+  far_threshold: 0.02
+  filter_thresh: -1.0
+  frontend_nms: 1
+  frontend_radius: 2
+  frontend_thresh: 16.0
+  frontend_window: 5
+  image_size: [240, 288]
+  inac_range: 3
+  keyframe_thresh: 0.0
+  mask_threshold: -1.0
+  max_factors: 48
+  save_buffer_size: 6500
+  upsample: false
+  show_plot: false
+  skip_edge: [-4, -5, -6]
+  translation_threshold: 0.5
+  warm_up: 8
+  weight: /home/philipp/Dokumente/Github/VINGS-Mono-BA/ckpts/droid.pth
+intrinsic: {H: 2048, W: 2448, bg: 0, cu: 1174.0, cv: 1049.9, fu: 1469.5, fv: 1469.5,
+  resolution_scale: 1.0}
+middleware: {cov_times: 1000, max_cov: 3000.0, max_depth: 1000}
+mode: vo
+output: {save_dir: /home/philipp/Dokumente/Github/VINGS-Mono-BA/output/test_rtdetr_sam3/}
+storage_manager: {cpu_prune_opacity_threshold: 0.5, distance_threshold: 3.0}
+training_args:
+  iters: 50
+  loss_weights: {rgb_loss: 1.0, depth_loss: 0.5, normal_loss: 0.1, alpha_loss: 0.1, dist_loss: 0.0}
+  lr: {_opacity_lr: 0.05, _rgb_lr: 0.0005, _rotation_lr: 0.001, _scaling_lr: 0.001, _xyz_lr: 0.0001}
+  num_keyframe: 8
+use_loop: false
+use_metric: true
+use_pose_refine: false
+seed_video_with_ext_pose: false
+use_sky: false
+use_storage_manager: true
+use_vis: false
+use_wandb: false
+vis:
+  bev_intrinsic_dict: {H: 758, W: 1372, cu: 378.5, cv: 685.5, fu: 656.4, fv: 656.4}
+  bev_w2c: [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
+  pose_scale: 1.0
+fair_eval: {enabled: false}
+use_metric_for_mapper: true
+
+# --- Live-Streaming ---------------------------------------------------------
+stream:
+  enabled: true
+  host: 0.0.0.0
+  port: 8765
+  every_kf: 1
+  max_active_splats: 200000
+  max_queue: 16
+  flat_scale_eps: 0.001
+
+# --- Online object detection: RT-DETR ---------------------------------------
+detect_objects: true
+object_detect_stride: 3
+object_detector:
+  kind: rtdetr
+  model: rtdetr-l
+  ckpt_path: ckpts/rtdetr-l.pt
+  conf: 0.25
+  iou: 0.7
+  imgsz: 640
+  device: cpu
+  classes: [2, 5, 7]
+  max_det: 100
+  box_shrink: 0.6
+  depth_percentile: 30.0
+  min_valid_px: 3
+  min_pca_px: 20
+  size_percentile: 95.0
+  min_depth: 0.2
+  max_depth: 150.0
+object_tracker:
+  assoc_radius: 3.0
+  min_hits: 2
+  class_agnostic: false
+  marker_radius: 1.5
+object_output:
+  csv: true
+  markers_ply: true
+  overlay_video: true
+  overlay_fps: 10
+  detections_csv: true
+
+# --- Dynamic-object masking: SAM3 -------------------------------------------
+use_dynamic: true
+segmentation:
+  kind: sam3
+  model: sam3.1_multiplex
+  ckpt_path: ckpts/sam3.1_multiplex.pt
+  classes: [car, truck, bus, person, bicycle, motorcycle]
+  conf: 0.4
+  iou: 0.9
+  imgsz: 512
+  device: cuda:0
+  min_area_px: 0
+  dyn_loss_quantile: 0.9
+  dyn_high_rate: 0.2
+  dyn_mean_loss: 0.002

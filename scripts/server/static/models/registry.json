@@ -1,0 +1,8 @@
+{
+  "small vehicle": { "url": "models/car.glb",   "yaw": 0 },
+  "large vehicle": { "url": "models/truck.glb", "yaw": 0 },
+  "car":   { "url": "models/car.glb",   "yaw": 0 },
+  "van":   { "url": "models/car.glb",   "yaw": 0 },
+  "truck": { "url": "models/truck.glb", "yaw": 0 },
+  "bus":   { "url": "models/bus.glb",   "yaw": 0 }
+}

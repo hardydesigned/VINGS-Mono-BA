@@ -202,9 +202,12 @@ const splatVert = `
       -uFocal.x*cam.x/(cam.z*cam.z), -uFocal.y*cam.y/(cam.z*cam.z), 0.0);
     mat3 T = J * W;
     mat3 cov = T * Sigma * transpose(T);
-    float a = cov[0][0] + 0.3;
+    // antialiasing low-pass added to the 2D covariance diagonal (pixel^2). The
+    // INRIA reference uses 0.3; we halve it to 0.15 so splats stay sharper and
+    // less "verwaschen" while still guarding sub-pixel splats from aliasing.
+    float a = cov[0][0] + 0.15;
     float b = cov[0][1];
-    float c = cov[1][1] + 0.3;
+    float c = cov[1][1] + 0.15;
     float mid = 0.5*(a+c);
     float disc = sqrt(max(mid*mid - (a*c - b*b), 0.0));
     float l1 = mid + disc;
@@ -411,6 +414,77 @@ function rebuildAll() {  // on mode toggle: rebuild GPU objects from kept raw da
   if (activeBlock) { activeGroup.remove(activeBlock.obj); disposeObj(activeBlock.obj); activeBlock.obj = buildObj(activeBlock.raw); activeGroup.add(activeBlock.obj); _activeShown = activeBlock.raw.n; }
 }
 
+// ---- depth sorting (back-to-front) ----------------------------------------
+// Alpha-OVER compositing is only correct when splats are drawn far->near.
+// Without it, overlapping splats blend in arbitrary (arrival) order -> the
+// muddy/inconsistent look. We (a) reorder each block's instance attributes by
+// view depth (descending) and (b) set per-block renderOrder by centroid
+// distance so far blocks draw before near ones. Throttled + camera-move-gated,
+// so it costs nothing while the view is still. Disks are z-buffered -> skipped.
+let _scKey = null, _scOrd = null, _scXYZ = null, _scSC = null, _scQ = null, _scCOL = null;
+function _ensureSortScratch(n) {
+  if (!_scOrd || _scOrd.length < n) {
+    _scKey = new Float32Array(n); _scOrd = new Uint32Array(n);
+    _scXYZ = new Float32Array(n * 3); _scSC = new Float32Array(n * 3);
+    _scQ = new Float32Array(n * 4); _scCOL = new Float32Array(n * 4);
+  }
+}
+function _blockCentroid(b) {
+  if (b._cen) return b._cen;
+  const c = b.raw.centers, n = b.raw.n, step = Math.max(1, (n / 512) | 0);
+  let x = 0, y = 0, z = 0, k = 0;
+  for (let i = 0; i < n; i += step) { x += c[i*3]; y += c[i*3+1]; z += c[i*3+2]; k++; }
+  b._cen = new THREE.Vector3(x / k, y / k, z / k);
+  return b._cen;
+}
+function sortBlock(b, cam) {   // cam = camera position in splat-local coords
+  const obj = b.obj;
+  if (!obj || !obj.geometry) return;
+  const at = obj.geometry.attributes;
+  if (!at.iCenter) return;                       // InstancedMesh (disks) -> skip
+  const n = b.raw.n;
+  if (n < 2) return;
+  _ensureSortScratch(n);
+  const c = b.raw.centers, sc = b.raw.scales, qu = b.raw.quats, co = b.raw.colors;
+  const key = _scKey, ord = _scOrd, cx = cam.x, cy = cam.y, cz = cam.z;
+  for (let i = 0; i < n; i++) {
+    const o = i * 3, dx = c[o] - cx, dy = c[o+1] - cy, dz = c[o+2] - cz;
+    key[i] = dx*dx + dy*dy + dz*dz; ord[i] = i;
+  }
+  ord.subarray(0, n).sort((i, j) => key[j] - key[i]);    // far first (descending depth)
+  for (let i = 0; i < n; i++) {
+    const s = ord[i], o3 = i*3, s3 = s*3, o4 = i*4, s4 = s*4;
+    _scXYZ[o3] = c[s3]; _scXYZ[o3+1] = c[s3+1]; _scXYZ[o3+2] = c[s3+2];
+    _scSC[o3]  = sc[s3]; _scSC[o3+1] = sc[s3+1]; _scSC[o3+2] = sc[s3+2];
+    _scQ[o4]   = qu[s4]; _scQ[o4+1] = qu[s4+1]; _scQ[o4+2] = qu[s4+2]; _scQ[o4+3] = qu[s4+3];
+    _scCOL[o4] = co[s4]; _scCOL[o4+1] = co[s4+1]; _scCOL[o4+2] = co[s4+2]; _scCOL[o4+3] = co[s4+3];
+  }
+  c.set(_scXYZ.subarray(0, n*3)); sc.set(_scSC.subarray(0, n*3));
+  qu.set(_scQ.subarray(0, n*4)); co.set(_scCOL.subarray(0, n*4));
+  at.iCenter.needsUpdate = at.iScale.needsUpdate = at.iQuat.needsUpdate = at.iColor.needsUpdate = true;
+}
+const _camW = new THREE.Vector3(), _localCam = new THREE.Vector3();
+let _lastSortCam = new THREE.Vector3(1e9, 1e9, 1e9), _lastSortT = -1e9;
+function maybeSortSplats(now) {
+  if (renderMode !== 'splats' || !haveData) return;
+  if (now - _lastSortT < 120) return;                       // cap re-sort rate
+  camera.getWorldPosition(_camW);
+  worldGroup.updateWorldMatrix(true, false);
+  _localCam.copy(_camW); worldGroup.worldToLocal(_localCam);  // splats live in group-local coords
+  const sz = new THREE.Vector3(); bbox.getSize(sz);
+  const moveEps = Math.max(1e-6, (sz.length() * 0.01) ** 2);  // ~1% of scene diagonal
+  if (_localCam.distanceToSquared(_lastSortCam) < moveEps && now - _lastSortT < 2000) return;
+  _lastSortT = now; _lastSortCam.copy(_localCam);
+  for (const b of frozenBlocks) {
+    sortBlock(b, _localCam);
+    b.obj.renderOrder = -_localCam.distanceTo(_blockCentroid(b));   // far -> lower -> drawn first
+  }
+  if (activeBlock) {
+    sortBlock(activeBlock, _localCam);
+    activeBlock.obj.renderOrder = -_localCam.distanceTo(_blockCentroid(activeBlock));
+  }
+}
+
 // ===========================================================================
 // object markers
 // ===========================================================================
@@ -424,11 +498,33 @@ const MODEL_REGISTRY = { car: { url: 'models/car.glb', yaw: 0 },
                         truck: { url: 'models/truck.glb', yaw: 0 },
                         bus: { url: 'models/bus.glb', yaw: 0 },
                         van: { url: 'models/car.glb', yaw: 0 } };
+// Detector vocabularies disagree on naming: COCO says "car"/"truck", VisDrone
+// "car"/"van"/"truck"/"bus", DOTA-OBB "small vehicle"/"large vehicle", etc.
+// Map NORMALISED synonyms (lower-case, separators stripped) to a canonical
+// MODEL_REGISTRY key so any reasonable vehicle label resolves to a model
+// without per-dataset config edits. Unknown labels still fall back to a box.
+const CLASS_ALIASES = {
+  smallvehicle: 'car', sedan: 'car', suv: 'car', automobile: 'car',
+  taxi: 'car', pickup: 'car', jeep: 'car',
+  largevehicle: 'truck', lorry: 'truck', trailer: 'truck', semi: 'truck',
+  minibus: 'bus', coach: 'bus', minivan: 'van', caravan: 'van',
+};
+const _normCls = (s) => String(s == null ? '' : s).toLowerCase().replace(/[\s_\-]+/g, '');
 fetch('models/registry.json').then(r => r.ok ? r.json() : null)
   .then(j => { if (j) Object.assign(MODEL_REGISTRY, j); }).catch(() => {});
+function resolveModelKey(cls) {   // raw class string -> MODEL_REGISTRY key | null
+  if (MODEL_REGISTRY[cls]) return cls;                      // exact (fast path)
+  const n = _normCls(cls);
+  if (!n) return null;
+  const hit = Object.keys(MODEL_REGISTRY).find(k => _normCls(k) === n);  // case/space-insensitive
+  if (hit) return hit;
+  const alias = CLASS_ALIASES[n];                           // synonym -> canonical
+  return (alias && MODEL_REGISTRY[alias]) ? alias : null;
+}
 function modelEntry(cls) {
-  const e = MODEL_REGISTRY[cls];
-  if (!e) return null;
+  const key = resolveModelKey(cls);
+  if (!key) return null;
+  const e = MODEL_REGISTRY[key];
   // per-class fixed rotation offsets (deg) -> bake calibrated slider values here
   return (typeof e === 'string')
     ? { url: e, yaw: 0, rx: 0, ry: 0, rz: 0 }
@@ -524,8 +620,11 @@ function setObjects(objs) {
         objectGroup.add(lab);
       }
     };
-    if (showModels && MODEL_REGISTRY[o.class]) {
-      loadModel(o.class).then((m) => {
+    // Prefer the backend-supplied canonical model key (o.model: car/van/truck/
+    // bus); fall back to the raw class string (resolved via aliases) if absent.
+    const mcls = o.model || o.class;
+    if (showModels && modelEntry(mcls)) {
+      loadModel(mcls).then((m) => {
         if (seq !== _objSeq) return;            // a newer setObjects ran -> drop
         if (m) {
           // recenter the asset on its own bbox centre so it sits *in* the box
@@ -538,7 +637,7 @@ function setObjects(objs) {
           obj.scale.setScalar(us);
           // orient: detected yaw q -> (global slider offset + per-class registry
           // offset) in the box frame -> model->box auto-align.
-          const d2r = Math.PI / 180, me = modelEntry(o.class);
+          const d2r = Math.PI / 180, me = modelEntry(mcls);
           const qOff = new THREE.Quaternion().setFromEuler(new THREE.Euler(
             (objRot.x + me.rx) * d2r, (objRot.y + me.ry) * d2r,
             (objRot.z + me.rz + me.yaw) * d2r, 'XYZ'));
@@ -689,7 +788,7 @@ function worldBBox() {
 // place one object as an upright per-class glTF model on the satellite ground,
 // pinned to groundY and oriented by the geo-transformed heading.
 function placeObjectMap(o, seq) {
-  const cls = o.class || 'car';
+  const cls = o.model || o.class || 'car';   // canonical key (car/van/truck/bus) preferred
   const spec = VEH[cls] || VEH.car;
   const col = classColor(o.cls_id ?? 0);
   // world position = geoM * droid xyz, pinned to ground
@@ -720,7 +819,7 @@ function placeObjectMap(o, seq) {
     m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(fwd, up, wid));
     m.position.set(pos.x, groundY + spec.hgt / 2, pos.z); objectGroup.add(m);
   };
-  if (showModels && MODEL_REGISTRY[cls]) {
+  if (showModels && modelEntry(cls)) {
     loadModel(cls).then((m) => {
       if (seq !== _objSeq) return;
       if (!m) { placeBox(); return; }
@@ -980,8 +1079,10 @@ resize();
 
 function loop() {
   requestAnimationFrame(loop);
-  pumpReveals(performance.now());
+  const _now = performance.now();
+  pumpReveals(_now);
   controls.update();
+  maybeSortSplats(_now);           // back-to-front reorder when the camera moved
   renderer.render(scene, camera);
   _fc++; const now = performance.now();
   if (now - _ft >= 500) { fps = Math.round(_fc * 1000 / (now - _ft)); _fc = 0; _ft = now; updateHud(); }

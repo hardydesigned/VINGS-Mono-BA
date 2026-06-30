@@ -9,6 +9,13 @@ Stelle der Box und die **Kamerapose** und rechnen aus, **wo das Objekt in der
 3D-Welt steht**. Dasselbe Auto sehen wir über mehrere Keyframes — diese
 Beobachtungen fassen wir zu **einem** Objekt mit einer 3D-Position zusammen.
 
+Default ist **YOLO26-OBB** (orientierte Boxen, DOTA-v1-trainiert): statt eines
+achsenparallelen Rechtecks liefert es eine **gedrehte** Box, deren Winkel die
+Fahrzeug-Achse ist. Daraus wird direkt das **Heading** des Objekts in der Karte
+— ohne sich auf die (bei Nadir-Aerial oft dünne) Tiefen-PCA verlassen zu müssen.
+Auf interval1 verifiziert: Fahrzeuge mit conf bis 0.81, Box-Winkel entlang der
+Straße (siehe Smoketest unten).
+
 Am Ende des Laufs liegen drei Dateien im `save_dir`:
 
 | Datei | Was drin ist |
@@ -29,10 +36,10 @@ detect_objects: true          # Master-Gate
 object_detect_stride: 3       # auf jedem N-ten *Tracker*-KF detektieren (Default 3)
 object_detector:
   kind: yolo                  # yolo | rtdetr | none
-  model: yolov8n
-  classes: [2, 5, 7]          # COCO car/bus/truck; null = alle
+  model: yolo26n-obb          # OBB-Default (DOTA); axis-aligned: yolov8s-visdrone
+  classes: [9, 10]            # DOTA-v1 large/small vehicle; null = alle 15
   device: cpu                 # VRAM-schonend
-  min_pca_px: 30              # min. gültige Tiefenpixel pro Box für Yaw/Größe-PCA
+  min_pca_px: 30              # PCA-Fallback für Yaw/Größe wenn kein OBB-Winkel da
   size_percentile: 95.0       # robuste Extent-Spanne (95/5) für die 3D-Größe
 object_tracker:
   assoc_radius: 0.05          # DROID-Frame-Einheiten (kein Meter!)
@@ -55,10 +62,19 @@ mehr YOLO/RT-DETR-Pässe als früher → `object_detect_stride` bei langen Läuf
 höher setzen (5–10). Der Block ist best-effort (`try/except`), bricht den Run nie.
 
 ### Orientierung + Größe (für gestreamte 3D-Modelle)
-Pro Box schätzt `estimate_pose_size` aus der entprojizierten Tiefen-Punktwolke per
-PCA einen **Yaw** (Rotation um die Welt-Hoch-Achse, auf `[0, π)` kanonisiert —
-180°-Ambiguität bleibt, vorne/hinten ist geometrisch nicht bestimmbar) und eine
-**3D-Größe** `[long, lateral, vertical]` (robuste 95/5-Extents). Über die Sichtungen
+**Yaw — OBB-Pfad (Default):** Liefert der Detektor einen Box-Winkel (`Detection.angle`,
+nur YOLO26-OBB/YOLO11-OBB), rechnet `obb_yaw_world` ihn in einen **Welt-Yaw** um:
+es entprojiziert das Box-Zentrum und einen um wenige Pixel entlang der Bild-Long-Axis
+versetzten Punkt bei **gleicher Tiefe** und nimmt das Heading der Welt-Differenz —
+korrekt auch bei schrägem Blick (Tilt kommt über `c2w`), und **unabhängig** davon,
+wie dicht die Box-Tiefe ist. Das ersetzt den PCA-Yaw.
+
+**Yaw — Fallback + Größe:** `estimate_pose_size` schätzt aus der entprojizierten
+Tiefen-Punktwolke per PCA einen **Yaw** (Rotation um die Welt-Hoch-Achse, auf
+`[0, π)` kanonisiert — 180°-Ambiguität bleibt, vorne/hinten ist geometrisch nicht
+bestimmbar; **OBB ist hier genauso mod π**) und eine **3D-Größe**
+`[long, lateral, vertical]` (robuste 95/5-Extents). Bei axis-aligned-Detektoren
+(yolov8/visdrone/rtdetr, `angle=None`) ist der PCA-Yaw die einzige Quelle. Über die Sichtungen
 fusioniert `_Track`: Yaw via Doppelwinkel-Zirkularmittel (conf-gewichtet, Kohärenz-
 Schwelle → sonst Identität), Größe via Achsen-Median. `snapshot()` liefert daraus
 `quat:[w,x,y,z]` + `size`, die der Live-Stream ans Frontend gibt (siehe
@@ -99,7 +115,7 @@ Module (Registry-Factory wie bei Selektoren/Segmentierung):
 
 | Datei | Inhalt |
 |---|---|
-| `scripts/vings_utils/detector_base.py` | `ObjectDetectorBase`, `Detection`, COCO-Klassen + Farben, `boxes_to_detections` |
+| `scripts/vings_utils/detector_base.py` | `ObjectDetectorBase`, `Detection` (+ `angle`), COCO-Klassen + Farben, `boxes_to_detections`, `obb_to_detections` |
 | `scripts/vings_utils/yolo_detector.py` | `YoloDetector` (`@register_detector("yolo")`) |
 | `scripts/vings_utils/rtdetr_detector.py` | `RtdetrDetector` (`@register_detector("rtdetr")`) |
 | `scripts/vings_utils/detector_factory.py` | `make_object_detector(cfg, device)` |
@@ -162,15 +178,53 @@ Für die CSV-Positionen (lat/lon/UTM) ist ein dünnes Apply-Skript geplant, das
 denselben per-KF lokalen Sim3 auf die `objects_droid.csv`-Punkte anwendet —
 **noch nicht implementiert** (bewusst aus dem ersten Schritt herausgehalten).
 
+## Evaluation (Genauigkeit) — `scripts/eval/object_eval.py`
+
+Misst Detektions- und 3D-Lokalisierungsgüte gegen UAVScenes-Referenzdaten
+(für den BA-Abschnitt „Genauigkeit der 3D-Lokalisierung dynamischer Objekte").
+Zwei Teile, `--part a|b|both`:
+
+- **Teil A — 2D (mAP/IoU).** `detections_per_frame.csv` (Boxen, Voll-Res) vs.
+  UAVScenes-Semantikmasken (`interval5_CAM_label`, Sedan=20/Truck=24). 2D-Instanzen
+  via Connected-Components (UAVScenes liefert öffentlich **keine** Instanz-IDs,
+  nur Semantik, nur jeder 5. Frame). COCO-Style AP@.5 / AP@[.5:.95] + mean-IoU,
+  primär klassenagnostisch „vehicle". Join über `t_sec`-Timestamp.
+- **Teil B — 3D (Pos/Yaw/Größe).** `objects_droid.csv` vs. LiDAR-Pseudo-GT:
+  Maske → sparse LiDAR-Tiefe → GT-Pose → 3D-Cluster pro Frame, **über Frames per
+  3D-NN fusioniert** (NICHT per CC-Index — der ist pro Frame willkürlich). Referenz
+  nur im Zeitfenster des Laufs (faire P/R). NN-Match (Gate 5 m) → Positions- (m),
+  Yaw- (deg, mod π) und Größen-Fehler. Liegt der Lauf im metrischen GT-Frame
+  (interval1 = `ext_poses` + LiDAR), ist **kein** `sim3_unwarp` nötig.
+
+```bash
+# 1) GT-Masken (1.5 GB, einmalig): interval5_CAM_label.zip von HF, AMtown03-Subset
+#    -> ~/Dokumente/datasets/uavscenes/interval1_amtown03_labels/...interval5_CAM_label_id/
+# 2) Eval-Lauf:   python scripts/run_experiment.py configs/local/object_detect/interval1_objects_eval.yaml
+# 3) Auswertung:
+python scripts/eval/object_eval.py --rundir output/exp_interval1_objects_eval/<ts>/
+#  -> object_eval_2d.json (+pr_curve.png)  /  object_eval_3d.json (+object_eval_3d.png BEV)
+python scripts/eval/object_eval.py --selftest   # synthetische IoU/AP/Geometrie-Checks
+```
+
+Referenz-Validierung (alter visdrone-Lauf, 14 Frames): vehicle AP@.5≈0.71,
+mIoU(TP)≈0.87 (bestätigt Rektifizierungs-Deckung); 3D-Positionsfehler ~3.5 m
+(Mono-Tiefe, Objekte ~50 m entfernt). Yaw/Größe brauchen das neue CSV-Schema
+(quat/size) → YOLO26-OBB-Lauf. **Referenz ist geschätzt** (LiDAR-dicht, kein
+Vermessungs-GT) — in der Arbeit so deklarieren.
+
 ## Bekannte Grenzen
-- **COCO-YOLO ist auf Nadir-Aerial schwach.** interval1 ist ein Top-Down-
-  Flug; ein COCO-trainiertes YOLO/RT-DETR sieht winzige Objekte und vergibt bei
-  hoher Auflösung viele falsche Klassen (umbrella/tv/...). Mit `classes: [2,5,7]`
-  (car/bus/truck) + `imgsz: 1280` + niedriger `conf` kommen vereinzelt echte
-  Autos durch. Für ernsthafte Aerial-Detektion: `ckpt_path` auf ein
-  **VisDrone-/DOTA-trainiertes** ultralytics-`.pt` zeigen lassen — drop-in, kein
-  Code-Change (die Factory lädt jedes kompatible YOLO/RT-DETR-Gewicht). Auf
-  oblique/Boden-Daten ist COCO direkt brauchbar.
+- **Domäne.** Default ist jetzt **YOLO26-OBB (DOTA-v1)** — die richtige Wahl für
+  Nadir-Aerial, da DOTA Overhead-Domäne ist und der OBB-Winkel das Heading
+  liefert (interval1-verifiziert, Fahrzeuge conf bis 0.81). DOTA produziert auf
+  dieser Domäne aber auch Klassen-Rauschen (vereinzelt plane/ship/helicopter) —
+  `classes: [9, 10]` (large/small vehicle) filtert das weg. Bei abweichender
+  GSD: kurzer Finetune auf gelabelten interval1/amtown03-Frames (analog VisDrone).
+  Für rein achsenparallele Detektion bleibt `model: yolov8s-visdrone` (oder COCO
+  `yolov8n`, `classes: [2,5,7]`) ein drop-in — die Factory lädt jedes kompatible
+  Gewicht, `detect()` erkennt OBB- vs. Box-Ausgabe automatisch.
+- **Heading ist mod π.** Auch der OBB-Yaw kennt kein vorne/hinten (eine Achse ist
+  vorzeichenfrei). Auflösbar nur über Bewegungs-Heading (z.B. ein 2D-Tracker wie
+  ByteTrack mit Velocity-Vektor) — aktuell nicht implementiert.
 - **Bewegte Objekte** (fahrende Autos) erscheinen an mehreren Weltpositionen →
   mehrere/verschmierte Tracks. Aktuell: statische Objekte angenommen. Späterer
   Filter über das Dynamic-Masking (`use_dynamic`) denkbar.

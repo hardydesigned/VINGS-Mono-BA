@@ -56,7 +56,7 @@ def _frame(payload: dict):
     ``frozen`` | ``active`` | ``objects`` | ``resync`` | None.
     """
     t = payload["type"]
-    if t in ("append_frozen", "replace_active", "replace_all"):
+    if t in ("append_frozen", "replace_active", "replace_all", "replace_active_group"):
         data = payload.get("data", b"")
         header = {"type": t, "epoch": int(payload.get("epoch", 0)),
                   "n": len(data) // 32}
@@ -64,11 +64,13 @@ def _frame(payload: dict):
             header["kf_id"] = int(payload["kf_id"])
         hb = json.dumps(header).encode("utf-8")
         msg = struct.pack("<I", len(hb)) + hb + data
-        kind = "frozen" if t == "append_frozen" else "active"
+        kind = {"append_frozen": "frozen", "replace_active": "active",
+                "replace_all": "active", "replace_active_group": "active_group"}[t]
         return msg, (t in _DROPPABLE), kind
-    else:  # objects / geo / resync / frame -> text frame
+    else:  # objects / geo / resync / frame / remove_active_group -> text frame
         msg = json.dumps({k: v for k, v in payload.items() if k != "data"})
-        kind = {"objects": "objects", "resync": "resync", "geo": "geo"}.get(t)
+        kind = {"objects": "objects", "resync": "resync", "geo": "geo",
+                "remove_active_group": "active_remove"}.get(t)
         return msg, (t in _DROPPABLE), kind
 
 
@@ -95,7 +97,8 @@ class SplatStreamServer:
         # run thread via push(), read from the asyncio thread on connect)
         self._lock = threading.Lock()
         self._frozen_backlog: list = []   # list[bytes]   (append_frozen messages)
-        self._last_active = None          # bytes | None
+        self._last_active = None          # bytes | None  (legacy full replace_active/all)
+        self._active_backlog: dict = {}   # kf_id -> bytes (per-group active delta, latest)
         self._last_objects = None         # str | None
         self._last_geo = None             # str | None  (DROID->three matrix + satellite)
 
@@ -131,6 +134,10 @@ class SplatStreamServer:
                 self._frozen_backlog.append(msg)
             elif kind == "active":
                 self._last_active = msg
+            elif kind == "active_group":
+                self._active_backlog[int(payload["kf_id"])] = msg
+            elif kind == "active_remove":
+                self._active_backlog.pop(int(payload.get("kf_id", -1)), None)
             elif kind == "objects":
                 self._last_objects = msg
             elif kind == "geo":
@@ -139,6 +146,7 @@ class SplatStreamServer:
                 # frozen set invalidated (loop closure / new epoch) -> drop backlog
                 self._frozen_backlog.clear()
                 self._last_active = None
+                self._active_backlog.clear()
                 self._last_objects = None
                 self._last_geo = None
 
@@ -248,6 +256,7 @@ class SplatStreamServer:
             # replay backlog so a late joiner sees the current scene
             with self._lock:
                 backlog = list(self._frozen_backlog)
+                active_groups = list(self._active_backlog.values())
                 last_active, last_objects = self._last_active, self._last_objects
                 last_geo = self._last_geo
             # Send the lightweight, critical state FIRST (geo frame, objects,
@@ -260,6 +269,8 @@ class SplatStreamServer:
                     await ws.send(last_objects)
                 if last_active is not None:
                     await ws.send(last_active)
+                for m in active_groups:
+                    await ws.send(m)
                 for m in backlog:
                     await ws.send(m)
             except Exception as _be:

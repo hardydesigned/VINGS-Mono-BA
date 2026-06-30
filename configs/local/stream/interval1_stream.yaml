@@ -88,18 +88,18 @@ object_detect_stride: 3        # detect on every 3rd tracker-KF (decoupled from 
 
 object_detector:
   kind: yolo
-  model: yolov8n
-  ckpt_path: ckpts/yolov8n.pt
+  model: yolo26n-obb         # YOLO26-OBB (DOTA-v1): orientierte Boxen -> Welt-Yaw
+  ckpt_path: ckpts/yolo26n-obb.pt   # fehlt -> ultralytics auto-download
   conf: 0.20
   iou: 0.7
   imgsz: 1280
   device: cpu
-  classes: [2, 5, 7]
+  classes: [9, 10]           # DOTA-v1 large/small vehicle; null = alle 15
   max_det: 100
   box_shrink: 0.6
   depth_percentile: 30.0
   min_valid_px: 3
-  min_pca_px: 20             # min valid depth px in a box for yaw/size PCA
+  min_pca_px: 20             # PCA-Fallback fuer Yaw/Size wenn kein OBB-Winkel da
   size_percentile: 95.0      # robust 95/5 extent spread for the 3D size
   min_depth: 0.2
   max_depth: 150.0

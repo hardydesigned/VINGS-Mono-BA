@@ -25,6 +25,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Optional
 
 import numpy as np
 import torch
@@ -46,6 +47,37 @@ COCO_CLASSES: tuple[str, ...] = (
     "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
     "hair drier", "toothbrush",
 )
+
+
+# ---------------------------------------------------------------------------
+# Canonical vehicle model categories the web frontend ships glTF assets for.
+# Detectors disagree on naming -- COCO says "car"/"truck", VisDrone adds "van"/
+# "bus", DOTA-OBB uses "small vehicle"/"large vehicle", etc. The backend knows
+# *which* detector is running, so it maps each label onto one of {car, van,
+# truck, bus} here and streams that key alongside the object. The viewer then
+# looks up its glb by this authoritative key instead of guessing from the raw
+# class string. Returns None for non-vehicle / unknown labels (-> box fallback).
+# Keep the alias set in sync with CLASS_ALIASES in static/viewer.html.
+_MODEL_CATEGORY: dict[str, str] = {
+    "car": "car", "small vehicle": "car", "sedan": "car", "suv": "car",
+    "automobile": "car", "taxi": "car", "pickup": "car", "jeep": "car",
+    "van": "van", "minivan": "van", "caravan": "van",
+    "truck": "truck", "large vehicle": "truck", "lorry": "truck",
+    "trailer": "truck", "semi": "truck",
+    "bus": "bus", "minibus": "bus", "coach": "bus",
+}
+
+
+def canonical_model_key(class_name) -> Optional[str]:
+    """Map a detector class name onto a frontend model key, or None if unknown.
+
+    Normalises case and ``_``/``-`` separators so e.g. ``"large-vehicle"`` and
+    ``"large vehicle"`` both resolve to ``"truck"``.
+    """
+    if class_name is None:
+        return None
+    norm = " ".join(str(class_name).lower().replace("_", " ").replace("-", " ").split())
+    return _MODEL_CATEGORY.get(norm)
 
 
 def class_color(cls_id: int) -> tuple[int, int, int]:
@@ -87,12 +119,16 @@ class Detection:
 
     `bbox_xyxy` is in pixel coordinates of the input frame, OpenCV convention
     (x = column, y = row) -- the same order ultralytics returns and the same
-    order `object_tracker` feeds into back-projection.
+    order `object_tracker` feeds into back-projection. For oriented-box
+    detectors (YOLO26-OBB) `bbox_xyxy` is the *axis-aligned enclosing* box (so
+    depth-sampling / overlay stay unchanged) and `angle` carries the long-axis
+    image-plane orientation; axis-aligned detectors leave `angle=None`.
     """
     bbox_xyxy: tuple[float, float, float, float]  # (x1, y1, x2, y2)
     cls_id: int
     cls_name: str
     conf: float
+    angle: Optional[float] = None  # OBB long-axis angle (rad, image plane, mod pi); None = axis-aligned
 
     @property
     def center(self) -> tuple[float, float]:
@@ -127,6 +163,42 @@ def boxes_to_detections(boxes, names=None) -> list[Detection]:
     for (x1, y1, x2, y2), c, p in zip(xyxy, cls, conf):
         out.append(Detection((float(x1), float(y1), float(x2), float(y2)),
                              int(c), _name(int(c)), float(p)))
+    return out
+
+
+def obb_to_detections(obb, names=None) -> list[Detection]:
+    """Convert an ultralytics `Results.obb` (oriented boxes) to list[Detection].
+
+    YOLO26-OBB / YOLO11-OBB expose `.xyxy` (axis-aligned enclosing box),
+    `.xywhr` (cx, cy, w, h, rotation-in-radians) and the usual `.cls / .conf`.
+    We keep `bbox_xyxy = .xyxy` so depth-sampling, back-projection and overlays
+    are identical to the axis-aligned path, and store the **long-axis** image-
+    plane angle in `Detection.angle`: the box's rotation `r` when the box is
+    wider than tall, else `r + pi/2`, canonicalised to `[0, pi)` (a heading line
+    is sign-free). `object_tracker` turns this into a world-frame yaw, replacing
+    the depth-PCA estimate. Returns [] when there are no boxes.
+    """
+    if obb is None or len(obb) == 0:
+        return []
+    xyxy = obb.xyxy.detach().cpu().numpy()
+    xywhr = obb.xywhr.detach().cpu().numpy()
+    cls = obb.cls.detach().cpu().numpy().astype(int)
+    conf = obb.conf.detach().cpu().numpy()
+
+    def _name(c: int) -> str:
+        if names is not None:
+            n = names.get(c) if isinstance(names, dict) else (
+                names[c] if 0 <= c < len(names) else None)
+            if n is not None:
+                return n
+        return COCO_CLASSES[c] if 0 <= c < len(COCO_CLASSES) else str(c)
+
+    out: list[Detection] = []
+    for (x1, y1, x2, y2), (_, _, w, h, r), c, p in zip(xyxy, xywhr, cls, conf):
+        long_axis = float(r) if w >= h else float(r) + np.pi / 2.0
+        long_axis = long_axis % np.pi          # [0, pi); heading is a line, not a ray
+        out.append(Detection((float(x1), float(y1), float(x2), float(y2)),
+                             int(c), _name(int(c)), float(p), angle=long_axis))
     return out
 
 

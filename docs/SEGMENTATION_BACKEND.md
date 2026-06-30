@@ -110,7 +110,21 @@ dynamisch, wenn mehr als `dyn_high_rate` seiner Pixel über dem
 übersteigt. `sky_mask` bleibt unangetastet (dynamische Pixel werden nicht als
 Himmel gewertet). Bei 0 Segmenten → leere Maske → kein Masking (sicherer Default).
 
-## SAM3 (Code da, Weights gated)
+## SAM3 (LIVE seit 2026-06-20 mit `ckpts/sam3.1_multiplex.pt`)
+
+> **Status-Update 2026-06-20:** SAM3 läuft. Der Checkpoint
+> `ckpts/sam3.1_multiplex.pt` (3.5 GB) ist da; auf interval1 verifiziert
+> (`imgsz=768`, `classes=[car,truck,bus]` → 7 Instanz-Masken @ 2048×2448).
+> Zwei Env-Hürden, beide ohne torch-Upgrade gelöst (torch bleibt 2.0.1+cu118
+> für die DROID/2DGS-CUDA-Extensions):
+> - **timm 0.6.7 → 0.9.16** (`pip install --no-deps timm==0.9.16`): SAM3 braucht
+>   `timm.layers`, metric3d die alten `timm.models.layers`/`.registry`-Shims —
+>   0.9.x hat beides.
+> - **torch≥2.1-APIs back-portet** in `_ensure_torch_compat_shims()`:
+>   `torch.nn.attention` (→ `torch.backends.cuda.sdp_kernel`) und
+>   `torch.compiler.is_dynamo_compiling` (→ `False`, Eager-Modus).
+> Predictor läuft mit `save=False` (kein Per-KF-Disk-Write → Disk-Full-Guard).
+> Der „gated"-Abschnitt unten bleibt für die Herkunft der Weights relevant.
 
 `scripts/vings_utils/sam3_backend.py` ist ausgebaut — aber **anders** als
 FastSAM/SAM2: SAM3 („Segment Anything with Concepts", Meta, Nov 2025) ist

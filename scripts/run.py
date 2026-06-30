@@ -49,9 +49,6 @@ class PhaseTimer:
         return rec[-1] if rec else 0.0
 
     def patch(self, obj, attr, name):
-        """Wrappt obj.attr so, dass jeder Aufruf in Phase 'name' geht.
-        Funktioniert nur fuer reine Methoden -- nicht fuer Callable-Objekte
-        die zusaetzlich Attribute tragen (siehe patch_callable)."""
         orig = getattr(obj, attr)
         timer = self
         def wrapper(*args, **kwargs):
@@ -60,8 +57,6 @@ class PhaseTimer:
         setattr(obj, attr, wrapper)
 
     def patch_callable(self, obj, attr, name):
-        """Wrappt ein Callable-Objekt (mit eigenen Attributen) via Proxy.
-        Attribut-Zugriff/Set wird transparent ans Original weitergegeben."""
         orig = getattr(obj, attr)
         proxy = _CallableProxy(orig, self, name)
         setattr(obj, attr, proxy)
@@ -149,9 +144,6 @@ class Runner:
         else:
             self.looper = None
         
-        # LiDAR-Tiefe (dataset.lidar_dir) liefert depth direkt aus dem Loader ->
-        # Metric3D-Modell NICHT laden (spart ~1.5 GB GPU). use_metric bleibt true,
-        # damit der use_metric_for_mapper-Injektionspfad (viz_out-depth-Override) laeuft.
         self.metric_predictor = None
         if 'use_metric' in cfg.keys() and cfg['use_metric'] and not cfg['dataset'].get('lidar_dir'):
             self.metric_predictor = Metric_Model(cfg)
@@ -172,16 +164,6 @@ class Runner:
         self.timer = PhaseTimer(sync=True)
         self._install_phase_patches()
 
-        # Frame selector (optional, off by default). Wenn aktiv, entscheidet er
-        # anstelle von mapper_kf_skip ob ein KF gemappt wird. Auswahl ueber
-        # frame_selector.kind in der Config (vista | nurbs_lvi | none); neue
-        # Selektoren registrieren sich in vings_utils.selector_factory.
-        #
-        # WICHTIG: Tracker-Depths kommen in der downsampled frontend.image_size
-        # (z.B. 240x288), NICHT in der Voll-K-Aufloesung (z.B. 1024x1224).
-        # K muss entsprechend skaliert werden, sonst projizieren die Selektoren
-        # pixel-Koordinaten in den falschen Wertebereich (vgl. adaptive_kf
-        # shape-mismatch / aim_slam IndexError aus 2026-05-21).
         intr = cfg['intrinsic']
         K_full = np.array([[intr['fu'], 0.0,        intr['cu']],
                            [0.0,        intr['fv'], intr['cv']],
@@ -204,8 +186,6 @@ class Runner:
         # Dynamic-object masking (optional, off by default). When use_dynamic is
         # set AND a segmentation backend is configured, each keyframe is segmented
         # before the mapper runs; high-error segments are dropped from the mapping
-        # loss (see gaussian/loss_utils.get_loss). Swap FastSAM<->SAM3 via
-        # cfg['segmentation'].kind -- no other code changes needed.
         self.dynamic_model = None
         if cfg.get('use_dynamic') and (cfg.get('segmentation') or {}).get('kind') not in (None, 'none'):
             from dynamic.dynamic_utils import DynamicModel
@@ -213,13 +193,6 @@ class Runner:
             self.dynamic_model = DynamicModel(cfg, mapper_device)
 
         # Object detection + online 3D-localisation (optional, off by default).
-        # When detect_objects is set AND a detector is configured, each mapped
-        # keyframe is run through YOLO/RT-DETR; each box is back-projected via
-        # the keyframe depth + c2w pose into the DROID world frame and fused
-        # into per-object tracks. At run end objects_droid.csv +
-        # object_markers_droid.ply (+ overlay video) are written. Metric/GPS
-        # conversion is a later step (sim3_unwarp transforms the markers like
-        # the map PLY). Swap YOLO<->RT-DETR via cfg['object_detector'].kind.
         self.object_detector = None
         self.object_tracker = None
         if cfg.get('detect_objects') and (cfg.get('object_detector') or {}).get('kind') not in (None, 'none'):
@@ -228,21 +201,14 @@ class Runner:
             mapper_device = cfg.get('device', {}).get('mapper', 'cuda')
             self.object_detector = make_object_detector(cfg, mapper_device)
             self.object_tracker = ObjectTracker(cfg, cfg['output']['save_dir'])
-        # Detection runs on every Nth *tracker* keyframe, decoupled from the
-        # FrameSelector/mapper decision (do_map filters mapper KFs hard, so tying
-        # detection to it loses most objects). Default 3. NOT coupled to
-        # mapper_kf_skip. See docs/OBJECT_DETECTION.md.
+        # Detection runs on every Nth *tracker* keyframe, decoupled from the FrameSelector/mapper decision
         self.object_detect_stride = max(1, int(cfg.get('object_detect_stride', 3)))
 
-        # Live-Streaming der Gaussians (.splat) + Object-Marker zu einem Web-
-        # Frontend ueber WebSocket. Gated ueber cfg['stream']['enabled'] (Default
-        # aus). Der Server laeuft in einem daemon-Thread mit drop-oldest-Queue,
-        # damit der Run-Loop NIE auf Netzwerk-I/O blockiert. Delta-Strategie:
-        # frozen (StorageManager, append-only via _globalkf_id) + active (Mapper-
-        # GPU, jedes Mal full-replace). Siehe scripts/server/stream_server.py.
+        # Live-Streaming of Gaussians 
         self.stream_server = None
         self.stream_cfg = (cfg.get('stream') or {})
         self._streamed_kf_ids: set = set()
+        self._active_sig: dict = {}    # kf_id -> change-signature of last-sent active group
         self._stream_epoch = 0
         self._geo = None              # LiveGeoReferencer (GPS-anchored map projection)
         if self.stream_cfg.get('enabled', False):
@@ -253,22 +219,14 @@ class Runner:
                     port=int(self.stream_cfg.get('port', 8765)),
                     max_queue=int(self.stream_cfg.get('max_queue', 16)))
                 self.stream_server.start()
-                # Live geo-referencing: project the gauge-free DROID map onto real
-                # satellite imagery using the flight GPS (default on when a GPS CSV
-                # is configured; disable with stream.geo: false).
+                # Live geo-referencing: project the gauge-free DROID map onto real satellite imagery 
                 if self.stream_cfg.get('geo', True):
                     self._init_geo_referencer()
             except Exception as _e:
                 print(f"[stream] disabled (init failed): {_e}")
                 self.stream_server = None
 
-        # Gate A: optionaler Pre-Tracker-Filter (altitude + visual quality).
-        # Trennt sich konzeptionell vom frame_selector (Gate B): Gate A
-        # verwirft Frames VOR dem Tracker (spart ~450 ms/Frame), Gate B
-        # verwirft Tracker-KFs vor dem Mapper.
-        # `gate_a.version: v2` schaltet auf GateAV2 (zusätzlich A3-GPS-Motion-
-        # Gate als Pre-Tracker-Analog des MotionFilters); ohne version-Feld
-        # bleibt der v1-Pfad aktiv.
+        # Gate A: Pre-Track-Filter
         ga_cfg = (cfg.get('gate_a') or {})
         if ga_cfg.get('enabled', False):
             ga_version = str(ga_cfg.get('version', 'v1')).lower()
@@ -326,6 +284,7 @@ class Runner:
             if hasattr(self.mapper, attr):
                 self.timer.patch(self.mapper, attr, phase)
 
+    # TODO
     def _apply_ext_poses_to_vizout(self, viz_out):
         """Ersetze viz_out['poses'] durch RTK c2w aus dataset.ext_poses, und
         skaliere viz_out['depths'] um den per-window Skalenfaktor.
@@ -439,6 +398,7 @@ class Runner:
 
         return viz_out
 
+    # TODO
     def _seed_video_poses_with_ext(self):
         """Schreibe RTK-Posen + rescale disparity in video.poses / video.disps,
         damit die naechste BA-Iteration von einer RTK-verankerten Skala
@@ -607,10 +567,12 @@ class Runner:
                             'type': 'append_frozen', 'epoch': self._stream_epoch,
                             'kf_id': kid, 'data': blob})
                     self._streamed_kf_ids.add(kid)
-                active = encode_splat_from_mapper(self.mapper, max_active, eps)
-                self.stream_server.push({
-                    'type': 'replace_active', 'epoch': self._stream_epoch,
-                    'data': active})
+                # Active set as a per-KF-group DELTA: only re-encode groups whose
+                # gaussians actually moved since the last push (the optimisation
+                # window), retract groups that left the mapper. Keeps the wire
+                # small + reliable so the live splats track the video instead of
+                # the old fat replace_active payload getting dropped.
+                self._push_active_delta(eps)
             else:
                 allblob = encode_splat_from_mapper(self.mapper, max_active, eps)
                 self.stream_server.push({
@@ -619,9 +581,67 @@ class Runner:
         except Exception as _e:
             print(f"[stream] gaussian push skipped: {_e}")
 
-    def _stream_push_frame(self, f_idx):
+    def _push_active_delta(self, eps):
+        """Stream the live mapper set as a per-``_globalkf_id`` group delta.
+
+        For each active group: compute a cheap change-signature (count + rounded
+        aggregate of positions/opacity). Re-encode + send (``replace_active_group``)
+        only groups whose signature changed since the last push -- converged groups
+        are skipped. Groups that left the mapper (frozen or pruned) are retracted
+        (``remove_active_group``). Both message types are non-droppable + small, so
+        the recent splats arrive reliably and follow the camera, unlike the old
+        single fat ``replace_active`` that got dropped under backpressure.
+        """
+        import torch
+        from server.splat_encode import encode_splat_from_mapper
+        gid = getattr(self.mapper, '_globalkf_id', None)
+        if gid is None or gid.numel() == 0:
+            for kid in list(self._active_sig):          # nothing active -> retract all
+                self.stream_server.push({'type': 'remove_active_group',
+                                         'epoch': self._stream_epoch, 'kf_id': int(kid)})
+            self._active_sig.clear()
+            return
+        xyz = self.mapper.get_property('_xyz').detach()
+        op = self.mapper.get_property('_opacity').detach()
+        present = set()
+        for k in torch.unique(gid).tolist():
+            kid = int(k)
+            present.add(kid)
+            m = (gid == k)
+            n = int(m.sum().item())
+            if n == 0:
+                continue
+            # signature: rounded aggregates -> stable once a group converges, but
+            # changes every push while the group is still being optimised.
+            sig = (n,
+                   round(float(xyz[m, 0].sum().item()), 2),
+                   round(float(xyz[m, 1].sum().item()), 2),
+                   round(float(xyz[m, 2].sum().item()), 2),
+                   round(float(op[m].sum().item()), 3))
+            if self._active_sig.get(kid) == sig:
+                continue                                # unchanged -> skip (delta)
+            blob = encode_splat_from_mapper(self.mapper, flat_scale_eps=eps, mask=m)
+            if blob:
+                self.stream_server.push({'type': 'replace_active_group',
+                                         'epoch': self._stream_epoch,
+                                         'kf_id': kid, 'data': blob})
+                self._active_sig[kid] = sig
+        for kid in list(self._active_sig):              # retract groups that left active
+            if kid not in present:
+                self.stream_server.push({'type': 'remove_active_group',
+                                         'epoch': self._stream_epoch, 'kf_id': int(kid)})
+                del self._active_sig[kid]
+
+    def _stream_push_frame(self, f_idx, dets=None):
         """Push the original RGB keyframe (downscaled JPEG) to the frontend so the
-        viewer can show the live camera image next to the 3D map. Best-effort."""
+        viewer can show the live camera image next to the 3D map. Best-effort.
+
+        When ``dets`` (a list of ``Detection`` for THIS frame) is given and object
+        detection is on, the boxes + class labels are drawn straight into the JPEG
+        server-side -- the viewer's camera card needs no change and the overlay is
+        guaranteed to match exactly the frame it was detected on (boxes are in the
+        full-res pixel space of this same image, scaled by the resize factor).
+        """
         if self.stream_server is None:
             return
         if not bool(self.stream_cfg.get('send_frames', True)):
@@ -639,6 +659,27 @@ class Runner:
             if s < 1.0:
                 bgr = _cv2.resize(bgr, (max(1, int(w * s)), max(1, int(h * s))),
                                   interpolation=_cv2.INTER_AREA)
+            else:
+                s = 1.0
+            # Draw detection overlays (boxes + labels) into the downscaled frame.
+            if dets and bool(self.stream_cfg.get('draw_detections', True)):
+                from vings_utils.detector_base import class_color
+                fh = bgr.shape[0]
+                th = max(1, int(round(fh / 240.0)))          # box thickness scales with frame
+                fsc = max(0.35, fh / 600.0)                  # label font scale
+                for d in dets:
+                    x1, y1, x2, y2 = (float(v) * s for v in d.bbox_xyxy)
+                    r, g, b = class_color(int(d.cls_id))
+                    col = (int(b), int(g), int(r))           # RGB -> BGR for cv2
+                    p1, p2 = (int(x1), int(y1)), (int(x2), int(y2))
+                    _cv2.rectangle(bgr, p1, p2, col, th)
+                    label = f"{d.cls_name} {d.conf:.2f}"
+                    (tw, tht), _bl = _cv2.getTextSize(label, _cv2.FONT_HERSHEY_SIMPLEX, fsc, 1)
+                    ly = max(0, int(y1) - 4)
+                    _cv2.rectangle(bgr, (int(x1), ly - tht - 4),
+                                   (int(x1) + tw + 2, ly + 2), col, -1)
+                    _cv2.putText(bgr, label, (int(x1) + 1, ly - 2),
+                                 _cv2.FONT_HERSHEY_SIMPLEX, fsc, (0, 0, 0), 1, _cv2.LINE_AA)
             q = int(self.stream_cfg.get('frame_jpeg_quality', 70))
             ok, enc = _cv2.imencode('.jpg', bgr, [int(_cv2.IMWRITE_JPEG_QUALITY), q])
             if not ok:
@@ -672,19 +713,15 @@ class Runner:
         n_processed = 0
         last_idx = -1
         log_every = int(self.cfg.get('profiling', {}).get('log_every', 1))
-        # Crash-resilient snapshot: profiling.json alle N Tracker-KFs neu schreiben,
-        # damit auch FAIL-Runs (OOM/SIGKILL) ihre Progress-Counts hinterlassen.
         snapshot_every = int(self.cfg.get('profiling', {}).get('snapshot_every_kf', 10))
-        # Naive temporal sampling: nimm nur jedes N-te Eingangs-Frame.
         frame_skip = int(self.cfg.get('frame_skip', 1))
-        # Mapper-Subsampling: gib nur jeden N-ten Tracker-KF an den Mapper.
-        # Erste KF wird immer gemappt (init_first_frame), unabhaengig vom skip.
         mapper_kf_skip = int(self.cfg.get('mapper_kf_skip', 1))
         wall_t0 = time.time()
 
         # Run Tracking.
         n_gate_a_rejected = 0
         for idx in tqdm(range(len(self.dataset))):
+            # Skip frames before all processing
             if frame_skip > 1 and idx % frame_skip != 0:
                 continue
 
@@ -853,6 +890,7 @@ class Runner:
                 # exactly what object_tracker.unproject expects (DROID frame); the
                 # ext-pose override above already applies here too. Streamed objects
                 # carry oriented pose (quat) + size so the frontend draws 3D models.
+                _frame_pushed_idx = -1   # set by the detect block if it pushes a (boxed) frame
                 run_detect = (self.object_detector is not None
                               and 'images' in viz_out
                               and ((n_keyframes - 1) % self.object_detect_stride == 0))
@@ -896,18 +934,36 @@ class Runner:
                                 f_idx, rgb_u8=det_rgb, det_hw=det_rgb.shape[:2],
                                 t_sec=kf_t_sec)
                             if self.stream_server is not None:
+                                # Tag each object with the canonical frontend model
+                                # key (car/van/truck/bus) so the viewer matches a
+                                # glTF asset authoritatively instead of guessing
+                                # from the raw detector class string.
+                                from vings_utils.detector_base import canonical_model_key
+                                objs = self.object_tracker.snapshot()
+                                for _o in objs:
+                                    _mk = canonical_model_key(_o.get('class'))
+                                    if _mk:
+                                        _o['model'] = _mk
                                 self.stream_server.push({
                                     'type': 'objects', 'epoch': self._stream_epoch,
-                                    'objects': self.object_tracker.snapshot()})
+                                    'objects': objs})
+                                # Push THIS frame with the detection boxes drawn in,
+                                # so the camera card shows labelled boxes that match
+                                # the exact detected frame. Marks the frame as pushed
+                                # to skip the generic (box-free) push below.
+                                self._stream_push_frame(f_idx, dets=dets)
+                                _frame_pushed_idx = f_idx
                     except Exception as _e:
                         print(f"[detect] keyframe skipped: {_e}")
                 # stream the original RGB keyframe for the viewer's camera card
-                # (own stride, decoupled from mapper/detector). Best-effort.
+                # (own stride, decoupled from mapper/detector). Best-effort. Skip if
+                # the detect block already pushed this frame (with boxes drawn).
                 if self.stream_server is not None and 'images' in viz_out:
+                    _gen_idx = int(viz_out['viz_out_idx_to_f_idx'][-1])
                     _fstride = max(1, int(self.stream_cfg.get('frame_stride', 2)))
-                    if (n_keyframes - 1) % _fstride == 0:
+                    if _gen_idx != _frame_pushed_idx and (n_keyframes - 1) % _fstride == 0:
                         try:
-                            self._stream_push_frame(int(viz_out['viz_out_idx_to_f_idx'][-1]))
+                            self._stream_push_frame(_gen_idx)
                         except Exception:
                             pass
                 if do_map:
@@ -968,6 +1024,7 @@ class Runner:
                         if self.stream_server is not None:
                             self._stream_epoch += 1
                             self._streamed_kf_ids.clear()
+                            self._active_sig.clear()
                             self.stream_server.push({'type': 'resync',
                                                      'epoch': self._stream_epoch})
 

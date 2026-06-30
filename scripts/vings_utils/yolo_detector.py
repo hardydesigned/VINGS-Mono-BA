@@ -1,11 +1,18 @@
 """
 YOLO object detector (via the `ultralytics` package).
 
-Returns class-labelled bounding boxes (COCO by default) so each detection can
-be named and localised in 3D by `object_tracker`. Weights resolve from a normal
-repo-relative checkpoint (`ckpts/yolov8n.pt`, same convention as
-`ckpts/FastSAM-x.pt`); if the file is missing, ultralytics auto-downloads the
-named asset.
+Returns class-labelled bounding boxes so each detection can be named and
+localised in 3D by `object_tracker`. Defaults to **YOLO26-OBB** (oriented
+bounding boxes, DOTA-v1 pretrained) -- the natural fit for nadir-aerial: the
+box rotation gives each object a real heading, which `object_tracker` turns
+into a world-frame yaw instead of the depth-PCA estimate. The same `kind: yolo`
+path also handles axis-aligned weights (yolov8n, yolov8s-visdrone, RT-DETR):
+`detect()` reads `results[0].obb` when present and falls back to
+`results[0].boxes` otherwise, so swapping the weight is the only change needed.
+
+Weights resolve from a normal repo-relative checkpoint
+(`ckpts/yolo26n-obb.pt`, same convention as `ckpts/FastSAM-x.pt`); if the file
+is missing, ultralytics auto-downloads the named asset.
 
 Standalone smoketest (mirrors the segmentation-backend smoketests):
 
@@ -23,11 +30,13 @@ import torch
 
 try:  # repo runs scripts/ on sys.path; support both layouts.
     from vings_utils.detector_base import (
-        ObjectDetectorBase, Detection, boxes_to_detections, to_uint8_rgb)
+        ObjectDetectorBase, Detection, boxes_to_detections, obb_to_detections,
+        to_uint8_rgb)
     from vings_utils.detector_factory import register_detector
 except ImportError:  # pragma: no cover - standalone execution
     from detector_base import (
-        ObjectDetectorBase, Detection, boxes_to_detections, to_uint8_rgb)
+        ObjectDetectorBase, Detection, boxes_to_detections, obb_to_detections,
+        to_uint8_rgb)
     from detector_factory import register_detector
 
 
@@ -37,8 +46,8 @@ except ImportError:  # pragma: no cover - standalone execution
 
 @dataclass
 class YoloConfig:
-    model: str = "yolov8n"              # yolov8n (fast) ... yolov8x (accurate)
-    ckpt_path: str = "ckpts/yolov8n.pt"
+    model: str = "yolo26n-obb"          # YOLO26-OBB (aerial heading); also yolov8n/-visdrone, rtdetr
+    ckpt_path: str = "ckpts/yolo26n-obb.pt"
     conf: float = 0.35                  # confidence threshold
     iou: float = 0.7                    # NMS IoU
     imgsz: int = 640                    # inference resolution
@@ -100,7 +109,12 @@ class YoloDetector(ObjectDetectorBase):
         )
         if not results:
             return []
-        return boxes_to_detections(results[0].boxes, results[0].names)
+        res = results[0]
+        # OBB weights populate `res.obb` (oriented boxes); axis-aligned weights
+        # populate `res.boxes`. Prefer the oriented path so heading flows through.
+        if getattr(res, "obb", None) is not None:
+            return obb_to_detections(res.obb, res.names)
+        return boxes_to_detections(res.boxes, res.names)
 
 
 # =============================================================================
