@@ -411,6 +411,10 @@ def run_part_a(args, intr):
     # auf Detektions-Aufloesung skaliert.
     gt_by_t, scale_logged = {}, False
     H, W = intr['H'], intr['W']
+    # Detektions-Boxen liegen in der Aufloesung des dem Detektor zugefuehrten
+    # Bildes. Der In-Run-Detektor laedt das Voll-Res-CAM von Disk -> = Label-Res.
+    # Per --det-res W H ueberschreibbar (z.B. wenn auf halb-res detektiert wurde).
+    det_w, det_h = (args.det_res if args.det_res else (W, H))
     n_lab = 0
     for tkey in sorted(dets_by_t.keys()):
         stem = ts2stem.get(tkey)
@@ -420,18 +424,16 @@ def run_part_a(args, intr):
         if lp is None:
             continue
         insts = gt_instances(lp, args.min_mask_px)
-        # Detektions-Boxen liegen in Detektions-Pixeln (imgsz). GT-Boxen in
-        # Label-Pixeln (volle CAM-Res). Beide auf [0,1]-normierte Box bringen.
-        det_res = _infer_det_res(dets_by_t[tkey], W, H)
+        # Detektions- und GT-Boxen je auf [0,1]-normierte Box bringen (gleiches FOV).
         for d in dets_by_t[tkey]:
-            d['bbox'] = _norm_box(d['bbox'], det_res[0], det_res[1])
+            d['bbox'] = _norm_box(d['bbox'], det_w, det_h)
         gts = []
         for ins in insts:
             gts.append({'cls': ins['cls'], 'bbox': _norm_box(ins['bbox'], W, H)})
         gt_by_t[tkey] = gts
         n_lab += 1
         if not scale_logged:
-            print(f"  Bsp-Frame {stem}: det_res~{det_res}, label_res={W}x{H}, "
+            print(f"  Bsp-Frame {stem}: det_res={det_w}x{det_h}, label_res={W}x{H}, "
                   f"{len(gts)} GT-Fahrzeuge, {len(dets_by_t[tkey])} Detektionen")
             scale_logged = True
     print(f"  {n_lab} Frames mit GT-Label + Detektion ausgewertet.")
@@ -452,25 +454,6 @@ def run_part_a(args, intr):
           f"P={agn['vehicle']['precision@.5']:.3f} R={agn['vehicle']['recall@.5']:.3f}")
     _plot_pr(per_agn, os.path.join(args.out, 'pr_curve.png'))
     return result
-
-
-def _infer_det_res(dets, W, H):
-    """Schaetzt die Detektions-Bildaufloesung aus max. Box-Koordinaten.
-
-    detections_per_frame.csv speichert Boxen in 'Detektions-Aufloesung'
-    (Voll-Res wenn vorhanden, sonst viz_out). Wir leiten W_det/H_det aus den
-    beobachteten Maxima ab und nehmen das CAM-Seitenverhaeltnis als Anker.
-    """
-    if not dets:
-        return W, H
-    xmax = max(d['bbox'][2] for d in dets)
-    ymax = max(d['bbox'][3] for d in dets)
-    # Wenn Boxen offensichtlich Voll-Res sind -> CAM-Res nehmen.
-    if xmax <= W + 2 and ymax <= H + 2 and xmax > W * 0.4:
-        return W, H
-    # sonst per beobachteter Breite skalieren, Hoehe ueber CAM-Aspect
-    w_det = max(xmax, 1.0)
-    return w_det, w_det * H / W
 
 
 def _norm_box(b, w, h):
@@ -563,8 +546,19 @@ def build_reference_3d(args, intr, t_window=None):
                         'size': size, 'n_pts': len(P)})
         n_used += 1
 
-    # --- Schritt 2: 3D-NN-Fusion ueber Frames ---
-    tracks = []       # {'cls','cs':[centroids],'yaws':[],'sizes':[],'centroid'}
+    objs = _fuse_raw(raw, args)
+    print(f"  Referenz (CAM-Maske): {n_used} Label-Frames im Fenster, {n_skip_win} "
+          f"ausserhalb, {n_skip_lidar} ohne LiDAR, {len(raw)} Frame-Instanzen -> "
+          f"{len(objs)} Referenz-Objekte (>= {args.ref_min_frames} Frames, "
+          f"NN-Radius {args.ref_assoc_m} m).")
+    return objs
+
+
+def _fuse_raw(raw, args):
+    """Cross-Frame-3D-NN-Fusion von Frame-Instanzen -> Referenz-Objekte.
+
+    raw: list[{'cls','centroid','yaw','size'}]. Greedy-NN wie object_tracker."""
+    tracks = []       # {'cls','cs','yaws','sizes','centroid'}
     for r in raw:
         best, bestd = None, args.ref_assoc_m
         for tr in tracks:
@@ -581,7 +575,6 @@ def build_reference_3d(args, intr, t_window=None):
         best['yaws'].append(r['yaw'])
         best['sizes'].append(r['size'])
         best['centroid'] = np.median(np.asarray(best['cs']), axis=0)
-
     objs = []
     for tr in tracks:
         if len(tr['cs']) < args.ref_min_frames:
@@ -589,15 +582,97 @@ def build_reference_3d(args, intr, t_window=None):
         sizes = [s for s in tr['sizes'] if s is not None]
         objs.append({
             'cls': tr['cls'],
-            'xyz': np.median(np.asarray(tr['cs']), axis=0),       # robuste Pos
+            'xyz': np.median(np.asarray(tr['cs']), axis=0),
             'yaw': _circular_mean_yaw(tr['yaws']),
             'size': (np.median(np.asarray(sizes), axis=0) if sizes else None),
             'n_frames': len(tr['cs']),
         })
-    print(f"  Referenz: {n_used} Label-Frames im Fenster, {n_skip_win} ausserhalb, "
-          f"{n_skip_lidar} ohne LiDAR, {len(raw)} Frame-Instanzen -> "
-          f"{len(objs)} Referenz-Objekte (>= {args.ref_min_frames} Frames, "
-          f"NN-Radius {args.ref_assoc_m} m).")
+    return objs
+
+
+def _cluster_points(P, radius, min_pts):
+    """3D-Clustering (BFS ueber Radius-Graph) -> list[Punktwolken].
+
+    Trennt mehrere Fahrzeuge derselben Klasse in einem Frame (LiDAR-Labels sind
+    semantisch, nicht instanzweise). Vehicles sind raeumlich getrennt."""
+    from scipy.spatial import cKDTree
+    n = len(P)
+    if n < min_pts:
+        return []
+    nbrs = cKDTree(P).query_ball_point(P, radius)
+    seen = np.zeros(n, bool)
+    out = []
+    for i in range(n):
+        if seen[i]:
+            continue
+        stack, comp = [i], []
+        seen[i] = True
+        while stack:
+            j = stack.pop(); comp.append(j)
+            for k in nbrs[j]:
+                if not seen[k]:
+                    seen[k] = True; stack.append(k)
+        if len(comp) >= min_pts:
+            out.append(P[comp])
+    return out
+
+
+def build_reference_lidar(args, intr, t_window=None):
+    """Sauberere 3D-Referenz aus GELABELTEN LiDAR-Punkten (interval5_LIDAR_label).
+
+    Pro interval5-Frame: fahrzeug-gelabelte LiDAR-Punkte (id 20/24, zeilengleich
+    zur interval1_LIDAR-XYZ-Datei) -> Weltpunkte via GT-Pose -> 3D-Clustering
+    pro Klasse (trennt Instanzen) -> centroid/yaw/size; ueber Frames NN-fusioniert.
+    Dichter & rauschaermer als die 2D-Maskenprojektion (besonders Yaw/Groesse)."""
+    pose_ts, pose_c2w = load_poses_w2c(args.poses)
+    _, stem2ts = load_camstamp(args.camstamp)
+    su, sv = args.lidar_sign
+
+    # LiDAR-XYZ + Label-Dateien per CAM-Stem indexieren (Name image<cam>_lidar<l>).
+    # must_contain filtert auf den _id-Unterordner (sonst kollidiert _color).
+    def _index(d, must_contain=None):
+        m = {}
+        for root, _, files in os.walk(d):
+            if must_contain and must_contain not in root:
+                continue
+            for fn in files:
+                if fn.startswith('image') and '_lidar' in fn:
+                    m[fn[len('image'):fn.index('_lidar')]] = os.path.join(root, fn)
+        return m
+    xyz_map = _index(args.lidar_dir)
+    id_map = _index(args.lidar_label_dir, must_contain='_id')
+
+    raw, n_used, n_skip = [], 0, 0
+    for stem, idpath in sorted(id_map.items()):
+        t = stem2ts.get(stem)
+        if t is None or (t_window and not (t_window[0] <= t <= t_window[1])):
+            continue
+        pi = nearest_ts_index(pose_ts, t, tol=0.05)
+        xyzp = xyz_map.get(stem)
+        if pi is None or xyzp is None:
+            n_skip += 1
+            continue
+        pts = np.loadtxt(xyzp)
+        lab = np.loadtxt(idpath).astype(int)
+        if pts.ndim != 2 or len(pts) != len(lab):
+            n_skip += 1
+            continue
+        c2w = pose_c2w[pi]
+        for cls_id, cname in GT_VEHICLE_IDS.items():
+            sel = (lab == cls_id) & (pts[:, 0] > args.min_depth) & (pts[:, 0] < args.max_depth)
+            if int(sel.sum()) < args.min_lidar_px:
+                continue
+            lx, ly, lz = pts[sel, 0], pts[sel, 1], pts[sel, 2]
+            cam = np.stack([su * ly, sv * lz, lx, np.ones_like(lx)], axis=1)
+            P = (cam @ np.asarray(c2w).T)[:, :3]
+            for cl in _cluster_points(P, args.cluster_radius, args.min_lidar_px):
+                c, yaw, size = cloud_pose_size(cl, size_pct=args.size_pct)
+                raw.append({'cls': cname, 'centroid': c, 'yaw': yaw, 'size': size})
+        n_used += 1
+    objs = _fuse_raw(raw, args)
+    print(f"  Referenz (LiDAR-Label): {n_used} Frames im Fenster, {n_skip} skip, "
+          f"{len(raw)} Frame-Cluster -> {len(objs)} Referenz-Objekte "
+          f"(NN {args.ref_assoc_m} m, Cluster {args.cluster_radius} m).")
     return objs
 
 
@@ -636,7 +711,10 @@ def run_part_b(args, intr):
         if ts:
             t_window = (ts[0] - args.window_margin_s, ts[-1] + args.window_margin_s)
             print(f"  Referenz-Zeitfenster t=[{t_window[0]:.1f}, {t_window[1]:.1f}]")
-    ref = build_reference_3d(args, intr, t_window=t_window)
+    if args.ref_source == 'lidar_label':
+        ref = build_reference_lidar(args, intr, t_window=t_window)
+    else:
+        ref = build_reference_3d(args, intr, t_window=t_window)
     if not ref:
         print("  [WARN] keine Referenz-Objekte gebaut."); return None
     rxyz = np.array([r['xyz'] for r in ref])
@@ -784,8 +862,19 @@ def main():
     ap.add_argument('--intrinsic', default=f'{DS}/vings/intrinsic.txt')
     ap.add_argument('--lidar-dir', default=f'{DS}/interval1_LIDAR')
     ap.add_argument('--lidar-sign', type=float, nargs=2, default=(-1.0, -1.0))
+    ap.add_argument('--ref-source', choices=['cam_mask', 'lidar_label'],
+                    default='cam_mask',
+                    help='3D-Referenz aus 2D-CAM-Masken+LiDAR-Tiefe (cam_mask) '
+                         'oder gelabelten LiDAR-Punkten (lidar_label, sauberer)')
+    ap.add_argument('--lidar-label-dir',
+                    default='/home/philipp/Dokumente/datasets/uavscenes/amtown03_lidar_labels',
+                    help='interval5_LIDAR_label-Dir (fuer --ref-source lidar_label)')
+    ap.add_argument('--cluster-radius', type=float, default=2.0,
+                    help='3D-Clustering-Radius zum Trennen von Fahrzeugen (m)')
     # 2D
     ap.add_argument('--min-mask-px', type=int, default=30)
+    ap.add_argument('--det-res', type=float, nargs=2, default=None,
+                    help='Detektions-Bildaufloesung W H (default: Label-Res)')
     # 3D
     ap.add_argument('--min-depth', type=float, default=0.2)
     ap.add_argument('--max-depth', type=float, default=150.0)

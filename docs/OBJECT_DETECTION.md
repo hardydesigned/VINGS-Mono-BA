@@ -189,28 +189,40 @@ Zwei Teile, `--part a|b|both`:
   via Connected-Components (UAVScenes liefert öffentlich **keine** Instanz-IDs,
   nur Semantik, nur jeder 5. Frame). COCO-Style AP@.5 / AP@[.5:.95] + mean-IoU,
   primär klassenagnostisch „vehicle". Join über `t_sec`-Timestamp.
-- **Teil B — 3D (Pos/Yaw/Größe).** `objects_droid.csv` vs. LiDAR-Pseudo-GT:
-  Maske → sparse LiDAR-Tiefe → GT-Pose → 3D-Cluster pro Frame, **über Frames per
-  3D-NN fusioniert** (NICHT per CC-Index — der ist pro Frame willkürlich). Referenz
-  nur im Zeitfenster des Laufs (faire P/R). NN-Match (Gate 5 m) → Positions- (m),
-  Yaw- (deg, mod π) und Größen-Fehler. Liegt der Lauf im metrischen GT-Frame
-  (interval1 = `ext_poses` + LiDAR), ist **kein** `sim3_unwarp` nötig.
+- **Teil B — 3D (Pos/Yaw/Größe).** `objects_droid.csv` vs. LiDAR-Pseudo-GT, über
+  Frames per 3D-NN fusioniert, NN-Match (Gate 5 m) → Positions- (m), Yaw- (deg,
+  mod π) und Größen-Fehler. Liegt der Lauf im metrischen GT-Frame (interval1 =
+  `ext_poses` + LiDAR), ist **kein** `sim3_unwarp` nötig. **Zwei Referenzquellen
+  (`--ref-source`):**
+  - `cam_mask` — 2D-Semantikmaske → sparse LiDAR-Tiefe → GT-Pose (jeder Maskenpixel).
+  - `lidar_label` (**empfohlen, sauberer**) — direkt **gelabelte LiDAR-Punkte**
+    (`interval5_LIDAR_label.zip`, per-Punkt-Klasse zeilengleich zur LiDAR-XYZ-Datei),
+    pro Frame **3D-Clustering** (trennt Instanzen, da nur semantisch) → GT-Pose.
+    Dichter & rauschärmer — die 2D-Maskenprojektion verfälscht v.a. Yaw/Größe.
 
 ```bash
-# 1) GT-Masken (1.5 GB, einmalig): interval5_CAM_label.zip von HF, AMtown03-Subset
-#    -> ~/Dokumente/datasets/uavscenes/interval1_amtown03_labels/...interval5_CAM_label_id/
-# 2) Eval-Lauf:   python scripts/run_experiment.py configs/local/object_detect/interval1_objects_eval.yaml
-# 3) Auswertung:
-python scripts/eval/object_eval.py --rundir output/exp_interval1_objects_eval/<ts>/
-#  -> object_eval_2d.json (+pr_curve.png)  /  object_eval_3d.json (+object_eval_3d.png BEV)
+# GT laden (einmalig): interval5_CAM_label.zip (1.5G, 2D-Masken) + interval5_LIDAR_label.zip (101M, 3D-Ref)
+#   -> ~/Dokumente/datasets/uavscenes/{interval1_amtown03_labels, amtown03_lidar_labels}/
+python scripts/run_experiment.py configs/local/object_detect/interval1_objects_eval.yaml   # OBB-Lauf
+python scripts/eval/object_eval.py --rundir output/exp_interval1_objects_eval/<ts>/ \
+       --ref-source lidar_label          # Teil A+B; object_eval_2d.json / object_eval_3d.json (+Plots)
 python scripts/eval/object_eval.py --selftest   # synthetische IoU/AP/Geometrie-Checks
 ```
 
-Referenz-Validierung (alter visdrone-Lauf, 14 Frames): vehicle AP@.5≈0.71,
-mIoU(TP)≈0.87 (bestätigt Rektifizierungs-Deckung); 3D-Positionsfehler ~3.5 m
-(Mono-Tiefe, Objekte ~50 m entfernt). Yaw/Größe brauchen das neue CSV-Schema
-(quat/size) → YOLO26-OBB-Lauf. **Referenz ist geschätzt** (LiDAR-dicht, kein
-Vermessungs-GT) — in der Arbeit so deklarieren.
+**Ergebnisse interval1_AMtown03** (YOLO26-OBB, `lidar_label`-Ref, 5/10 Referenz
+gematcht): **Position median 3.3 m**, **Yaw median 14.8°**, **Größe long 0.89 m
+(23 %)/lat 0.75 m (33 %)**, vert schlecht (Mono-Nadir löst Höhe nicht auf). 2D:
+OBB AP@.5≈0.27 / mIoU(TP)≈0.80 — niedriger Recall (DOTA-nano schwach auf winzigen
+Nadir-Autos; aerial-spezialisiertes `yolov8s-visdrone` erreicht AP@.5≈0.71, hat
+aber kein Heading). **Referenz ist geschätzt** (LiDAR-dicht, kein Vermessungs-GT)
+— in der Arbeit so deklarieren. Precision/Recall gegen die spärliche interval5-GT
+sind unsicher; aussagekräftig ist der **Lage-/Yaw-/Größenfehler auf den Matches**.
+
+**2D auf weiteren Sequenzen ohne Voll-Lauf** (`scripts/eval/detect_on_frames.py`):
+wendet denselben Detektor standalone auf alle annotierten cam_left-Frames an →
+`detections_per_frame.csv` (+`det_camstamp.txt`) → `object_eval.py --part a`.
+Genutzt für AMvalley03/HKairport03/HKisland03 (dort nur 2D — DJI-Posen + .bin-LiDAR
+machen 3D unzuverlässig).
 
 ## Bekannte Grenzen
 - **Domäne.** Default ist jetzt **YOLO26-OBB (DOTA-v1)** — die richtige Wahl für
