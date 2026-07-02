@@ -53,7 +53,8 @@ class FrameSelectorConfig:
     rot_thresh_deg: float = 10.0            # degrees
 
     # Gain filter (Stage 2)
-    gain_thresh: float = 0.30               # accept if G_I > this
+    coverage_thresh: float = 0.15     # >15% frische Voxel -> akzeptieren
+    angular_thresh: float = 0.12      # mean re-obs winkel ~ 40° -> akzeptieren
     n_rays_score: int = 256                 # rays used to *score* a frame
     n_rays_integrate: int = 2048            # rays used to *update* state after accept
 
@@ -137,66 +138,44 @@ class FrameSelector:
             self._integrate(depth, t, R)
             return True, score
 
-        # ---- Stage 1: Pose filter --------------------------------------
-        if self._pose_is_redundant(t, R):
-            return False, 0.0
-
-        # ---- Stage 2: Geometric gain -----------------------------------
-        score = self._geometric_gain(depth, t, R, n_rays=self.cfg.n_rays_score)
-        if score < self.cfg.gain_thresh:
-            return False, score
+        # ---- Geometric gain -----------------------------------
+        coverage, angular = self._geometric_gain(depth, t, R, n_rays=self.cfg.n_rays_score)
+        if coverage < self.cfg.coverage_thresh and angular < self.cfg.angular_thresh:
+            return False, max(coverage, angular)
 
         # Accept -> update state
         self._integrate(depth, t, R)
-        return True, score
+        return True, max(coverage, angular)
 
     # ------------------------------------------------------------------
-    # Stage 1: Pose filter
-    # ------------------------------------------------------------------
-
-    def _pose_is_redundant(self, t: np.ndarray, R: np.ndarray) -> bool:
-        """
-        Return True if there is any existing keyframe within BOTH the
-        translation and rotation thresholds. "Both" means: a frame at a
-        nearby position AND similar orientation. If either is far enough,
-        the new frame is potentially useful.
-        """
-        rot_th = np.deg2rad(self.cfg.rot_thresh_deg)
-        for t_i, R_i in self.keyframes:
-            d_t = np.linalg.norm(t - t_i)
-            cos_a = (np.trace(R_i.T @ R) - 1.0) * 0.5
-            d_r = np.arccos(np.clip(cos_a, -1.0, 1.0))
-            if d_t < self.cfg.trans_thresh_m and d_r < rot_th:
-                return True
-        return False
-
-    # ------------------------------------------------------------------
-    # Stage 2: Geometric gain (VISTA-style)
+    # Geometric gain (VISTA-style)
     # ------------------------------------------------------------------
 
     def _geometric_gain(self, depth: np.ndarray, t: np.ndarray, R: np.ndarray,
-                        n_rays: int) -> float:
+                        n_rays: int) -> tuple[float, float]:
         """
         VISTA paper Eq. 1, but with depth-based back-projection instead of
         voxel traversal. Returns G_I in [0,1].
         """
         rays_world, points_world = self._sample_back_projected(depth, t, R, n_rays)
         if len(rays_world) == 0:
-            return 0.0
+            return 0.0, 0.0 # (coverage, angular)
 
-        gains = np.empty(len(rays_world), dtype=np.float32)
-        for n, (d_new, p_world) in enumerate(zip(rays_world, points_world)):
+        n_new = 0
+        ang_gains = []
+        for d_new, p_world in zip(rays_world, points_world):
             cell = self._point_to_cell(p_world)
             entry = self.voxel_views.get(cell)
             if entry is None or not entry["views"]:
-                # Voxel never hit before -> like UNOBSERVED in the paper
-                gains[n] = 1.0
+                n_new += 1                                    # frische Fläche
             else:
-                stored_arr = np.asarray(entry["views"], dtype=np.float32)  # (M, 3)
-                cos_max = float((stored_arr @ d_new).max())                # closest existing dir
-                gains[n] = (-cos_max + 1.0) * 0.5                          # Eq. 1
+                stored = np.asarray(entry["views"], dtype=np.float32)
+                cos_max = float((stored @ d_new).max())
+                ang_gains.append((-cos_max + 1.0) * 0.5)      # Eq. 1, nur beobachtet
 
-        return float(gains.mean())
+        coverage = n_new / len(rays_world)
+        angular = float(np.mean(ang_gains)) if ang_gains else 0.0
+        return coverage, angular
 
     # ------------------------------------------------------------------
     # State update
@@ -287,7 +266,7 @@ if __name__ == "__main__":
     cx, cy = W / 2, H / 2
     K = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]], dtype=np.float32)
 
-    cfg = FrameSelectorConfig(gain_thresh=0.25)
+    cfg = FrameSelectorConfig(coverage_thresh=0.15, angular_thresh=0.12)
     sel = FrameSelector(cfg, K, (H, W))
 
     def yaw_rot(psi: float) -> np.ndarray:

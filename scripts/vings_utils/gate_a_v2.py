@@ -167,29 +167,6 @@ class GateAV2:
     ) -> tuple[bool, GateAV2Score]:
         score = GateAV2Score()
 
-        # ---- A3 GPS motion (cheapest reject, runs first) ----------------
-        if self.cfg.enable_a3:
-            xyz = meta.get("xyz_enu") if meta is not None else None
-            if xyz is not None:
-                xyz_arr = np.asarray(xyz, dtype=np.float32).reshape(-1)
-                if xyz_arr.size >= 3 and np.all(np.isfinite(xyz_arr[:3])):
-                    xyz_arr = xyz_arr[:3]
-                    if self._prev_passed_xyz is None:
-                        # Bootstrap: nothing to measure against -> fail open
-                        # and seed the reference.
-                        self._prev_passed_xyz = xyz_arr.copy()
-                        score.gps_d_m = 0.0
-                    else:
-                        d = float(np.linalg.norm(xyz_arr - self._prev_passed_xyz))
-                        score.gps_d_m = d
-                        if d < self.cfg.gps_d_min_m:
-                            score.reject_reason = "a3_below_gps_distance"
-                            return False, score
-                        # A3 passes -> commit reference unconditionally,
-                        # regardless of A1/A2 outcome (see module docstring).
-                        self._prev_passed_xyz = xyz_arr.copy()
-            # xyz missing / non-finite -> fail open
-
         # ---- A1 altitude ------------------------------------------------
         if self.cfg.enable_a1:
             alt = meta.get("alt_m") if meta is not None else None
@@ -236,6 +213,29 @@ class GateAV2:
             if score.grad_density < self.cfg.grad_density_thresh:
                 score.reject_reason = "a2_low_texture"
                 return False, score
+            
+        # ---- A3 GPS motion ------------------------------------------------
+        if self.cfg.enable_a3:
+            xyz = meta.get("xyz_enu") if meta is not None else None
+            if xyz is not None:
+                xyz_arr = np.asarray(xyz, dtype=np.float32).reshape(-1)
+                if xyz_arr.size >= 3 and np.all(np.isfinite(xyz_arr[:3])):
+                    xyz_arr = xyz_arr[:3]
+                    if self._prev_passed_xyz is None:
+                        # Bootstrap: nothing to measure against -> fail open
+                        # and seed the reference.
+                        self._prev_passed_xyz = xyz_arr.copy()
+                        score.gps_d_m = 0.0
+                    else:
+                        d = float(np.linalg.norm(xyz_arr - self._prev_passed_xyz))
+                        score.gps_d_m = d
+                        if d < self.cfg.gps_d_min_m:
+                            score.reject_reason = "a3_below_gps_distance"
+                            return False, score
+                        # A3 passes -> commit reference unconditionally,
+                        # regardless of A1/A2 outcome (see module docstring).
+                        self._prev_passed_xyz = xyz_arr.copy()
+            # xyz missing / non-finite -> fail open
 
         score.accepted = True
         return True, score

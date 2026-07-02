@@ -3,22 +3,31 @@
 Referenz:
 - **Paper**: Li M.M.Q., Lajoie P.-Y., Liu J., Beltrame G. — *"Compact Keyframe-Optimized
   Multi-Agent Gaussian Splatting SLAM"* (Coko-SLAM), arXiv:2604.00804, April 2026.
-- **Referenz-Code**: <https://github.com/lemonci/coko-slam>
-  - Selektion: `src/entities/agent.py::should_start_mapping` und
-    `should_start_new_submap`
-  - Feature-Extraktion: `src/entities/loop_detection/feature_extractors.py::DINOFeatureExtractor`
-  - Defaults: `configs/ReplicaMultiagent/replica_multiagent.yaml`
+  <https://arxiv.org/abs/2604.00804>
+- **Referenz-Code**: <https://github.com/lemonci/coko-slam>, **gepinnt auf Commit
+  [`d8d309b`](https://github.com/lemonci/coko-slam/commit/d8d309b95677fe71e4d80784dc5abd82d9b8fee1)**
+  (`d8d309b95677fe71e4d80784dc5abd82d9b8fee1`, "change dataset settings", 2026-04-15, Branch
+  `main`). **Alle Zeilenangaben in diesem Dokument beziehen sich verifiziert auf diesen Commit.**
+  Permalink-Basis: `https://github.com/lemonci/coko-slam/blob/d8d309b95677fe71e4d80784dc5abd82d9b8fee1/`
+  - Selektion: [`src/entities/agent.py`](https://github.com/lemonci/coko-slam/blob/d8d309b95677fe71e4d80784dc5abd82d9b8fee1/src/entities/agent.py)
+    — `should_start_mapping` ([L144-165](https://github.com/lemonci/coko-slam/blob/d8d309b95677fe71e4d80784dc5abd82d9b8fee1/src/entities/agent.py#L144-L165))
+    und `should_start_new_submap` ([L125-142](https://github.com/lemonci/coko-slam/blob/d8d309b95677fe71e4d80784dc5abd82d9b8fee1/src/entities/agent.py#L125-L142))
+  - Feature-Extraktion: [`src/entities/loop_detection/feature_extractors.py`](https://github.com/lemonci/coko-slam/blob/d8d309b95677fe71e4d80784dc5abd82d9b8fee1/src/entities/loop_detection/feature_extractors.py)
+    — `DINOFeatureExtractor` ([L28-47](https://github.com/lemonci/coko-slam/blob/d8d309b95677fe71e4d80784dc5abd82d9b8fee1/src/entities/loop_detection/feature_extractors.py#L28-L47))
+  - Defaults: [`configs/ReplicaMultiagent/replica_multiagent.yaml`](https://github.com/lemonci/coko-slam/blob/d8d309b95677fe71e4d80784dc5abd82d9b8fee1/configs/ReplicaMultiagent/replica_multiagent.yaml#L42-L71) (L42-71)
 
 Diese Datei dokumentiert ausschließlich den **Keyframe-Selektor** aus Sektion 3.1
 des Papers. Die anderen beiden Beiträge — Multi-Agent-Loop-Closure ohne
 Initialposen (Sektion 3.3) und GaussianSPA-Compaction (Sektion 3.2) — sind für
 VINGS (single-agent) nicht relevant und werden hier nicht implementiert.
 
-> **Status (2026-05-26)**: Diese Implementierung ist auf das Referenz-Repo
-> abgeglichen, nicht nur auf den Paper-Text. Wo Repo und Paper-Text
-> auseinanderlaufen (Cosine-Distanz statt L2, Patch-Mean-Features statt
-> CLS-Token, datengetriebener Submap-Reset statt fix-N), folgen wir dem Repo.
-> Siehe Sektion **5. Was wir übernehmen, adaptieren, weglassen** für Details.
+> **Status (2026-05-26, Zeilen verifiziert 2026-07-02 @ Commit `d8d309b`)**: Diese
+> Implementierung ist auf das Referenz-Repo abgeglichen, nicht nur auf den Paper-Text.
+> Wo Repo und Paper-Text auseinanderlaufen (Cosine-Distanz statt L2, Patch-Mean-Features
+> statt CLS-Token, datengetriebener Submap-Reset statt fix-N), folgen wir dem Repo.
+> Alle Repo-Zeilenangaben in Sektion 4.1 wurden gegen den geklonten Commit `d8d309b`
+> gegengeprüft (frühere Nummern waren gedriftet). Siehe Sektion **5. Was wir übernehmen,
+> adaptieren, weglassen** für Details.
 
 ## 1. In ganz einfachen Worten
 
@@ -215,16 +224,16 @@ echte Codezeile aus `github.com/lemonci/coko-slam`.
 
 | Aspekt | Paper (Sec. 3.1) | Repo | Unsere Impl |
 |---|---|---|---|
-| **Feature-Backbone** | "Dino V2-Small [38]" | `DINOFeatureExtractor` mit `AutoModel.from_pretrained` auf `./dinov2-small` (`feature_extractors.py:34`) | `torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14')` — selbe Gewichte, hub statt HF |
+| **Feature-Backbone** | "Dino V2-Small [38]" | `DINOFeatureExtractor` mit `AutoImageProcessor`/`AutoModel.from_pretrained` auf `weights_path` (`feature_extractors.py:28-32`) | `torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14')` — selbe Gewichte, hub statt HF |
 | **Feature-Aggregation** | nicht spezifiziert | `outputs.last_hidden_state.mean(dim=1)` über `[CLS, patch_1..N]` (`feature_extractors.py:46`) | `torch.cat([cls.unsqueeze(1), patches], dim=1).mean(dim=1)` → mathematisch identisch (default `feature_aggregation="patch_mean_with_cls"`) |
 | **L2-Normalisierung** | nicht spezifiziert | `features / features.norm(p=2, dim=1, keepdim=True)` (`feature_extractors.py:47`) | `F.normalize(feat, dim=1)` |
-| **Distanz-Maß** | `||ϕ(E)−ϕ(K)||` (L2-Notation) | `faiss.IndexFlatIP` (Inner-Product auf L2-norm Vektoren = cosine sim); `1 - sim` als cosine-dist (`agent.py:160`) | `1.0 - refs @ feat` (mathematisch identisch zu Repo, ohne FAISS-Dep). Default `distance_metric="cosine"`. Legacy `"l2"` für alte Configs. |
-| **Stage 2: KF-Akzeptanz** | `d ≥ α` (≥) | `1 - highest_similarity > keyframing_threshold` (strict `>`) (`agent.py:160`) | `d_min > cfg.alpha` (strict `>`, **Repo gefolgt**, weicht von Paper ≥ um Floating-Point-Measure-Zero ab) |
-| **Stage 1: Submap-Reset-Trigger** | nicht im Paper-Text als Algorithmus beschrieben, nur "10 KFs per submap" | `(1 - cos(frame, anchor) > submapping_threshold) AND (n_kfs >= keyframe_num)` (`agent.py:135`) | `(anchor_dist > cfg.submap_threshold) AND (len(kf_features) >= cfg.min_kfs_per_submap)` |
-| **Submap-Anker** | nicht explizit | `current_submap_feature`, beim Submap-Start auf erste KF-Feature gesetzt (`agent.py:140, 295`) | `self._submap_anchor`, in `_open_submap()` auf seed gesetzt, eingefroren bis nächster Reset |
-| **Submap-Memory-Reset** | nicht explizit | `submap_faiss_index.reset(); submap_faiss_index.add(current_frame_feature)` (`agent.py:288-289`) | `self.kf_features.clear(); self.kf_features.append(feat)` (in `_open_submap`) |
-| **Bootstrap (erster Frame)** | nicht explizit | `init_map` → `keyframe_ids.append(0)`; vor der Hauptschleife: `submap_faiss_index.add(current_keyframe_feature)` (`agent.py:268-282`) | `if self._submap_anchor is None: self._open_submap(feat)` — force-accept, seed Submap 0 |
-| **Reihenfolge der Stages** | nicht explizit | `if start_new_submap: ... elif should_start_mapping(): ...` (`agent.py:286,297`) — exklusiv | Stage 1 returnt early bei Trigger; sonst Stage 2 |
+| **Distanz-Maß** | `||ϕ(E)−ϕ(K)||` (L2-Notation) | `faiss.IndexFlatIP` (Inner-Product auf L2-norm Vektoren = cosine sim); `1 - highest_similarity` als cosine-dist (`agent.py:159-163`) | `1.0 - refs @ feat` (mathematisch identisch zu Repo, ohne FAISS-Dep). Default `distance_metric="cosine"`. Legacy `"l2"` für alte Configs. |
+| **Stage 2: KF-Akzeptanz** | `d ≥ α` (≥) | `1 - highest_similarity > keyframing_threshold` (strict `>`) (`agent.py:161`) | `d_min > cfg.alpha` (strict `>`, **Repo gefolgt**, weicht von Paper ≥ um Floating-Point-Measure-Zero ab) |
+| **Stage 1: Submap-Reset-Trigger** | nicht im Paper-Text als Algorithmus beschrieben, nur "10 KFs per submap" | `(1 - cosine_similarity > submapping_threshold) AND (submap_faiss_index.ntotal >= keyframe_num)` (`agent.py:136-137`) | `(anchor_dist > cfg.submap_threshold) AND (len(kf_features) >= cfg.min_kfs_per_submap)` |
+| **Submap-Anker** | nicht explizit | `current_submap_feature`, beim Submap-Start auf erste KF-Feature gesetzt (Bootstrap `agent.py:290`, per Reset `agent.py:139` + `agent.py:322`) | `self._submap_anchor`, in `_open_submap()` auf seed gesetzt, eingefroren bis nächster Reset |
+| **Submap-Memory-Reset** | nicht explizit | `submap_faiss_index.reset(); submap_faiss_index.add(current_frame_feature)` (`agent.py:315-316`) | `self.kf_features.clear(); self.kf_features.append(feat)` (in `_open_submap`) |
+| **Bootstrap (erster Frame)** | nicht explizit | in `run()`: `current_keyframe_feature = extract_features(...)`, `IndexFlatIP(...)`, `submap_faiss_index.add(current_keyframe_feature)` (`agent.py:289-293`) | `if self._submap_anchor is None: self._open_submap(feat)` — force-accept, seed Submap 0 |
+| **Reihenfolge der Stages** | nicht explizit | `if start_new_submap: ... elif should_start_mapping(): ...` (`agent.py:311-326`) — exklusiv | Stage 1 returnt early bei Trigger; sonst Stage 2 |
 | **Repo-Defaults (Replica)** | keine Zahlen | `keyframing_threshold: 0.02`, `submapping_threshold: 0.05`, `keyframe_num: 10` (`configs/ReplicaMultiagent/replica_multiagent.yaml`) | `alpha=0.02`, `submap_threshold=0.05`, `min_kfs_per_submap=10` |
 | **Suchstruktur** | nicht spezifiziert | FAISS `IndexFlatIP` | `torch.stack + @` — für n ≤ 20 KFs/Submap schneller als FAISS-Overhead, identisches Resultat |
 

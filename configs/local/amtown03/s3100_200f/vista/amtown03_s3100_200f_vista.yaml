@@ -25,14 +25,16 @@ device:
   tracker: cuda:0
 frame_selector:
   kind: vista
-  voxel_size: 0.1
-  gain_thresh: 0.3
-  trans_thresh_m: 0.15
+  voxel_size: 1.0
+  max_views_per_voxel: 16
+  coverage_thresh: 0.12
+  angular_thresh: 0.06
+  trans_thresh_m: 4.0
   rot_thresh_deg: 10.0
   n_rays_score: 256
   n_rays_integrate: 2048
-  min_depth: 0.2
-  max_depth: 35.0
+  min_depth: 20.0
+  max_depth: 150.0
 mapper_kf_skip: 1
 ply_checkpoint_every_kf: 50
 frontend:
@@ -132,3 +134,9 @@ vis:
     - 0
     - 1
   pose_scale: 1.0
+
+fair_eval:
+  enabled: true
+  eval_stride: 10
+  gt_poses_file: dji_poses_all_w2c.txt
+  save_renders: true
